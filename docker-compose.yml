@@ -1,0 +1,126 @@
+# Dev (padrão):  pnpm dev          -> postgres + server + client, todos em container, com hot reload
+# Prod local:    pnpm docker:prod  -> imagens de produção (nginx + node)
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: app-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: appdb
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d appdb']
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+  server:
+    profiles: ['dev']
+    build:
+      context: .
+      dockerfile: server/Dockerfile.dev
+    container_name: app-server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      # `postgres` é o hostname do serviço na rede do compose, não localhost.
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/appdb
+      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-local-com-mais-de-32-caracteres}
+      CORS_ORIGIN: http://localhost:5173
+      LOG_LEVEL: debug
+      DISABLE_PUBLIC_SIGNUP: 'false'
+      SWAGGER_USER: admin
+      SWAGGER_PASSWORD: admin
+    volumes:
+      # Código do host -> container (hot reload).
+      - ./server/src:/app/server/src
+      - ./server/package.json:/app/server/package.json
+      - ./server/tsconfig.json:/app/server/tsconfig.json
+      - ./server/tsconfig.build.json:/app/server/tsconfig.build.json
+      - ./server/nest-cli.json:/app/server/nest-cli.json
+      - ./server/drizzle.config.ts:/app/server/drizzle.config.ts
+      # Volumes anônimos: preservam o node_modules do container (binários Linux),
+      # senão o bind mount do host (binários Windows) sobrescreveria.
+      - /app/node_modules
+      - /app/server/node_modules
+      # Sem volume em /app/server/dist: o nest usa deleteOutDir e não consegue
+      # remover um diretório que é ponto de montagem (EBUSY).
+    ports:
+      - '3000:3000'
+      # drizzle-kit studio (pnpm db:studio)
+      - '4983:4983'
+
+  client:
+    profiles: ['dev']
+    build:
+      context: .
+      dockerfile: client/Dockerfile.dev
+    container_name: app-client
+    restart: unless-stopped
+    depends_on:
+      - server
+    environment:
+      VITE_API_URL: http://localhost:3000
+      DOCKER: 'true'
+    volumes:
+      - ./client/src:/app/client/src
+      - ./client/public:/app/client/public
+      - ./client/index.html:/app/client/index.html
+      - ./client/package.json:/app/client/package.json
+      - ./client/vite.config.ts:/app/client/vite.config.ts
+      - ./client/tsconfig.json:/app/client/tsconfig.json
+      - ./client/tsconfig.app.json:/app/client/tsconfig.app.json
+      - ./client/tsconfig.node.json:/app/client/tsconfig.node.json
+      - /app/node_modules
+      - /app/client/node_modules
+    ports:
+      - '5173:5173'
+
+  # ---- Imagens de produção (perfil `prod`) ----
+
+  server-prod:
+    profiles: ['prod']
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/appdb
+      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-}
+      CORS_ORIGIN: http://localhost:8080
+      LOG_LEVEL: info
+    ports:
+      - '3000:3000'
+
+  client-prod:
+    profiles: ['prod']
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3000
+    restart: unless-stopped
+    depends_on:
+      - server-prod
+    ports:
+      - '8080:80'
+
+volumes:
+  postgres_data:

@@ -1,0 +1,47 @@
+{
+  "name": "app-name",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.15.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "docker compose --profile dev up --build",
+    "dev:detach": "docker compose --profile dev up --build -d",
+    "dev:down": "docker compose --profile dev down",
+    "dev:logs": "docker compose --profile dev logs -f",
+    "dev:reset": "docker compose --profile dev down -v && docker compose --profile dev up --build",
+    "dev:local": "concurrently -n server,client -c blue,magenta \"pnpm --filter server start:dev\" \"pnpm --filter client dev\"",
+    "predev:local": "pnpm db",
+    "db": "docker compose up -d --wait postgres",
+    "docker:prod": "docker compose --profile prod up --build -d",
+    "docker:prod:down": "docker compose --profile prod down",
+    "build": "pnpm --filter server build && pnpm --filter client build",
+    "start": "pnpm --filter server start:prod",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,css}\"",
+    "check": "pnpm typecheck && pnpm lint",
+    "db:generate": "docker compose --profile dev exec server pnpm db:generate",
+    "db:migrate": "docker compose --profile dev exec server pnpm db:migrate",
+    "db:push": "docker compose --profile dev exec server pnpm db:push",
+    "db:studio": "docker compose --profile dev exec server pnpm db:studio --host 0.0.0.0",
+    "shell:server": "docker compose --profile dev exec server sh",
+    "shell:client": "docker compose --profile dev exec client sh",
+    "shell:db": "docker compose --profile dev exec postgres psql -U postgres -d appdb",
+    "ui:add": "pnpm --filter client ui:add",
+    "db:seed": "docker compose --profile dev exec server pnpm db:seed"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "esbuild"
+    ]
+  }
+}

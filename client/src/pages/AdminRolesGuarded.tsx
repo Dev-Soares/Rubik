@@ -1,13 +1,18 @@
+import { useMyScreens } from '@/modules/roles/hooks/useMyScreens';
 import { AdminRoles } from '@/pages/AdminRoles';
+import { AuthPending } from '@/pages/AuthPending';
 import { Forbidden } from '@/pages/Forbidden';
-import { useAuth } from '@/shared/hooks/useAuth';
 
 /**
- * Mostra a listagem de cargos para admins e 403 para os demais.
- * A autorização real é do backend (`RolesGuard`); isto é só UX.
+ * Mostra a listagem de cargos para quem tem a tela e 403 para os demais.
+ * A autorização real é do backend (`ScreensGuard`); isto é só UX.
  */
 export function AdminRolesGuarded() {
-	const { isAdmin } = useAuth();
+	const { can, isPending } = useMyScreens();
 
-	return isAdmin ? <AdminRoles /> : <Forbidden />;
+	if (isPending) {
+		return <AuthPending />;
+	}
+
+	return can('admin.roles') ? <AdminRoles /> : <Forbidden />;
 }

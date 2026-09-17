@@ -40,7 +40,7 @@ export function EditRoleDialog({ role, className }: EditRoleDialogProps) {
 						Editar cargo
 					</DialogTitle>
 					<DialogDescription className="sr-only">
-						Altere o nome, a descrição e as telas do cargo.
+						Altere o nome, a descrição e o acesso do cargo às telas.
 					</DialogDescription>
 				</DialogHeader>
 

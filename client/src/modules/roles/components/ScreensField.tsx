@@ -1,36 +1,35 @@
-import { SCREEN_LABELS, SCREENS, type Screen } from '@/modules/roles/types/role';
-import { Checkbox } from '@/shared/components/ui/checkbox';
+import { ScreenGrantRow } from '@/modules/roles/components/ScreenGrantRow';
+import { SCREENS, type ScreenGrant, type ScreenPermission } from '@/modules/roles/types/role';
+import { toGrantByScreen, toPermissions } from '@/modules/roles/utils';
 import { Label } from '@/shared/components/ui/label';
 
 type ScreensFieldProps = {
-	value: Screen[];
-	onChange: (value: Screen[]) => void;
+	value: ScreenPermission[];
+	onChange: (value: ScreenPermission[]) => void;
 	disabled?: boolean;
 	error?: string;
 };
 
 export function ScreensField({ value, onChange, disabled, error }: ScreensFieldProps) {
-	const toggle = (screen: Screen, checked: boolean) => {
-		onChange(checked ? [...value, screen] : value.filter((item) => item !== screen));
+	const grants = toGrantByScreen(value);
+
+	const change = (screen: (typeof SCREENS)[number], grant: ScreenGrant) => {
+		onChange(toPermissions({ ...grants, [screen]: grant }));
 	};
 
 	return (
 		<div className="flex flex-col gap-3">
-			<Label>Telas visíveis</Label>
+			<Label>Acesso às telas</Label>
 
-			<div className="flex flex-col gap-2">
+			<div className="flex flex-col gap-4">
 				{SCREENS.map((screen) => (
-					<div key={screen} className="flex items-center gap-2">
-						<Checkbox
-							id={`screen-${screen}`}
-							checked={value.includes(screen)}
-							onCheckedChange={(checked) => toggle(screen, checked === true)}
-							disabled={disabled}
-						/>
-						<Label htmlFor={`screen-${screen}`} className="font-normal">
-							{SCREEN_LABELS[screen]}
-						</Label>
-					</div>
+					<ScreenGrantRow
+						key={screen}
+						screen={screen}
+						grant={grants[screen]}
+						disabled={disabled}
+						onChange={(grant) => change(screen, grant)}
+					/>
 				))}
 			</div>
 

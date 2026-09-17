@@ -54,9 +54,14 @@ export function NavGroupItem({ item, onNavigate }: NavGroupItemProps) {
 		<Collapsible asChild open={isExpanded} onOpenChange={handleOpenChange}>
 			<SidebarMenuItem>
 				<CollapsibleTrigger asChild>
+					{/*
+					 * O grupo não é uma rota: nunca deve parecer a aba atual. Os `!` zeram
+					 * o fundo que o shadcn aplica em `active` e em `data-open:hover` —
+					 * sem eles o toque no celular deixa o item aceso.
+					 */}
 					<SidebarMenuButton
 						tooltip={item.label}
-						className="h-9 text-foreground/70 hover:bg-foreground/5"
+						className="text-foreground/70 hover:bg-foreground/5 h-9 active:bg-transparent! data-open:hover:bg-foreground/5!"
 					>
 						<item.icon className="size-4 shrink-0" strokeWidth={2} />
 						<span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
@@ -76,7 +81,7 @@ export function NavGroupItem({ item, onNavigate }: NavGroupItemProps) {
 									asChild
 									// Mesmo motivo do item plano: quem pinta o ativo é o
 									// NAV_ACTIVE_CLASS, senão hover e ativo se confundem.
-									className="h-8 hover:bg-foreground/5 data-active:bg-transparent"
+									className="h-8 hover:bg-foreground/5 data-active:bg-transparent active:bg-transparent!"
 								>
 									<Link
 										to={child.to}

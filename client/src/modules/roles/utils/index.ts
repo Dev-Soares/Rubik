@@ -1,1 +1,8 @@
-export { toAccessByScreen, toScreenOverrides } from '@/modules/roles/utils/screens';
+export {
+	toAccessByScreen,
+	toGrant,
+	toGrantByScreen,
+	toPermission,
+	toPermissions,
+	toScreenOverrides,
+} from '@/modules/roles/utils/screens';

@@ -13,9 +13,10 @@ import {
 import { ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import type { Paginated } from 'src/common/types/pagination.types';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { RequireScreen } from 'src/common/decorators/screen.decorator';
 import { OwnershipGuard } from 'src/common/guards/ownership.guard';
-import { RolesGuard } from 'src/common/guards/roles.guard';
+import { ScreensGuard } from 'src/common/guards/screens.guard';
 import { UpdateUserDto } from 'src/modules/users/dto/update-user.dto';
 import type { PublicUser } from 'src/modules/users/types/user.types';
 import { UsersService } from 'src/modules/users/users.service';
@@ -25,10 +26,10 @@ import { UsersService } from 'src/modules/users/users.service';
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
 
-	/** Lista usuários paginados. Requer role admin. */
+	/** Lista usuários paginados. Requer leitura da tela de usuários. */
 	@Get()
-	@Roles('admin')
-	@UseGuards(RolesGuard)
+	@RequireScreen('admin.users', 'read')
+	@UseGuards(ScreensGuard)
 	@ApiOkResponse({ description: 'Lista paginada de usuários.' })
 	findAll(@Query() pagination: PaginationDto): Promise<Paginated<PublicUser>> {
 		return this.usersService.findAll(pagination);
@@ -42,18 +43,26 @@ export class UsersController {
 		return this.usersService.findOne(id);
 	}
 
-	/** Atualiza um usuário. Só o próprio usuário ou um admin. */
+	/**
+	 * Atualiza um usuário. Só o próprio usuário ou um admin — e o campo `role`
+	 * ainda exige `admin.users:write`, resolvido no service.
+	 */
 	@Patch(':id')
 	@UseGuards(OwnershipGuard)
 	@ApiOkResponse({ description: 'Usuário atualizado.' })
-	update(@Param('id') id: string, @Body() body: UpdateUserDto): Promise<PublicUser> {
-		return this.usersService.update(id, body);
+	update(
+		@Param('id') id: string,
+		@Body() body: UpdateUserDto,
+		@CurrentUser('id') editorId: string,
+		@CurrentUser('role') editorRole: string | null,
+	): Promise<PublicUser> {
+		return this.usersService.update(id, body, { id: editorId, role: editorRole });
 	}
 
-	/** Remove um usuário. Requer role admin. */
+	/** Remove um usuário. Requer edição da tela de usuários. */
 	@Delete(':id')
-	@Roles('admin')
-	@UseGuards(RolesGuard)
+	@RequireScreen('admin.users', 'write')
+	@UseGuards(ScreensGuard)
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiNoContentResponse({ description: 'Usuário removido.' })
 	remove(@Param('id') id: string): Promise<void> {

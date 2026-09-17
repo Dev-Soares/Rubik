@@ -3,18 +3,18 @@ import type {
 	PaginatedRoles,
 	Role,
 	RoleFormInput,
-	Screen,
 	ScreenOverride,
+	ScreenPermission,
 	UserScreens,
 } from '@/modules/roles/types/role';
 
-/** Telas liberadas para o usuário da sessão. */
-export async function listMyScreensService(): Promise<Screen[]> {
-	const { data } = await api.get<Screen[]>('/roles/me/screens');
+/** Permissões do usuário da sessão. */
+export async function listMyScreensService(): Promise<ScreenPermission[]> {
+	const { data } = await api.get<ScreenPermission[]>('/roles/me/screens');
 	return data;
 }
 
-/** Visualização de um usuário: herdado do cargo, exceções e efetivo. */
+/** Permissões de um usuário: herdado do cargo, exceções e efetivo. */
 export async function findUserScreensService(userId: string): Promise<UserScreens> {
 	const { data } = await api.get<UserScreens>(`/roles/users/${userId}/screens`);
 	return data;

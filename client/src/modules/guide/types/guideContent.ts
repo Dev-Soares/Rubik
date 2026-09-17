@@ -25,6 +25,11 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 		icon: CompassIcon,
 		steps: [
 			{
+				title: 'Início — onde você chega',
+				description:
+					'A tela que abre ao entrar. Traz um atalho para cada aba liberada para você, então serve de ponto de partida quando estiver em dúvida.',
+			},
+			{
 				title: 'Perfil — sua conta',
 				description:
 					'Seus dados de acesso, troca de nome e troca de senha. Aberto pelo card com seu nome, no rodapé do menu lateral.',
@@ -34,26 +39,18 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 				description:
 					'Cadastro de pessoas e definição do cargo de cada uma. Fica em Administração, no menu lateral.',
 				screen: 'admin.users',
-				role: 'admin',
 			},
 			{
 				title: 'Cargos — o que cada pessoa vê',
 				description:
-					'Grupos de permissão: o cargo decide quais abas aparecem no menu de quem o utiliza.',
+					'Grupos de permissão: o cargo decide quais abas aparecem no menu de quem o utiliza e o que pode ser alterado nelas.',
 				screen: 'admin.roles',
-				role: 'admin',
 			},
 			{
 				title: 'Registro de uso — histórico',
 				description:
 					'Tudo que foi alterado no sistema, com autor e horário. Somente leitura.',
 				screen: 'admin.audit',
-				role: 'admin',
-			},
-			{
-				title: 'Como usar — esta aba',
-				description:
-					'O passo a passo de cada tela. Você vê aqui somente as abas liberadas para o seu cargo.',
 			},
 		],
 		note: {
@@ -137,7 +134,6 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 		icon: UsersIcon,
 		to: '/admin/users',
 		screen: 'admin.users',
-		role: 'admin',
 		steps: [
 			{
 				title: 'Veja quem tem acesso',
@@ -152,23 +148,23 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 			{
 				title: 'Troque o cargo de alguém',
 				description:
-					'O cargo define quais abas a pessoa enxerga. Alterando o cargo, as permissões mudam na próxima vez que ela carregar o sistema.',
+					'No menu de três pontos da linha, escolha "Editar" para mudar o nome e o cargo. O cargo define quais abas a pessoa enxerga, e a mudança vale na próxima vez que ela carregar o sistema. Você não pode alterar o seu próprio cargo.',
 			},
 			{
-				title: 'Personalize a visualização de uma pessoa',
+				title: 'Personalize as permissões de uma pessoa',
 				description:
-					'Clique no ícone de olho na linha do usuário para abrir "Visualização personalizada". Para cada aba, escolha "Pelo cargo", "Liberado" ou "Bloqueado" — a escolha aqui vale acima do que o cargo define.',
+					'Ainda no menu, "Permissões" abre uma escolha por aba: "Pelo cargo", "Sem acesso", "Somente ler" ou "Ler e editar" — o que você marcar aqui vale acima do que o cargo define.',
 			},
 			{
-				title: 'Remova o acesso',
+				title: 'Recupere ou encerre um acesso',
 				description:
-					'Excluir o usuário encerra o acesso dele imediatamente. A ação não pode ser desfeita.',
+					'"Alterar senha" define uma senha nova sem pedir a atual, para quando alguém perde o acesso — a pessoa pode trocá-la depois no perfil. "Excluir" pede confirmação e encerra o acesso de vez.',
 			},
 		],
 		note: {
-			title: 'A visualização vence o cargo',
+			title: 'A permissão da pessoa vence o cargo',
 			description:
-				'Aba deixada em "Pelo cargo" continua acompanhando o cargo; "Liberado" ou "Bloqueado" ignora o cargo e não muda mais se o cargo mudar. Use como exceção pontual — para acesso que vale para várias pessoas, o lugar é o cargo. Administradores não aparecem com esse ícone: eles enxergam todas as abas.',
+				'Aba deixada em "Pelo cargo" continua acompanhando o cargo; qualquer outra escolha ignora o cargo e não muda mais se o cargo mudar. Use como exceção pontual — para acesso que vale para várias pessoas, o lugar é o cargo. Administradores não têm a opção "Permissões": eles têm acesso total.',
 		},
 	},
 	{
@@ -176,37 +172,41 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 		group: 'Administração',
 		label: 'Cargos',
 		title: 'Cargos',
-		description: 'Grupos de permissão que definem quais abas cada pessoa vê.',
+		description: 'Grupos de permissão que definem quais abas cada pessoa vê e edita.',
 		icon: IdCardIcon,
 		to: '/admin/roles',
 		screen: 'admin.roles',
-		role: 'admin',
 		steps: [
 			{
 				title: 'Entenda o que é um cargo',
 				description:
-					'Um cargo é um conjunto de telas liberadas. Todo usuário tem um cargo, e é ele que decide o que aparece no menu lateral.',
+					'Um cargo é um conjunto de telas liberadas, cada uma com um nível. Todo usuário tem um cargo, e é ele que decide o que aparece no menu lateral.',
+			},
+			{
+				title: 'Escolha o nível de cada aba',
+				description:
+					'"Sem acesso" esconde a aba. "Somente ler" abre a aba, mas some com os botões que alteram dados. "Ler e editar" libera tudo dentro dela.',
 			},
 			{
 				title: 'Crie um cargo',
 				description:
-					'Clique em "Novo cargo", dê um nome claro (ex: "Financeiro"), escreva uma descrição curta e marque as telas que ele libera.',
+					'Clique em "Novo cargo", dê um nome claro (ex: "Financeiro"), escreva uma descrição curta e escolha o nível de cada aba.',
 			},
 			{
-				title: 'Ajuste as telas liberadas',
+				title: 'Ajuste o acesso liberado',
 				description:
-					'Editar um cargo muda o acesso de todos os usuários que o utilizam ao mesmo tempo. Marque só o necessário. Quem tiver uma visualização personalizada para aquela aba não é afetado.',
+					'Editar um cargo muda o acesso de todos os usuários que o utilizam ao mesmo tempo. Libere só o necessário. Quem tiver permissão personalizada para aquela aba não é afetado.',
 			},
 			{
 				title: 'Cargos do sistema',
 				description:
-					'Cargos marcados como "sistema" não podem ser excluídos: são a base do funcionamento e garantem que sempre exista um acesso administrativo.',
+					'Cargos marcados como "sistema" não podem ser excluídos: são a base do funcionamento. O cargo de administrador aparece como "Acesso total" e não é editável — quem é administrador lê e edita todas as abas, inclusive as criadas depois.',
 			},
 		],
 		note: {
 			title: 'Cargo sem tela nenhuma',
 			description:
-				'Um cargo sem telas marcadas deixa a pessoa sem abas no menu lateral. Para excluir um cargo em uso, mova antes os usuários dele para outro cargo.',
+				'Um cargo com todas as abas em "Sem acesso" deixa a pessoa sem abas no menu lateral. Para excluir um cargo em uso, mova antes os usuários dele para outro cargo.',
 		},
 	},
 	{
@@ -218,7 +218,6 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 		icon: ScrollTextIcon,
 		to: '/admin/audit',
 		screen: 'admin.audit',
-		role: 'admin',
 		steps: [
 			{
 				title: 'Leia a linha do tempo',

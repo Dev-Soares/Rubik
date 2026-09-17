@@ -1,3 +1,9 @@
+/** Quem fez a chamada, para as regras que dependem de quem edita quem. */
+export type Editor = {
+	id: string;
+	role: string | null;
+};
+
 export type PublicUser = {
 	id: string;
 	name: string;

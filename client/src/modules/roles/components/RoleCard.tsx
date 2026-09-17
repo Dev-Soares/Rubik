@@ -1,10 +1,18 @@
 import { Trash2Icon } from 'lucide-react';
 import { EditRoleDialog } from '@/modules/roles/components/EditRoleDialog';
 import { useDeleteRole } from '@/modules/roles/hooks/useDeleteRole';
-import { SCREEN_LABELS, SCREENS, type Role } from '@/modules/roles/types/role';
+import { useMyScreens } from '@/modules/roles/hooks/useMyScreens';
+import {
+	SCREEN_GRANT_LABELS,
+	SCREEN_LABELS,
+	SCREENS,
+	type Role,
+} from '@/modules/roles/types/role';
+import { toGrantByScreen } from '@/modules/roles/utils';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent } from '@/shared/components/ui/card';
+import { ADMIN_ROLE } from '@/shared/utils/roles';
 
 type RoleCardProps = {
 	role: Role;
@@ -12,8 +20,19 @@ type RoleCardProps = {
 
 export function RoleCard({ role }: RoleCardProps) {
 	const { mutate: deleteRole, isPending, variables } = useDeleteRole();
+	const { can } = useMyScreens();
 
 	const isDeleting = isPending && variables === role.id;
+
+	/*
+	 * Quem é administrador recebe acesso total direto do backend, sem passar pelo
+	 * cargo: editar as telas daqui não teria efeito nenhum.
+	 */
+	const isAdminRole = role.name === ADMIN_ROLE;
+	const canWrite = can('admin.roles', 'write') && !isAdminRole;
+
+	const grants = toGrantByScreen(role.screens);
+	const granted = SCREENS.filter((screen) => grants[screen] !== 'none');
 
 	return (
 		<Card>
@@ -40,42 +59,53 @@ export function RoleCard({ role }: RoleCardProps) {
 					 * O que o cargo libera é a informação que distingue um card do
 					 * outro: ganha o maior peso tipográfico do card.
 					 */}
-					<span className="flex items-baseline gap-1.5">
-						<span className="text-primary text-2xl leading-none font-semibold tabular-nums">
-							{role.screens.length}
+					{isAdminRole ? (
+						<span className="text-primary text-lg leading-none font-semibold">Acesso total</span>
+					) : (
+						<span className="flex items-baseline gap-1.5">
+							<span className="text-primary text-2xl leading-none font-semibold tabular-nums">
+								{granted.length}
+							</span>
+							<span className="text-muted-foreground text-sm">de {SCREENS.length} telas</span>
 						</span>
-						<span className="text-muted-foreground text-sm">de {SCREENS.length} telas</span>
-					</span>
+					)}
 
-					<span className="flex shrink-0 gap-1">
-						<EditRoleDialog role={role} />
+					{canWrite ? (
+						<span className="flex shrink-0 gap-1">
+							<EditRoleDialog role={role} />
 
-
-						{/* Cargo de sistema é recusado pelo backend: nem mostra o botão. */}
-						{role.isSystem ? null : (
-							<Button
-								variant="ghost"
-								size="icon"
-								className="text-muted-foreground hover:text-destructive"
-								aria-label={`Remover ${role.name}`}
-								disabled={isDeleting}
-								onClick={() => deleteRole(role.id)}
-							>
-								<Trash2Icon />
-							</Button>
-						)}
-					</span>
+							{/* Cargo de sistema é recusado pelo backend: nem mostra o botão. */}
+							{role.isSystem ? null : (
+								<Button
+									variant="ghost"
+									size="icon"
+									className="text-muted-foreground hover:text-destructive"
+									aria-label={`Remover ${role.name}`}
+									disabled={isDeleting}
+									onClick={() => deleteRole(role.id)}
+								>
+									<Trash2Icon />
+								</Button>
+							)}
+						</span>
+					) : null}
 				</div>
 
-				{role.screens.length === 0 ? (
+				{isAdminRole ? (
 					<p className="text-muted-foreground text-sm">
-						Este cargo ainda não vê nenhuma tela. Edite para liberar acesso.
+						Administradores leem e editam todas as telas, inclusive as criadas depois. Este cargo
+						não é editável.
+					</p>
+				) : granted.length === 0 ? (
+					<p className="text-muted-foreground text-sm">
+						Este cargo ainda não vê nenhuma tela.
+						{canWrite ? ' Edite para liberar acesso.' : ''}
 					</p>
 				) : (
 					<div className="flex flex-wrap gap-1">
-						{role.screens.map((screen) => (
+						{granted.map((screen) => (
 							<Badge key={screen} variant="secondary">
-								{SCREEN_LABELS[screen]}
+								{SCREEN_LABELS[screen]} · {SCREEN_GRANT_LABELS[grants[screen]].toLowerCase()}
 							</Badge>
 						))}
 					</div>

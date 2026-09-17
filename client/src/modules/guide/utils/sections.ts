@@ -1,21 +1,15 @@
 import type { GuideGroup, GuideRestricted, GuideSection } from '@/modules/guide/types/guide';
-import type { Screen } from '@/modules/roles/types/role';
+import type { Screen, ScreenLevel } from '@/modules/roles/types/role';
 
 /**
  * Regra única de visibilidade do guia, aplicada a seções e a passos. Espelha a
- * da sidebar: a tela manda mais que a role, então um admin sem a tela liberada
- * também não lê o conteúdo dela.
+ * da sidebar: quem manda é a permissão da tela, não o cargo.
  */
 export function isGuideItemVisible(
 	item: GuideRestricted,
-	isAdmin: boolean,
-	screens: Screen[],
+	can: (screen: Screen, level?: ScreenLevel) => boolean,
 ): boolean {
-	if (item.role === 'admin' && !isAdmin) {
-		return false;
-	}
-
-	return !item.screen || screens.includes(item.screen);
+	return !item.screen || can(item.screen);
 }
 
 /** Agrupa preservando a ordem em que cada categoria aparece nas seções. */

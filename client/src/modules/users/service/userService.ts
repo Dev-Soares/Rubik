@@ -4,7 +4,9 @@ import { translateAuthError } from '@/modules/auth/types/errors';
 import type {
 	ChangePasswordInput,
 	CreateUserInput,
+	EditUserInput,
 	PaginatedUsers,
+	SetUserPasswordInput,
 	UpdateUserInput,
 	User,
 } from '@/modules/users/types/user';
@@ -30,6 +32,21 @@ export async function createUserService(input: CreateUserInput): Promise<void> {
 	}
 }
 
+/**
+ * Define a senha de outro usuário, sem pedir a atual. O Better Auth exige role
+ * `admin` aqui — a permissão de tela não substitui isso.
+ */
+export async function setUserPasswordService(input: SetUserPasswordInput): Promise<void> {
+	const { error } = await authClient.admin.setUserPassword({
+		userId: input.userId,
+		newPassword: input.newPassword,
+	});
+
+	if (error) {
+		throw new Error(translateAuthError(error));
+	}
+}
+
 export async function listUsersService(params: {
 	limit: number;
 	offset: number;
@@ -43,7 +60,10 @@ export async function findUserService(id: string): Promise<User> {
 	return data;
 }
 
-export async function updateUserService(id: string, input: UpdateUserInput): Promise<User> {
+export async function updateUserService(
+	id: string,
+	input: UpdateUserInput | EditUserInput,
+): Promise<User> {
 	const { data } = await api.patch<User>(`/users/${id}`, input);
 	return data;
 }

@@ -6,8 +6,6 @@ export type NavItem = {
 	label: string;
 	to: FileRouteTypes['to'];
 	icon: LucideIcon;
-	/** Quando definido, só aparece para quem tem a role. */
-	role?: 'admin';
 	/** Quando presente, o item vira um grupo expansível na sidebar. */
 	children?: NavChildItem[];
 };

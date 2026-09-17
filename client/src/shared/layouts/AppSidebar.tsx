@@ -12,29 +12,26 @@ import {
 	SidebarRail,
 	useSidebar,
 } from '@/shared/components/ui/sidebar';
-import { useAuth } from '@/shared/hooks/useAuth';
 import { NavGroupItem } from '@/shared/layouts/NavGroupItem';
 import { NavLinkItem } from '@/shared/layouts/NavLinkItem';
 import { SidebarToggle } from '@/shared/layouts/SidebarToggle';
 import { NAV_FOOTER_ITEMS, NAV_ITEMS } from '@/shared/navigation';
 
 export function AppSidebar() {
-	const { isAdmin } = useAuth();
-	const { screens } = useMyScreens();
+	const { can } = useMyScreens();
 	const { isMobile, setOpenMobile } = useSidebar();
 
 	/*
-	 * Um item com filhos só aparece se sobrar ao menos um filho liberado — e as
-	 * telas mandam mais que a role: um cargo admin sem telas não vê o grupo.
+	 * Um item com filhos só aparece se sobrar ao menos um filho liberado. Quem
+	 * manda é a permissão, não o cargo: um cargo qualquer com a tela liberada vê
+	 * o grupo, e um admin sem telas não veria (o backend dá todas a ele).
 	 */
-	const items = NAV_ITEMS.filter((item) => item.role !== 'admin' || isAdmin).flatMap((item) => {
+	const items = NAV_ITEMS.flatMap((item) => {
 		if (!item.children) {
 			return [item];
 		}
 
-		const children = item.children.filter(
-			(child) => !child.screen || screens.includes(child.screen)
-		);
+		const children = item.children.filter((child) => !child.screen || can(child.screen));
 
 		return children.length > 0 ? [{ ...item, children }] : [];
 	});

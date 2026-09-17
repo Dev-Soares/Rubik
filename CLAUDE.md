@@ -29,6 +29,9 @@ Nunca component → axios. Componentes recebem dados por props.
 
 **Types só em `types/`.** Um componente por arquivo.
 
+**Mobile first, sempre.** Classe sem prefixo é o celular; `sm:`/`md:`/`lg:` só
+acrescentam. Nunca `max-*` para consertar o pequeno depois.
+
 **Função pura só em `utils/`.** Nunca solta no arquivo do service ou do componente.
 Exceções: mapper de row da própria feature (`toPublicRole`) e formatação de
 apresentação não exportada (`getInitials`).

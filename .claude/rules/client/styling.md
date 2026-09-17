@@ -41,8 +41,37 @@ Token novo → declare em `:root` **e** `.dark` no `global.css`, e mapeie em `@t
 - Tema escuro é automático pelos tokens — não escreva `dark:` em cada classe.
 - Prefira borda a sombra para destacar.
 - Espaçamento com `gap-4` / `gap-6`.
-- Grid responsivo: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`.
 - Conflito de classe: use `cn()` de `cn` (`import { cn } from 'cn'`), que resolve via `tailwind-merge`.
+
+## Mobile first — sempre
+
+A classe **sem prefixo é o celular**. Breakpoint (`sm:`, `md:`, `lg:`) só
+**acrescenta** o que a tela maior comporta. Nunca escreva o desktop primeiro para
+depois consertar no pequeno com `max-*`.
+
+```tsx
+// RUIM — desktop primeiro, celular remendado
+<div className="grid grid-cols-3 max-sm:grid-cols-1">
+<div className="p-8 max-md:p-3">
+
+// BOM — celular primeiro, telas maiores acrescentam
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+<div className="p-3 md:p-8">
+```
+
+Regras práticas:
+
+- Comece toda tela nova pelo layout de uma coluna; empilhe com `flex-col` e suba
+  para `sm:flex-row` quando couber.
+- Padding e gap crescem com a tela (`px-3 sm:px-5`), nunca diminuem.
+- Tabela é o caso clássico: no celular falta espaço **horizontal**, então o
+  respiro lateral entra a partir do `sm`. O container leva `overflow-x-auto`.
+- Alvo de toque tem no mínimo 44px no celular — botão só com ícone usa `size-11`
+  ou área clicável equivalente.
+- `hidden sm:table-cell` esconde coluna secundária no celular; não encolha a
+  fonte para caber tudo.
+- Antes de entregar, confira a 375px de largura: nada de rolagem horizontal na
+  página (dentro da tabela, tudo bem).
 
 ## Acessibilidade
 

@@ -13,22 +13,23 @@ import { user } from 'src/db/schema/auth';
 import { role } from 'src/db/schema/role';
 import type { PaginationDto } from 'src/common/dto/pagination.dto';
 import type { Paginated } from 'src/common/types/pagination.types';
-import { isAdmin, toRoleNames } from 'src/common/utils';
+import { ADMIN_ROLE, isAdmin, toRoleNames } from 'src/common/utils';
 import { userScreenOverride } from 'src/db/schema/userScreenOverride';
 import type { CreateRoleDto } from 'src/modules/roles/dto/create-role.dto';
 import type { SetUserScreensDto } from 'src/modules/roles/dto/set-user-screens.dto';
 import type { UpdateRoleDto } from 'src/modules/roles/dto/update-role.dto';
-import { SCREENS } from 'src/modules/roles/types/role.types';
+import { SCREEN_PERMISSIONS } from 'src/modules/roles/types/role.types';
 import type {
 	PublicRole,
-	Screen,
 	ScreenOverride,
+	ScreenPermission,
 	UserScreens,
 } from 'src/modules/roles/types/role.types';
 import {
 	applyScreenOverrides,
 	dedupeScreenOverrides,
-	isScreen,
+	expandWrite,
+	isScreenPermission,
 	parseScreens,
 } from 'src/modules/roles/utils';
 
@@ -51,13 +52,13 @@ export class RolesService {
 	constructor(@Inject(DB) private readonly db: Database) {}
 
 	/**
-	 * Telas que o usuário enxerga de fato: união dos cargos, com as exceções
-	 * pessoais aplicadas por cima. Admin enxerga tudo, sem exceção — bloquear um
+	 * Permissões que o usuário tem de fato: união dos cargos, com as exceções
+	 * pessoais aplicadas por cima. Admin recebe tudo, sem exceção — bloquear um
 	 * admin trancaria o próprio painel de permissões.
 	 */
-	async findScreensForUser(userId: string, roleNames: string | null): Promise<Screen[]> {
+	async findScreensForUser(userId: string, roleNames: string | null): Promise<ScreenPermission[]> {
 		if (isAdmin(roleNames)) {
-			return [...SCREENS];
+			return [...SCREEN_PERMISSIONS];
 		}
 
 		const [inherited, overrides] = await Promise.all([
@@ -83,7 +84,9 @@ export class RolesService {
 		return {
 			inherited,
 			overrides,
-			effective: isAdmin(target.role) ? [...SCREENS] : applyScreenOverrides(inherited, overrides),
+			effective: isAdmin(target.role)
+				? [...SCREEN_PERMISSIONS]
+				: applyScreenOverrides(inherited, overrides),
 		};
 	}
 
@@ -96,7 +99,7 @@ export class RolesService {
 		const target = await this.findUserOrFail(userId);
 
 		if (isAdmin(target.role)) {
-			throw new ForbiddenException('Administrador enxerga todas as telas.');
+			throw new ForbiddenException('Administrador tem acesso total às telas.');
 		}
 
 		const inherited = new Set(await this.findInheritedScreens(target.role));
@@ -121,8 +124,8 @@ export class RolesService {
 		return this.findUserScreens(userId);
 	}
 
-	/** União das telas dos cargos. `user.role` guarda nomes separados por vírgula. */
-	private async findInheritedScreens(roleNames: string | null): Promise<Screen[]> {
+	/** União das permissões dos cargos. `user.role` guarda nomes separados por vírgula. */
+	private async findInheritedScreens(roleNames: string | null): Promise<ScreenPermission[]> {
 		const names = toRoleNames(roleNames);
 
 		if (names.length === 0) {
@@ -134,14 +137,14 @@ export class RolesService {
 			.from(role)
 			.where(inArray(role.name, names));
 
-		const screens = new Set<Screen>();
+		const screens = new Set<ScreenPermission>();
 		for (const row of rows) {
 			for (const screen of parseScreens(row.screens)) {
 				screens.add(screen);
 			}
 		}
 
-		return [...screens];
+		return expandWrite([...screens]);
 	}
 
 	private async findOverridesForUser(userId: string): Promise<ScreenOverride[]> {
@@ -150,9 +153,9 @@ export class RolesService {
 			.from(userScreenOverride)
 			.where(eq(userScreenOverride.userId, userId));
 
-		// Tela removida de `SCREENS` pode ter sobrado no banco: ignore.
+		// Permissão removida de `SCREEN_PERMISSIONS` pode ter sobrado no banco: ignore.
 		return rows
-			.filter((row): row is ScreenOverride => isScreen(row.screen))
+			.filter((row): row is ScreenOverride => isScreenPermission(row.screen))
 			.map((row) => ({ screen: row.screen, allowed: row.allowed }));
 	}
 
@@ -216,6 +219,15 @@ export class RolesService {
 
 	async update(id: string, data: UpdateRoleDto): Promise<PublicRole> {
 		const current = await this.findOne(id);
+
+		/*
+		 * Quem tem `user.role = 'admin'` recebe todas as permissões em
+		 * `findScreensForUser`, sem consultar cargo nem exceção. Editar este cargo
+		 * não mudaria nada — bloquear é mais honesto que aceitar em silêncio.
+		 */
+		if (current.name === ADMIN_ROLE) {
+			throw new ForbiddenException('O cargo de administrador tem acesso total e não é editável.');
+		}
 
 		// Cargo de sistema sustenta as regras do RolesGuard: renomear quebraria o acesso.
 		if (current.isSystem && data.name && data.name !== current.name) {

@@ -30,7 +30,34 @@ export const createUserSchema = z.object({
 	role: z.enum(['user', 'admin']),
 });
 
+/** Edição feita pela tela de administração: o cargo entra junto do nome. */
+export const editUserSchema = updateUserSchema.extend({
+	role: z.string().min(1, 'Escolha um cargo.'),
+});
+
+/**
+ * Senha definida por um administrador: sem a senha atual, e com confirmação
+ * para evitar erro de digitação em algo que o dono da conta não escolheu.
+ */
+export const setUserPasswordSchema = z
+	.object({
+		newPassword: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres.'),
+		confirmPassword: z.string(),
+	})
+	.refine((data) => data.newPassword === data.confirmPassword, {
+		message: 'As senhas não conferem.',
+		path: ['confirmPassword'],
+	});
+
+export type SetUserPasswordFormInput = z.infer<typeof setUserPasswordSchema>;
+
+export type SetUserPasswordInput = {
+	userId: string;
+	newPassword: string;
+};
+
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type EditUserInput = z.infer<typeof editUserSchema>;
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 
 export type User = {

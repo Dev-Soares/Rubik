@@ -17,8 +17,9 @@ export function NavLinkItem({ item, onNavigate }: NavLinkItemProps) {
 				tooltip={item.label}
 				// Zera o fundo que o shadcn aplica no hover/ativo: quem manda na cor
 				// é o NAV_ACTIVE_CLASS, senão o item sob o cursor também fica azul e
-				// parecem dois selecionados.
-				className="h-9 hover:bg-foreground/5 data-active:bg-transparent"
+				// parecem dois selecionados. `active:` entra junto porque no celular o
+				// toque deixa o estado grudado depois de navegar.
+				className="h-9 hover:bg-foreground/5 data-active:bg-transparent active:bg-transparent!"
 			>
 				<Link
 					to={item.to}

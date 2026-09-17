@@ -5,14 +5,13 @@ import type { Screen } from '@/modules/roles/types/role';
 /**
  * Um passo numerado dentro de uma seção do guia.
  *
- * `screen`/`role` seguem a mesma regra da seção: um passo que descreve uma aba
+ * `screen` segue a mesma regra da seção: um passo que descreve uma aba
  * restrita some para quem não a acessa, senão o guia promete tela que não abre.
  */
 export type GuideStep = {
 	title: string;
 	description: string;
 	screen?: Screen;
-	role?: 'admin';
 };
 
 /** Observação destacada no rodapé da seção. */
@@ -25,7 +24,7 @@ export type GuideNote = {
  * Uma seção do guia: normalmente uma aba do sistema.
  *
  * `screen` amarra a seção à mesma chave usada pela sidebar — quem não tem a
- * tela liberada não lê o guia dela. `role` restringe a seção a admins.
+ * tela liberada não lê o guia dela.
  */
 export type GuideSection = {
 	id: string;
@@ -37,7 +36,6 @@ export type GuideSection = {
 	icon: LucideIcon;
 	to?: FileRouteTypes['to'];
 	screen?: Screen;
-	role?: 'admin';
 	steps: GuideStep[];
 	note?: GuideNote;
 };
@@ -51,5 +49,4 @@ export type GuideGroup = {
 /** O que seção e passo têm em comum para a regra de visibilidade. */
 export type GuideRestricted = {
 	screen?: Screen;
-	role?: 'admin';
 };

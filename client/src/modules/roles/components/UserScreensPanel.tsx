@@ -6,7 +6,7 @@ type UserScreensPanelProps = {
 	onDone?: () => void;
 };
 
-/** Liga o hook de visualização ao formulário. */
+/** Liga o hook de permissões ao formulário. */
 export function UserScreensPanel({ userId, onDone }: UserScreensPanelProps) {
 	const { data } = useUserScreens(userId);
 

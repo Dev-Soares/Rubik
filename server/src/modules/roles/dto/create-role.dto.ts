@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsArray, IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
-import { SCREENS } from 'src/modules/roles/types/role.types';
-import type { Screen } from 'src/modules/roles/types/role.types';
+import { SCREEN_PERMISSIONS } from 'src/modules/roles/types/role.types';
+import type { ScreenPermission } from 'src/modules/roles/types/role.types';
 
 export class CreateRoleDto {
 	/** Nome do cargo, único. */
@@ -18,9 +18,9 @@ export class CreateRoleDto {
 	@MaxLength(200, { message: 'description deve ter no máximo 200 caracteres.' })
 	description?: string;
 
-	/** Telas que o cargo enxerga. */
-	@ApiProperty({ example: ['admin.users'], enum: SCREENS, isArray: true })
+	/** Permissões do cargo, no formato `<tela>:<nível>`. */
+	@ApiProperty({ example: ['admin.users:read'], enum: SCREEN_PERMISSIONS, isArray: true })
 	@IsArray({ message: 'screens deve ser uma lista.' })
-	@IsIn(SCREENS, { each: true, message: 'screens contém uma tela inexistente.' })
-	screens!: Screen[];
+	@IsIn(SCREEN_PERMISSIONS, { each: true, message: 'screens contém uma permissão inexistente.' })
+	screens!: ScreenPermission[];
 }

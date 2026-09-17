@@ -29,7 +29,7 @@ export function CreateRoleDialog() {
 						Criar cargo
 					</DialogTitle>
 					<DialogDescription className="sr-only">
-						Defina o nome e as telas que o cargo enxerga.
+						Defina o nome e o acesso do cargo a cada tela.
 					</DialogDescription>
 				</DialogHeader>
 

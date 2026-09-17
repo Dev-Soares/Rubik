@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { useMyScreens } from '@/modules/roles/hooks/useMyScreens';
 import { CreateUserDialog } from '@/modules/users/components/CreateUserDialog';
 import { UsersPanel } from '@/modules/users/components/UsersPanel';
 import { UsersTableSkeleton } from '@/modules/users/skeletons/UsersTableSkeleton';
@@ -8,6 +9,7 @@ import { AppLayout } from '@/shared/layouts/AppLayout';
 
 export function AdminUsers() {
 	const { user } = useAuth();
+	const { can } = useMyScreens();
 
 	return (
 		<AppLayout>
@@ -17,7 +19,7 @@ export function AdminUsers() {
 						title="Usuários"
 						description="Crie contas e gerencie quem tem acesso ao sistema."
 					/>
-					<CreateUserDialog />
+					{can('admin.users', 'write') ? <CreateUserDialog /> : null}
 				</div>
 
 				<Suspense fallback={<UsersTableSkeleton />}>

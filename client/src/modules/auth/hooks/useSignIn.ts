@@ -16,7 +16,7 @@ export function useSignIn() {
 			// sessão já no cache antes de navegar: o `beforeLoad` da rota
 			// protegida lê o cache e devolveria `null`, voltando para o login.
 			await queryClient.refetchQueries({ queryKey: ['session'] });
-			await navigate({ to: redirect ?? '/profile' });
+			await navigate({ to: redirect ?? '/inicio' });
 		},
 		onError: (error: Error) => toast.error(error.message),
 	});

@@ -22,7 +22,7 @@ export function useSetUserScreens(userId: string, onSaved?: () => void) {
 				// O próprio usuário pode estar editando a si mesmo: a sidebar dele muda.
 				queryClient.invalidateQueries({ queryKey: ['roles', 'me', 'screens'] }),
 			]);
-			toast.success('Visualização atualizada.');
+			toast.success('Permissões atualizadas.');
 			onSaved?.();
 		},
 	});

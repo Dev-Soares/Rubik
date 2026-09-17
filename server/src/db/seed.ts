@@ -17,7 +17,7 @@ import { isProduction } from 'src/config/env';
 import { db, queryClient } from 'src/db/db.provider';
 import { user } from 'src/db/schema/auth';
 import { role } from 'src/db/schema/role';
-import { SCREENS } from 'src/modules/roles/types/role.types';
+import { SCREEN_PERMISSIONS } from 'src/modules/roles/types/role.types';
 
 const SEED_NAME = process.env.SEED_ADMIN_NAME ?? 'Administrador';
 const SEED_EMAIL = process.env.SEED_ADMIN_EMAIL ?? 'admin@local.dev';
@@ -34,7 +34,11 @@ async function promoteToAdmin(id: string): Promise<void> {
 /** Cargos de sistema: o RolesGuard depende de `admin` existir. */
 async function seedSystemRoles(): Promise<void> {
 	const systemRoles = [
-		{ name: 'admin', description: 'Acesso total ao sistema.', screens: SCREENS.join(',') },
+		{
+			name: 'admin',
+			description: 'Acesso total ao sistema.',
+			screens: SCREEN_PERMISSIONS.join(','),
+		},
 		{ name: 'user', description: 'Acesso às áreas comuns.', screens: '' },
 	];
 
@@ -46,7 +50,7 @@ async function seedSystemRoles(): Promise<void> {
 			.limit(1);
 
 		if (existing) {
-			// Tela nova em `SCREENS` precisa chegar ao admin sem SQL manual.
+			// Permissão nova em `SCREEN_PERMISSIONS` precisa chegar ao admin sem SQL manual.
 			if (item.name === 'admin' && existing.screens !== item.screens) {
 				await db.update(role).set({ screens: item.screens }).where(eq(role.id, existing.id));
 				log('telas do cargo admin atualizadas');

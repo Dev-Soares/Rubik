@@ -11,6 +11,7 @@ import { DbModule } from 'src/db/db.module';
 import { AuditModule } from 'src/modules/audit/audit.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { HealthModule } from 'src/modules/health/health.module';
+import { NotificationsModule } from 'src/modules/notifications/notifications.module';
 import { RolesModule } from 'src/modules/roles/roles.module';
 import { UsersModule } from 'src/modules/users/users.module';
 
@@ -26,6 +27,7 @@ const THROTTLE_LIMIT = 100;
 		AuthModule,
 		UsersModule,
 		RolesModule,
+		NotificationsModule,
 		HealthModule,
 	],
 	providers: [

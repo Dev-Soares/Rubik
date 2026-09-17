@@ -1,4 +1,5 @@
 import {
+	BellIcon,
 	CompassIcon,
 	IdCardIcon,
 	LogInIcon,
@@ -124,6 +125,42 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 					'Em "Senha", informe a senha atual e a nova. Ao confirmar, as sessões abertas em outros dispositivos são encerradas.',
 			},
 		],
+	},
+	{
+		id: 'notificacoes',
+		group: 'Sua conta',
+		label: 'Notificações',
+		title: 'Notificações',
+		description: 'Os avisos que o sistema envia para você e como acompanhá-los.',
+		icon: BellIcon,
+		to: '/notifications',
+		steps: [
+			{
+				title: 'Acompanhe pelo sino',
+				description:
+					'O sino no topo da tela mostra quantos avisos você ainda não leu. Clique nele para ver os mais recentes sem sair da página em que está.',
+			},
+			{
+				title: 'Abra um aviso',
+				description:
+					'Clicar em um aviso o marca como lido e, quando ele aponta para alguma tela, leva você direto até ela.',
+			},
+			{
+				title: 'Veja a lista completa',
+				description:
+					'"Ver todas" abre a página de notificações, com o histórico inteiro. Alterne entre "Todas" e "Não lidas" para filtrar.',
+			},
+			{
+				title: 'Marque como lida sem abrir',
+				description:
+					'O duplo check na linha do aviso o marca como lido sem levar você a lugar nenhum — útil para o que já se resolveu sozinho. "Marcar todas como lidas" zera o contador do sino de uma vez.',
+			},
+		],
+		note: {
+			title: 'Os avisos são só seus',
+			description:
+				'Cada pessoa vê apenas as próprias notificações — nem administradores acessam a lista de outro usuário. Nada sai da lista: o histórico fica, e o duplo check azul indica o que já foi lido.',
+		},
 	},
 	{
 		id: 'usuarios',

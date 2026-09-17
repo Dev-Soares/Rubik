@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { cn } from 'cn';
 import type { ReactNode } from 'react';
+import { NotificationBell } from '@/modules/notifications/components/NotificationBell';
 import { AppLogo } from '@/shared/components/AppLogo';
 import { ToggleTheme } from '@/shared/components/ToggleTheme';
 import { SidebarInset, SidebarProvider } from '@/shared/components/ui/sidebar';
@@ -28,7 +29,8 @@ export function AppLayout({ children, className }: AppLayoutProps) {
 						<span className="text-base font-bold tracking-tight">Rubik</span>
 					</Link>
 
-					<div className="ml-auto">
+					<div className="ml-auto flex items-center gap-1">
+						<NotificationBell />
 						<ToggleTheme />
 					</div>
 				</nav>

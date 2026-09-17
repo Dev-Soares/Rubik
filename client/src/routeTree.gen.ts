@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthGuideRouteImport } from './routes/_auth/guide'
 import { Route as AuthInicioRouteImport } from './routes/_auth/inicio'
+import { Route as AuthNotificationsRouteImport } from './routes/_auth/notifications'
 import { Route as AuthProfileRouteImport } from './routes/_auth/profile'
 import { Route as AuthSupportRouteImport } from './routes/_auth/support'
 import { Route as AuthAdminIndexRouteImport } from './routes/_auth/admin/index'
@@ -37,6 +38,11 @@ const AuthGuideRoute = AuthGuideRouteImport.update({
 const AuthInicioRoute = AuthInicioRouteImport.update({
   id: '/inicio',
   path: '/inicio',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthNotificationsRoute = AuthNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthProfileRoute = AuthProfileRouteImport.update({
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/guide': typeof AuthGuideRoute
   '/inicio': typeof AuthInicioRoute
+  '/notifications': typeof AuthNotificationsRoute
   '/profile': typeof AuthProfileRoute
   '/support': typeof AuthSupportRoute
   '/admin/audit': typeof AuthAdminAuditRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/guide': typeof AuthGuideRoute
   '/inicio': typeof AuthInicioRoute
+  '/notifications': typeof AuthNotificationsRoute
   '/profile': typeof AuthProfileRoute
   '/support': typeof AuthSupportRoute
   '/admin/audit': typeof AuthAdminAuditRoute
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/_auth/guide': typeof AuthGuideRoute
   '/_auth/inicio': typeof AuthInicioRoute
+  '/_auth/notifications': typeof AuthNotificationsRoute
   '/_auth/profile': typeof AuthProfileRoute
   '/_auth/support': typeof AuthSupportRoute
   '/_auth/admin/audit': typeof AuthAdminAuditRoute
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/'
     | '/guide'
     | '/inicio'
+    | '/notifications'
     | '/profile'
     | '/support'
     | '/admin/audit'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/guide'
     | '/inicio'
+    | '/notifications'
     | '/profile'
     | '/support'
     | '/admin/audit'
@@ -134,6 +145,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/_auth/guide'
     | '/_auth/inicio'
+    | '/_auth/notifications'
     | '/_auth/profile'
     | '/_auth/support'
     | '/_auth/admin/audit'
@@ -175,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/inicio'
       fullPath: '/inicio'
       preLoaderRoute: typeof AuthInicioRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/notifications': {
+      id: '/_auth/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthNotificationsRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/profile': {
@@ -225,6 +244,7 @@ declare module '@tanstack/react-router' {
 interface AuthRouteChildren {
   AuthGuideRoute: typeof AuthGuideRoute
   AuthInicioRoute: typeof AuthInicioRoute
+  AuthNotificationsRoute: typeof AuthNotificationsRoute
   AuthProfileRoute: typeof AuthProfileRoute
   AuthSupportRoute: typeof AuthSupportRoute
   AuthAdminAuditRoute: typeof AuthAdminAuditRoute
@@ -236,6 +256,7 @@ interface AuthRouteChildren {
 const AuthRouteChildren: AuthRouteChildren = {
   AuthGuideRoute: AuthGuideRoute,
   AuthInicioRoute: AuthInicioRoute,
+  AuthNotificationsRoute: AuthNotificationsRoute,
   AuthProfileRoute: AuthProfileRoute,
   AuthSupportRoute: AuthSupportRoute,
   AuthAdminAuditRoute: AuthAdminAuditRoute,

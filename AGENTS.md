@@ -14,6 +14,9 @@
   - server: `Controller → Service → Drizzle`. **Nunca** Controller→db.
   - client: `api → service → hook → component`. **Nunca** component→axios.
 - [ ] Todo `export type` em `types/`. Nenhum tipo exportado solto em service/controller/componente.
+- [ ] Toda função pura em `utils/`. No arquivo do service/componente só o mapper
+      de row e formatação de apresentação não exportada.
+- [ ] Domínio com um único consumidor mora no módulo dele — não em `common/`/`shared/`.
 - [ ] Um componente por arquivo `.tsx`. Uma classe exportada por arquivo `.ts`.
 - [ ] Componentes recebem dados por props; não buscam dados.
 - [ ] Sem `any`; `unknown` + narrow ou Zod na fronteira.
@@ -31,6 +34,12 @@
 - Frontend TanStack Router (file-based) + TanStack Query.
 - Sem camada de domínio/DDD. Regra de negócio mora no Service.
 - Types **sempre** em `types/`, nunca no arquivo que os usa.
+- Função pura **sempre** em `utils/`, nunca solta no arquivo do service/componente.
+  Exceções: mapper de row da feature (`toPublicRole`) e formatação de apresentação
+  não exportada (`getInitials`). Transformação de dado sai sempre.
+- `common/` (server) e `shared/` (client) = código de domínio com 2+ consumidores.
+  Um só → fica no módulo. Infra transversal (guard, pipe, filter, interceptor,
+  layout, `ui/`) fica em `common/`/`shared/` mesmo com um consumidor.
 - Um componente por arquivo, sem exceção.
 - Skeleton para todo estado de carregamento visível.
 - Cookie httpOnly para auth; nunca localStorage.
@@ -84,7 +93,7 @@ type State =
 ## 6. Contexto do projeto
 
 ```
-server/   # NestJS — src/{modules,common,config,db,auth}
+server/   # NestJS — src/{modules,common,config,db}
 client/   # React + Vite — src/{api,modules,pages,routes,shared,styles}
 ```
 

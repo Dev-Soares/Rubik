@@ -88,6 +88,7 @@ modules/<Feature>/
   hooks/        # um hook por arquivo
   service/      # chamadas HTTP
   types/        # tipos e schemas Zod
+  utils/        # função pura da feature
   skeletons/    # estados de loading
 
 pages/          # uma página por arquivo, compõe layout + containers
@@ -97,6 +98,106 @@ shared/
   hooks/        # hooks compartilhados
   contexts/     # contexto + provider (arquivos separados)
   types/        # tipos compartilhados
+  utils/        # função pura compartilhada
 ```
 
 Arquivo de componente: PascalCase. Hook: camelCase. Imports internos sempre via alias `@/`.
+
+### `shared/` é só o que duas features usam
+
+`shared/` não é pasta de "código genérico": é pasta de **código compartilhado**.
+Arquivo com **um** consumidor mora dentro da feature que o consome — component,
+hook, type, util, tanto faz. Sobe para `shared/` quando o segundo consumidor
+aparecer, não por antecipação.
+
+```
+// BOM — um consumidor: fica na feature
+modules/roles/utils/screens.ts
+modules/roles/types/role.ts
+
+// BOM — dois ou mais: sobe
+shared/utils/roles.ts          # useAuth + RoleBadge + UsersTable
+shared/components/FormField.tsx
+
+// RUIM — genérico no nome, único no uso
+shared/utils/screens.ts        # só roles usa
+```
+
+Exceções — ficam em `shared/` mesmo com um consumidor, porque existem para serem
+aplicadas em qualquer tela (o contador de imports não mede isso):
+
+- `shared/components/ui/` — gerado por `pnpm ui:add`, nunca editado à mão.
+- `shared/layouts/` — casca da aplicação (`AppLayout`, `AppSidebar`, `navigation.ts`).
+- `shared/contexts/`, `shared/hooks/` de infra — tema, viewport, debounce.
+- Primitivos de form e página do template: `FormField`, `FormError`,
+  `FormSection`, `PageHeader`, `SelectField`, `PageSkeleton`.
+
+A regra vale para **código de domínio**: type, util, service, component de
+feature. Esse desce para o módulo quando tem um consumidor só.
+
+### Função pura — `utils/`
+
+Função pura (sem hook, sem estado, sem JSX) não fica solta no topo de um
+componente nem de um service. Vai para `utils/`, na feature ou em `shared/` pela
+regra acima.
+
+- Um assunto por arquivo (`roles.ts`, `screens.ts`), nunca um `utils.ts` depósito.
+- Mesma transformação em dois componentes → extraia e troque os dois.
+
+**O corte é transformação de dado vs. formatação de apresentação.** Não é
+"exportado ou não": helper privado que reestrutura dado também sai.
+
+```
+// SAI para utils/ — reestrutura dado, é testável sozinho
+groupByDay(entries)          -> modules/audit/utils/timeline.ts
+toAccessByScreen(screens)    -> modules/roles/utils/screens.ts
+nextOffset(lastPage)         -> modules/audit/utils/timeline.ts
+
+// FICA no arquivo — formata para exibir, só faz sentido ali
+getInitials(name)            # UserAvatar.tsx
+accessOptions(inherited)     # UserScreenAccessRow.tsx
+new Intl.DateTimeFormat(...) # constante de módulo
+```
+
+Em dúvida: se a função faria sentido num teste unitário sem o componente, vai
+para `utils/`.
+
+## Layout de páginas e formulários
+
+Toda página autenticada usa `AppLayout`, que já limita a largura de leitura
+(`max-w-3xl`). Não crie outro container de largura por cima.
+
+Estrutura padrão de uma página:
+
+```tsx
+<AppLayout>
+  <div className="flex flex-col gap-8">
+    <PageHeader title="..." description="..." />
+    {/* conteúdo */}
+  </div>
+</AppLayout>
+```
+
+- **Título da página**: sempre `PageHeader` (cor primária, com descrição opcional).
+  Nunca um `<h1>` solto.
+- **Seções de formulário**: sempre `FormSection` — título e descrição **acima**
+  dos campos, nunca ao lado.
+- **Não** coloque `max-w-*` no `<form>`: quem controla a largura é a `FormSection`.
+- Separe seções dentro do mesmo card com `<Separator />` e `gap-8`.
+- Ação da página (ex: "Novo usuário") fica na mesma linha do `PageHeader`,
+  alinhada à direita.
+
+```tsx
+// BOM
+<Card>
+  <CardContent className="flex flex-col gap-8">
+    <FormSection title="Dados da conta" description="Como seu nome aparece.">
+      <ProfileForm ... />
+    </FormSection>
+    <Separator />
+    <FormSection title="Senha" description="...">
+      <ChangePasswordForm />
+    </FormSection>
+  </CardContent>
+</Card>
+```

@@ -2,15 +2,22 @@
  * Cria o usuário administrador inicial.
  *
  * Idempotente: se o e-mail já existir, apenas garante a role `admin` e sai.
- * Usa o endpoint HTTP do Better Auth para o cadastro, garantindo que o hash da
- * senha seja gerado exatamente como no fluxo real de sign-up.
  *
- * Uso: `pnpm db:seed` (com o servidor rodando).
+ * O cadastro público está desativado (`disableSignUp`), e criar usuário pela
+ * API de admin exigiria uma sessão de admin — que ainda não existe no primeiro
+ * boot. Por isso o seed chama a API interna do Better Auth diretamente, que
+ * gera o hash da senha do mesmo jeito que o fluxo normal.
+ *
+ * Uso: `pnpm db:seed`.
  */
+import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
+import { auth } from 'src/modules/auth/auth';
+import { isProduction } from 'src/config/env';
 import { db, queryClient } from 'src/db/db.provider';
 import { user } from 'src/db/schema/auth';
-import { env, isProduction } from 'src/config/env';
+import { role } from 'src/db/schema/role';
+import { SCREENS } from 'src/modules/roles/types/role.types';
 
 const SEED_NAME = process.env.SEED_ADMIN_NAME ?? 'Administrador';
 const SEED_EMAIL = process.env.SEED_ADMIN_EMAIL ?? 'admin@local.dev';
@@ -24,12 +31,42 @@ async function promoteToAdmin(id: string): Promise<void> {
 	await db.update(user).set({ role: 'admin' }).where(eq(user.id, id));
 }
 
+/** Cargos de sistema: o RolesGuard depende de `admin` existir. */
+async function seedSystemRoles(): Promise<void> {
+	const systemRoles = [
+		{ name: 'admin', description: 'Acesso total ao sistema.', screens: SCREENS.join(',') },
+		{ name: 'user', description: 'Acesso às áreas comuns.', screens: '' },
+	];
+
+	for (const item of systemRoles) {
+		const [existing] = await db
+			.select({ id: role.id, screens: role.screens })
+			.from(role)
+			.where(eq(role.name, item.name))
+			.limit(1);
+
+		if (existing) {
+			// Tela nova em `SCREENS` precisa chegar ao admin sem SQL manual.
+			if (item.name === 'admin' && existing.screens !== item.screens) {
+				await db.update(role).set({ screens: item.screens }).where(eq(role.id, existing.id));
+				log('telas do cargo admin atualizadas');
+			}
+			continue;
+		}
+
+		await db.insert(role).values({ id: randomUUID(), isSystem: true, ...item });
+		log(`cargo de sistema criado: ${item.name}`);
+	}
+}
+
 async function seed(): Promise<void> {
 	if (isProduction) {
 		log('NODE_ENV=production: seed bloqueado. Crie o admin manualmente.');
 		process.exitCode = 1;
 		return;
 	}
+
+	await seedSystemRoles();
 
 	const [existing] = await db
 		.select({ id: user.id, role: user.role })
@@ -47,34 +84,17 @@ async function seed(): Promise<void> {
 		return;
 	}
 
-	const baseUrl = `http://localhost:${env.PORT}`;
-
-	const response = await fetch(`${baseUrl}/auth/sign-up/email`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			// Better Auth recusa requisições sem Origin (proteção CSRF).
-			Origin: env.BETTER_AUTH_URL,
-		},
-		body: JSON.stringify({ name: SEED_NAME, email: SEED_EMAIL, password: SEED_PASSWORD }),
+	// `createUser` do plugin admin não passa por `disableSignUp`.
+	// Chamado server-side, sem sessão, pois este é o primeiro admin.
+	const created = await auth.api.createUser({
+		body: { name: SEED_NAME, email: SEED_EMAIL, password: SEED_PASSWORD, role: 'admin' },
 	});
 
-	if (!response.ok) {
-		const body = await response.text();
-		throw new Error(`falha ao criar usuário (HTTP ${response.status}): ${body}`);
+	if (!created.user?.id) {
+		throw new Error('usuário não retornado pelo Better Auth');
 	}
 
-	const [created] = await db
-		.select({ id: user.id })
-		.from(user)
-		.where(eq(user.email, SEED_EMAIL))
-		.limit(1);
-
-	if (!created) {
-		throw new Error('usuário não encontrado após o cadastro');
-	}
-
-	await promoteToAdmin(created.id);
+	await promoteToAdmin(created.user.id);
 
 	log(`admin criado: ${SEED_EMAIL} / ${SEED_PASSWORD}`);
 	log('troque a senha antes de expor esta aplicação.');

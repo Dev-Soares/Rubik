@@ -74,7 +74,7 @@ Todo `export type` fica em `<escopo>/types/<nome>.types.ts`. Nunca no topo de um
 ```
 src/modules/users/types/user.types.ts     # PublicUser
 src/common/types/pagination.types.ts      # Paginated<T>
-src/auth/types/auth.types.ts              # Session, User
+src/modules/auth/types/auth.types.ts      # Session, User
 src/db/types/db.types.ts                  # Database
 ```
 
@@ -96,9 +96,84 @@ modules/<feature>/
   <feature>.module.ts        # wiring
   dto/<acao>-<feature>.dto.ts
   types/<feature>.types.ts
+  utils/<assunto>.utils.ts   # função pura da feature
 ```
 
 Uma classe exportada por arquivo. Service com 400 linhas → quebrar em services menores por sub-domínio, não em regiões do mesmo arquivo.
+
+## `common/` é só o que dois módulos usam
+
+`common/` não é pasta de "código genérico": é pasta de **código compartilhado**.
+Arquivo com **um** consumidor mora dentro do módulo que o consome, sempre — dto,
+type, util, tanto faz. Sobe para `common/` quando o segundo consumidor aparecer,
+não por antecipação.
+
+```
+// BOM — um consumidor: fica no módulo
+modules/roles/utils/screens.utils.ts     # só roles mexe com telas
+modules/roles/types/role.types.ts
+
+// BOM — dois ou mais: sobe
+common/types/pagination.types.ts         # audit, roles, users
+common/dto/pagination.dto.ts             # audit, roles, users
+common/utils/roles.utils.ts              # roles.service + RolesGuard
+
+// RUIM — genérico no nome, único no uso
+common/utils/screens.utils.ts            # só roles importa
+common/types/report.types.ts             # só reports importa
+```
+
+Exceção: **infra transversal** (`guards/`, `pipes/`, `filters/`,
+`interceptors/`, `decorators/`) fica em `common/` mesmo com um consumidor só —
+existe para ser aplicada em qualquer rota, e o contador de imports não mede isso.
+`OwnershipGuard` é o caso: hoje só `users` usa, e o lugar dele é `common/guards/`.
+
+## Função pura — `utils/`
+
+**Nunca** declare função solta no mesmo arquivo de um service. Service exporta
+uma classe e nada mais. Função pura (sem `db`, sem estado, sem injeção) mora em
+`utils/<assunto>.utils.ts` — no módulo, ou em `common/` pela regra acima —,
+reexportada pelo `utils/index.ts` do mesmo nível com export nomeado.
+
+```typescript
+// RUIM — helper solto no service, invisível para os outros
+// roles.service.ts
+function parseScreens(value: string | null): Screen[] { ... }
+
+@Injectable()
+export class RolesService { ... }
+
+// BOM
+// modules/roles/utils/screens.utils.ts
+export function parseScreens(value: string | null | undefined): Screen[] { ... }
+
+// roles.service.ts
+import { parseScreens } from 'src/modules/roles/utils';
+```
+
+Regras:
+- Um assunto por arquivo (`roles.utils.ts`, `screens.utils.ts`), nunca um
+  `utils.ts` genérico virando depósito.
+- Util não injeta dependência nem toca `db`: se precisa do banco, é método de service.
+- Achou a mesma transformação em dois lugares (guard e service, por exemplo) →
+  extraia para util e troque os dois. Duplicata é bug latente.
+- Exceção única: mapper de row para o tipo público da própria feature
+  (`toPublicRole`, `toEntry`) fica no service — é a tradução da borda dele.
+  Qualquer outra função sai, exportada ou não.
+
+```typescript
+// FICA no service — mapper da borda, 1:1 com a tabela da feature
+function toPublicRole(row: RoleRow): PublicRole { ... }
+
+// SAI para utils/ — regra sobre o dado, testável sozinha
+function applyScreenOverrides(inherited, overrides) { ... }
+function toLikePattern(term) { ... }
+```
+
+Em dúvida: se a função faria sentido num teste unitário sem o service, vai para `utils/`.
+
+No client a regra é a mesma, com `shared/` no papel de `common/`:
+`modules/<feature>/utils/` primeiro, `shared/utils/` quando compartilhado.
 
 ## Regras gerais
 

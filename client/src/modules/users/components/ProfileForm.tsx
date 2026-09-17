@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { IdCardIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useUpdateUser } from '@/modules/users/hooks/useUpdateUser';
 import { updateUserSchema, type UpdateUserInput } from '@/modules/users/types/user';
@@ -24,17 +25,16 @@ export function ProfileForm({ userId, defaultValues }: ProfileFormProps) {
 	return (
 		<form
 			onSubmit={handleSubmit((data) => updateUser(data))}
-			className="flex max-w-sm flex-col gap-4"
+			className="flex flex-col gap-5"
 		>
-			<FormField label="Nome" error={errors.name?.message} {...register('name')} />
 			<FormField
-				label="URL do avatar"
-				placeholder="https://exemplo.com/avatar.png"
-				error={errors.image?.message}
-				{...register('image')}
+				label="Nome"
+				icon={IdCardIcon}
+				error={errors.name?.message}
+				{...register('name')}
 			/>
 
-			<Button type="submit" disabled={isPending || !isDirty}>
+			<Button type="submit" className="w-fit" disabled={isPending || !isDirty}>
 				{isPending ? 'Salvando...' : 'Salvar alterações'}
 			</Button>
 		</form>

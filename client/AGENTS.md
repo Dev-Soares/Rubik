@@ -164,9 +164,86 @@ Input com `label` associado. Erro com `role="alert"` + `aria-describedby`. Botã
 ## Pastas
 
 ```
-modules/<Feature>/{components,hooks,service,types,skeletons}
+modules/<Feature>/{components,hooks,service,types,utils,skeletons}
 pages/          # uma página por arquivo
-shared/{components,layouts,hooks,contexts,types}
+shared/{components,layouts,hooks,contexts,types,utils}
 ```
 
 Componente: PascalCase. Hook: camelCase. Imports internos via alias `@/`.
+
+### Função pura — `utils/`
+
+Função pura (sem hook, sem estado, sem JSX) não fica solta no topo de um
+componente nem de um service. Vai para `utils/`, um assunto por arquivo — nunca
+um `utils.ts` depósito.
+
+O corte é **transformação de dado vs. formatação de apresentação**, não
+"exportado ou não":
+
+```
+// SAI para utils/ — reestrutura dado
+groupByDay(entries), toAccessByScreen(screens), nextOffset(page)
+
+// FICA no arquivo — formata para exibir
+getInitials(name), accessOptions(inherited), new Intl.DateTimeFormat(...)
+```
+
+Em dúvida: faria sentido num teste unitário sem o componente? Então vai para `utils/`.
+
+### `shared/` = 2+ consumidores
+
+`shared/` é código **compartilhado**, não código "genérico". Arquivo com um único
+consumidor mora na feature que o consome — component, hook, type, util, tanto
+faz. Sobe quando o segundo aparecer.
+
+```
+modules/roles/utils/screens.ts   # só roles                        -> feature
+shared/utils/roles.ts            # useAuth + RoleBadge + UsersTable -> shared
+```
+
+Exceções — ficam em `shared/` mesmo com um consumidor: `shared/components/ui/`
+(gerado), `shared/layouts/` (casca do app), hooks/contexts de infra (tema,
+viewport, debounce) e os primitivos de form/página (`FormField`, `FormError`,
+`FormSection`, `PageHeader`, `SelectField`, `PageSkeleton`).
+
+A regra vale para **código de domínio**: type, util, service, component de feature.
+
+## Layout de páginas e formulários
+
+Toda página autenticada usa `AppLayout`, que já limita a largura de leitura
+(`max-w-3xl`). Não crie outro container de largura por cima.
+
+Estrutura padrão de uma página:
+
+```tsx
+<AppLayout>
+  <div className="flex flex-col gap-8">
+    <PageHeader title="..." description="..." />
+    {/* conteúdo */}
+  </div>
+</AppLayout>
+```
+
+- **Título da página**: sempre `PageHeader` (cor primária, com descrição opcional).
+  Nunca um `<h1>` solto.
+- **Seções de formulário**: sempre `FormSection` — título e descrição **acima**
+  dos campos, nunca ao lado.
+- **Não** coloque `max-w-*` no `<form>`: quem controla a largura é a `FormSection`.
+- Separe seções dentro do mesmo card com `<Separator />` e `gap-8`.
+- Ação da página (ex: "Novo usuário") fica na mesma linha do `PageHeader`,
+  alinhada à direita.
+
+```tsx
+// BOM
+<Card>
+  <CardContent className="flex flex-col gap-8">
+    <FormSection title="Dados da conta" description="Como seu nome aparece.">
+      <ProfileForm ... />
+    </FormSection>
+    <Separator />
+    <FormSection title="Senha" description="...">
+      <ChangePasswordForm />
+    </FormSection>
+  </CardContent>
+</Card>
+```

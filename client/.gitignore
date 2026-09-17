@@ -1,4 +1,6 @@
 node_modules/
 dist/
+# Diretório de trabalho do gerador de rotas do TanStack.
+.tanstack/
 .env
 *.tsbuildinfo

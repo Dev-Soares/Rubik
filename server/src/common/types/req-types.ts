@@ -1,5 +1,5 @@
 import type { Request } from 'express';
-import type { Session, User } from 'src/auth/types/auth.types';
+import type { Session, User } from 'src/modules/auth/types/auth.types';
 
 export type AuthenticatedRequest = Request & {
 	user: User;

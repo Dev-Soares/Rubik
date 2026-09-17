@@ -1,6 +1,7 @@
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { getSession } from '@/api/auth-client';
 import type { Session } from '@/shared/types/auth';
+import { isAdminRole } from '@/shared/utils/roles';
 
 const SESSION_STALE_TIME_MS = 1000 * 30;
 
@@ -21,6 +22,6 @@ export function useAuth() {
 		session,
 		user: session?.user ?? null,
 		isAuthenticated: Boolean(session),
-		isAdmin: session?.user.role?.split(',').includes('admin') ?? false,
+		isAdmin: isAdminRole(session?.user.role),
 	};
 }

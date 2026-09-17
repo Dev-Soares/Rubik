@@ -1,5 +1,5 @@
 import { createParamDecorator, type ExecutionContext } from '@nestjs/common';
-import type { User } from 'src/auth/types/auth.types';
+import type { User } from 'src/modules/auth/types/auth.types';
 import type { OptionalAuthRequest } from 'src/common/types/req-types';
 
 /**

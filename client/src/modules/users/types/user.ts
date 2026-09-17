@@ -5,10 +5,33 @@ export const updateUserSchema = z.object({
 		.string()
 		.min(2, 'O nome deve ter no mínimo 2 caracteres.')
 		.max(100, 'O nome deve ter no máximo 100 caracteres.'),
-	image: z.union([z.url('Informe uma URL válida.'), z.literal('')]).optional(),
+});
+
+export const changePasswordSchema = z
+	.object({
+		currentPassword: z.string().min(1, 'Informe a senha atual.'),
+		newPassword: z.string().min(8, 'A nova senha deve ter no mínimo 8 caracteres.'),
+		confirmPassword: z.string(),
+	})
+	.refine((data) => data.newPassword === data.confirmPassword, {
+		message: 'As senhas não conferem.',
+		path: ['confirmPassword'],
+	});
+
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
+export const createUserSchema = z.object({
+	name: z
+		.string()
+		.min(2, 'O nome deve ter no mínimo 2 caracteres.')
+		.max(100, 'O nome deve ter no máximo 100 caracteres.'),
+	email: z.email('E-mail inválido.'),
+	password: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres.'),
+	role: z.enum(['user', 'admin']),
 });
 
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type CreateUserInput = z.infer<typeof createUserSchema>;
 
 export type User = {
 	id: string;

@@ -5,8 +5,7 @@ import {
 	Injectable,
 } from '@nestjs/common';
 import type { OptionalAuthRequest } from 'src/common/types/req-types';
-
-const ADMIN_ROLE = 'admin';
+import { isAdmin } from 'src/common/utils';
 
 /**
  * Permite acesso quando o `:id` da rota é o próprio usuário, ou quando ele é admin.
@@ -22,8 +21,7 @@ export class OwnershipGuard implements CanActivate {
 			throw new ForbiddenException('Permissão insuficiente.');
 		}
 
-		const roles = user.role?.split(',').map((role) => role.trim()) ?? [];
-		if (roles.includes(ADMIN_ROLE)) {
+		if (isAdmin(user.role)) {
 			return true;
 		}
 

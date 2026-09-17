@@ -3,6 +3,8 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { queryClient } from '@/api/query-client';
+import { ErrorPage } from '@/pages/ErrorPage';
+import { NotFound } from '@/pages/NotFound';
 import { routeTree } from '@/routeTree.gen';
 import '@/styles/global.css';
 
@@ -12,6 +14,9 @@ const router = createRouter({
 	defaultPreload: 'intent',
 	defaultPreloadStaleTime: 0,
 	scrollRestoration: true,
+	// Telas de erro/404 do root valem para todas as rotas que não definirem a sua.
+	defaultErrorComponent: ErrorPage,
+	defaultNotFoundComponent: NotFound,
 });
 
 declare module '@tanstack/react-router' {

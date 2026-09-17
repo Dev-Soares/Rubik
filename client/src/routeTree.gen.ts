@@ -11,10 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/_auth'
-import { Route as SignUpRouteImport } from './routes/sign-up'
-import { Route as AuthAdminRouteImport } from './routes/_auth/admin'
-import { Route as AuthDashboardRouteImport } from './routes/_auth/dashboard'
+import { Route as AuthGuideRouteImport } from './routes/_auth/guide'
 import { Route as AuthProfileRouteImport } from './routes/_auth/profile'
+import { Route as AuthSupportRouteImport } from './routes/_auth/support'
+import { Route as AuthAdminIndexRouteImport } from './routes/_auth/admin/index'
+import { Route as AuthAdminAuditRouteImport } from './routes/_auth/admin/audit'
+import { Route as AuthAdminRolesRouteImport } from './routes/_auth/admin/roles'
+import { Route as AuthAdminUsersRouteImport } from './routes/_auth/admin/users'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -25,19 +28,9 @@ const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SignUpRoute = SignUpRouteImport.update({
-  id: '/sign-up',
-  path: '/sign-up',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthAdminRoute = AuthAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthDashboardRoute = AuthDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AuthGuideRoute = AuthGuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthProfileRoute = AuthProfileRouteImport.update({
@@ -45,49 +38,101 @@ const AuthProfileRoute = AuthProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthSupportRoute = AuthSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthAdminIndexRoute = AuthAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthAdminAuditRoute = AuthAdminAuditRouteImport.update({
+  id: '/admin/audit',
+  path: '/admin/audit',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthAdminRolesRoute = AuthAdminRolesRouteImport.update({
+  id: '/admin/roles',
+  path: '/admin/roles',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthAdminUsersRoute = AuthAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => AuthRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/sign-up': typeof SignUpRoute
-  '/admin': typeof AuthAdminRoute
-  '/dashboard': typeof AuthDashboardRoute
+  '/guide': typeof AuthGuideRoute
   '/profile': typeof AuthProfileRoute
+  '/support': typeof AuthSupportRoute
+  '/admin/audit': typeof AuthAdminAuditRoute
+  '/admin/roles': typeof AuthAdminRolesRoute
+  '/admin/users': typeof AuthAdminUsersRoute
+  '/admin/': typeof AuthAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/sign-up': typeof SignUpRoute
-  '/admin': typeof AuthAdminRoute
-  '/dashboard': typeof AuthDashboardRoute
+  '/guide': typeof AuthGuideRoute
   '/profile': typeof AuthProfileRoute
+  '/support': typeof AuthSupportRoute
+  '/admin/audit': typeof AuthAdminAuditRoute
+  '/admin/roles': typeof AuthAdminRolesRoute
+  '/admin/users': typeof AuthAdminUsersRoute
+  '/admin': typeof AuthAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
-  '/sign-up': typeof SignUpRoute
-  '/_auth/admin': typeof AuthAdminRoute
-  '/_auth/dashboard': typeof AuthDashboardRoute
+  '/_auth/guide': typeof AuthGuideRoute
   '/_auth/profile': typeof AuthProfileRoute
+  '/_auth/support': typeof AuthSupportRoute
+  '/_auth/admin/audit': typeof AuthAdminAuditRoute
+  '/_auth/admin/roles': typeof AuthAdminRolesRoute
+  '/_auth/admin/users': typeof AuthAdminUsersRoute
+  '/_auth/admin/': typeof AuthAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sign-up' | '/admin' | '/dashboard' | '/profile'
+  fullPaths:
+    | '/'
+    | '/guide'
+    | '/profile'
+    | '/support'
+    | '/admin/audit'
+    | '/admin/roles'
+    | '/admin/users'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sign-up' | '/admin' | '/dashboard' | '/profile'
+  to:
+    | '/'
+    | '/guide'
+    | '/profile'
+    | '/support'
+    | '/admin/audit'
+    | '/admin/roles'
+    | '/admin/users'
+    | '/admin'
   id:
     | '__root__'
     | '/'
     | '/_auth'
-    | '/sign-up'
-    | '/_auth/admin'
-    | '/_auth/dashboard'
+    | '/_auth/guide'
     | '/_auth/profile'
+    | '/_auth/support'
+    | '/_auth/admin/audit'
+    | '/_auth/admin/roles'
+    | '/_auth/admin/users'
+    | '/_auth/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
-  SignUpRoute: typeof SignUpRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -106,25 +151,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sign-up': {
-      id: '/sign-up'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof SignUpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_auth/admin': {
-      id: '/_auth/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthAdminRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/dashboard': {
-      id: '/_auth/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthDashboardRouteImport
+    '/_auth/guide': {
+      id: '/_auth/guide'
+      path: '/guide'
+      fullPath: '/guide'
+      preLoaderRoute: typeof AuthGuideRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/profile': {
@@ -134,19 +165,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthProfileRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/support': {
+      id: '/_auth/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof AuthSupportRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/admin/': {
+      id: '/_auth/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthAdminIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/admin/audit': {
+      id: '/_auth/admin/audit'
+      path: '/admin/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AuthAdminAuditRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/admin/roles': {
+      id: '/_auth/admin/roles'
+      path: '/admin/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AuthAdminRolesRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/admin/users': {
+      id: '/_auth/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthAdminUsersRouteImport
+      parentRoute: typeof AuthRoute
+    }
   }
 }
 
 interface AuthRouteChildren {
-  AuthAdminRoute: typeof AuthAdminRoute
-  AuthDashboardRoute: typeof AuthDashboardRoute
+  AuthGuideRoute: typeof AuthGuideRoute
   AuthProfileRoute: typeof AuthProfileRoute
+  AuthSupportRoute: typeof AuthSupportRoute
+  AuthAdminAuditRoute: typeof AuthAdminAuditRoute
+  AuthAdminRolesRoute: typeof AuthAdminRolesRoute
+  AuthAdminUsersRoute: typeof AuthAdminUsersRoute
+  AuthAdminIndexRoute: typeof AuthAdminIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
-  AuthAdminRoute: AuthAdminRoute,
-  AuthDashboardRoute: AuthDashboardRoute,
+  AuthGuideRoute: AuthGuideRoute,
   AuthProfileRoute: AuthProfileRoute,
+  AuthSupportRoute: AuthSupportRoute,
+  AuthAdminAuditRoute: AuthAdminAuditRoute,
+  AuthAdminRolesRoute: AuthAdminRolesRoute,
+  AuthAdminUsersRoute: AuthAdminUsersRoute,
+  AuthAdminIndexRoute: AuthAdminIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -154,7 +228,6 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
-  SignUpRoute: SignUpRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

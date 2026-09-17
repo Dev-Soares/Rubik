@@ -6,7 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import basicAuth from 'express-basic-auth';
 import helmet from 'helmet';
-import { auth } from 'src/auth/auth';
+import { auth } from 'src/modules/auth/auth';
 import { toNodeHandler } from 'better-auth/node';
 import { AppModule } from 'src/app.module';
 import { corsOrigins, env, isProduction } from 'src/config/env';

@@ -7,13 +7,13 @@ const searchSchema = z.object({
 	redirect: z.string().optional(),
 });
 
-/** Rota raiz é o sign-in: quem já tem sessão cai direto no dashboard. */
+/** Rota raiz é o sign-in: quem já tem sessão cai direto no perfil. */
 export const Route = createFileRoute('/')({
 	validateSearch: searchSchema,
 	beforeLoad: async ({ context, search }) => {
 		const session = await context.queryClient.ensureQueryData(sessionQueryOptions);
 		if (session) {
-			throw redirect({ to: search.redirect ?? '/dashboard' });
+			throw redirect({ to: search.redirect ?? '/profile' });
 		}
 	},
 	component: SignIn,

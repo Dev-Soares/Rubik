@@ -39,7 +39,6 @@ services:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-local-com-mais-de-32-caracteres}
       CORS_ORIGIN: http://localhost:5173
       LOG_LEVEL: debug
-      DISABLE_PUBLIC_SIGNUP: 'false'
       SWAGGER_USER: admin
       SWAGGER_PASSWORD: admin
     volumes:
@@ -74,14 +73,11 @@ services:
       VITE_API_URL: http://localhost:3000
       DOCKER: 'true'
     volumes:
-      - ./client/src:/app/client/src
-      - ./client/public:/app/client/public
-      - ./client/index.html:/app/client/index.html
-      - ./client/package.json:/app/client/package.json
-      - ./client/vite.config.ts:/app/client/vite.config.ts
-      - ./client/tsconfig.json:/app/client/tsconfig.json
-      - ./client/tsconfig.app.json:/app/client/tsconfig.app.json
-      - ./client/tsconfig.node.json:/app/client/tsconfig.node.json
+      # `client` inteiro num único mount: o gerador de rotas do TanStack escreve
+      # em `.tanstack/tmp` e renomeia por cima de `src/routeTree.gen.ts`. Com um
+      # mount por arquivo, origem e destino caem em dispositivos diferentes e o
+      # rename morre com EXDEV.
+      - ./client:/app/client
       - /app/node_modules
       - /app/client/node_modules
     ports:

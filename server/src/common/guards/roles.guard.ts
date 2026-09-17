@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from 'src/common/decorators/roles.decorator';
 import type { OptionalAuthRequest } from 'src/common/types/req-types';
+import { toRoleNames } from 'src/common/utils';
 
 /** Roda depois do AuthGuard. Compara a role da sessão com as exigidas por `@Roles()`. */
 @Injectable()
@@ -24,7 +25,7 @@ export class RolesGuard implements CanActivate {
 		}
 
 		const request = context.switchToHttp().getRequest<OptionalAuthRequest>();
-		const roles = request.user?.role?.split(',').map((role) => role.trim()) ?? [];
+		const roles = toRoleNames(request.user?.role);
 
 		if (!required.some((role) => roles.includes(role))) {
 			throw new ForbiddenException('Permissão insuficiente.');

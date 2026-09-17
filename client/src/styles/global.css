@@ -3,6 +3,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * O Radix emite `data-state="open|closed"`, mas os componentes do shadcn usam
+ * `data-open:` / `data-closed:`. Sem estas variantes as classes de animação
+ * (`data-open:animate-in`, `data-closed:animate-out`) não geram CSS nenhum.
+ */
+@custom-variant data-open (&[data-state='open']);
+@custom-variant data-closed (&[data-state='closed']);
+
 /* Satoshi (Fontshare) — self-hospedada em /public/fonts, sem CDN em runtime. */
 @font-face {
 	font-family: 'Satoshi';
@@ -78,97 +86,97 @@
 }
 
 /*
- * Paleta: azul + branco/preto.
- * O preto é levemente azulado (tinta), não cinza neutro — mantém a página coesa.
+ * Paleta: vermelho escuro + branco/preto.
+ * Os neutros têm viés quente avermelhado para casar com a cor da marca.
  */
 :root {
 	--radius: 0.5rem;
 
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.18 0.02 250);
+	--background: oklch(0.966 0.003 345.2);
+	--foreground: oklch(0.143 0.004 345.4);
 
 	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.18 0.02 250);
+	--card-foreground: oklch(0.143 0.004 345.4);
 	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.18 0.02 250);
+	--popover-foreground: oklch(0.143 0.004 345.4);
 
-	--primary: oklch(0.48 0.19 255);
+	--primary: oklch(0.562 0.23 29.2);
 	--primary-foreground: oklch(1 0 0);
 
-	--secondary: oklch(0.97 0.01 250);
-	--secondary-foreground: oklch(0.18 0.02 250);
+	--secondary: oklch(0.93 0.003 345);
+	--secondary-foreground: oklch(0.143 0.004 345.4);
 
-	--muted: oklch(0.97 0.01 250);
-	--muted-foreground: oklch(0.5 0.02 250);
+	--muted: oklch(0.93 0.003 345);
+	--muted-foreground: oklch(0.5 0.006 345);
 
-	--accent: oklch(0.95 0.02 252);
-	--accent-foreground: oklch(0.38 0.17 255);
+	--accent: oklch(0.96 0.03 29);
+	--accent-foreground: oklch(0.5 0.17 29);
 
-	--destructive: oklch(0.58 0.22 25);
+	--destructive: oklch(0.62 0.2 40);
 	--destructive-foreground: oklch(1 0 0);
 
-	--border: oklch(0.91 0.01 250);
-	--input: oklch(0.89 0.01 250);
-	--ring: oklch(0.48 0.19 255);
+	--border: oklch(0.89 0.003 345);
+	--input: oklch(0.87 0.003 345);
+	--ring: oklch(0.562 0.23 29.2);
 
-	--chart-1: oklch(0.48 0.19 255);
-	--chart-2: oklch(0.6 0.15 250);
-	--chart-3: oklch(0.7 0.11 245);
-	--chart-4: oklch(0.78 0.08 240);
-	--chart-5: oklch(0.85 0.05 238);
+	--chart-1: oklch(0.562 0.23 29.2);
+	--chart-2: oklch(0.58 0.17 15);
+	--chart-3: oklch(0.66 0.15 45);
+	--chart-4: oklch(0.72 0.13 65);
+	--chart-5: oklch(0.78 0.11 85);
 
-	--sidebar: oklch(0.98 0.005 250);
-	--sidebar-foreground: oklch(0.18 0.02 250);
-	--sidebar-primary: oklch(0.48 0.19 255);
+	--sidebar: oklch(0.985 0.002 345);
+	--sidebar-foreground: oklch(0.143 0.004 345.4);
+	--sidebar-primary: oklch(0.562 0.23 29.2);
 	--sidebar-primary-foreground: oklch(1 0 0);
-	--sidebar-accent: oklch(0.95 0.02 252);
-	--sidebar-accent-foreground: oklch(0.38 0.17 255);
-	--sidebar-border: oklch(0.91 0.01 250);
-	--sidebar-ring: oklch(0.48 0.19 255);
+	--sidebar-accent: oklch(0.96 0.03 29);
+	--sidebar-accent-foreground: oklch(0.5 0.17 29);
+	--sidebar-border: oklch(0.89 0.003 345);
+	--sidebar-ring: oklch(0.562 0.23 29.2);
 }
 
 .dark {
-	--background: oklch(0.16 0.02 250);
-	--foreground: oklch(0.97 0.005 250);
+	--background: oklch(0.143 0.004 345.4);
+	--foreground: oklch(0.966 0.003 345.2);
 
-	--card: oklch(0.21 0.02 250);
-	--card-foreground: oklch(0.97 0.005 250);
-	--popover: oklch(0.21 0.02 250);
-	--popover-foreground: oklch(0.97 0.005 250);
+	--card: oklch(0.19 0.004 345);
+	--card-foreground: oklch(0.966 0.003 345.2);
+	--popover: oklch(0.19 0.004 345);
+	--popover-foreground: oklch(0.966 0.003 345.2);
 
-	--primary: oklch(0.62 0.19 255);
+	--primary: oklch(0.64 0.215 29.2);
 	--primary-foreground: oklch(1 0 0);
 
-	--secondary: oklch(0.26 0.02 250);
-	--secondary-foreground: oklch(0.97 0.005 250);
+	--secondary: oklch(0.24 0.004 345);
+	--secondary-foreground: oklch(0.966 0.003 345.2);
 
-	--muted: oklch(0.26 0.02 250);
-	--muted-foreground: oklch(0.68 0.02 250);
+	--muted: oklch(0.24 0.004 345);
+	--muted-foreground: oklch(0.68 0.006 345);
 
-	--accent: oklch(0.3 0.04 252);
-	--accent-foreground: oklch(0.85 0.09 255);
+	--accent: oklch(0.3 0.05 29);
+	--accent-foreground: oklch(0.86 0.12 29);
 
-	--destructive: oklch(0.68 0.19 25);
+	--destructive: oklch(0.7 0.18 42);
 	--destructive-foreground: oklch(1 0 0);
 
 	--border: oklch(1 0 0 / 12%);
 	--input: oklch(1 0 0 / 16%);
-	--ring: oklch(0.62 0.19 255);
+	--ring: oklch(0.64 0.215 29.2);
 
-	--chart-1: oklch(0.62 0.19 255);
-	--chart-2: oklch(0.68 0.15 250);
-	--chart-3: oklch(0.74 0.11 245);
-	--chart-4: oklch(0.8 0.08 240);
-	--chart-5: oklch(0.86 0.05 238);
+	--chart-1: oklch(0.64 0.215 29.2);
+	--chart-2: oklch(0.66 0.17 15);
+	--chart-3: oklch(0.72 0.15 45);
+	--chart-4: oklch(0.78 0.13 65);
+	--chart-5: oklch(0.84 0.11 85);
 
-	--sidebar: oklch(0.21 0.02 250);
-	--sidebar-foreground: oklch(0.97 0.005 250);
-	--sidebar-primary: oklch(0.62 0.19 255);
+	--sidebar: oklch(0.175 0.004 345);
+	--sidebar-foreground: oklch(0.966 0.003 345.2);
+	--sidebar-primary: oklch(0.64 0.215 29.2);
 	--sidebar-primary-foreground: oklch(1 0 0);
-	--sidebar-accent: oklch(0.3 0.04 252);
-	--sidebar-accent-foreground: oklch(0.85 0.09 255);
+	--sidebar-accent: oklch(0.3 0.05 29);
+	--sidebar-accent-foreground: oklch(0.86 0.12 29);
 	--sidebar-border: oklch(1 0 0 / 12%);
-	--sidebar-ring: oklch(0.62 0.19 255);
+	--sidebar-ring: oklch(0.64 0.215 29.2);
 }
 
 @layer base {
@@ -179,4 +187,176 @@
 	body {
 		@apply bg-background text-foreground font-sans antialiased;
 	}
+
+	/*
+	 * Tailwind v4 zera o `cursor: pointer` padrão de botões (segue o CSS nativo).
+	 * Aqui o comportamento esperado é o de sempre: mão em qualquer controle.
+	 */
+	button:not(:disabled),
+	[role='button']:not([aria-disabled='true']),
+	label[for],
+	summary {
+		@apply cursor-pointer;
+	}
+}
+
+/*
+ * Cubo Rubik montando-se: cada tile entra deslizando da direção da própria
+ * face e assenta no lugar. O delay escalonado (por face e por diagonal)
+ * dá a sensação de montagem peça por peça.
+ *
+ * O ciclo mantém o cubo inteiro visível pela maior parte do tempo — a
+ * montagem é o momento de destaque, não um loop constante de movimento.
+ */
+@layer components {
+	.cube-tile {
+		animation: cube-assemble 7s cubic-bezier(0.34, 1.3, 0.64, 1) infinite;
+	}
+
+	@keyframes cube-assemble {
+		0% {
+			opacity: 0;
+			transform: translate(var(--from-x), var(--from-y));
+		}
+		18%,
+		88% {
+			opacity: 1;
+			transform: translate(0, 0);
+		}
+		100% {
+			opacity: 0;
+			transform: translate(var(--from-x), var(--from-y));
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.cube-tile {
+			animation: none;
+		}
+	}
+}
+
+/*
+ * Formulário sobre fundo `--primary`: inputs clareiam e o botão inverte
+ * (fundo claro, texto vermelho) para seguir sendo o maior destaque.
+ *
+ * Só a partir de `lg`: no mobile o form fica numa folha clara, onde os
+ * estilos padrão já servem.
+ *
+ * Fora de `@layer`: a layer `utilities` do Tailwind vem depois de `components`,
+ * então regras layered perderiam para as classes utilitárias dos componentes.
+ */
+@media (width >= 64rem) {
+	.on-primary label {
+		color: color-mix(in oklab, var(--primary-foreground) 75%, transparent);
+	}
+
+	.on-primary input {
+		background-color: color-mix(in oklab, var(--primary-foreground) 14%, transparent);
+		border-color: color-mix(in oklab, var(--primary-foreground) 30%, transparent);
+		color: var(--primary-foreground);
+	}
+
+	.on-primary input::placeholder {
+		color: color-mix(in oklab, var(--primary-foreground) 60%, transparent);
+	}
+
+	.on-primary input:focus-visible {
+		border-color: var(--primary-foreground);
+		outline-color: color-mix(in oklab, var(--primary-foreground) 60%, transparent);
+	}
+
+	/* Ícones dentro do campo e botão de revelar senha. */
+	.on-primary svg {
+		color: color-mix(in oklab, var(--primary-foreground) 75%, transparent);
+	}
+
+	/* `--destructive` é vermelho: sobre o card vermelho não se lê. */
+	.on-primary [role='alert'] {
+		color: var(--primary-foreground);
+		font-weight: 600;
+	}
+
+	.on-primary button[type='submit'] {
+		background-color: var(--primary-foreground);
+		color: var(--primary);
+	}
+
+	.on-primary button[type='submit']:hover:not(:disabled) {
+		background-color: color-mix(in oklab, var(--primary-foreground) 88%, transparent);
+	}
+}
+
+/*
+ * Toast: o sonner injeta estilos inline próprios que ganham dos tokens.
+ * Fora de `@layer` e com seletor específico para o tema valer de verdade.
+ */
+.app-toast {
+	background: var(--popover) !important;
+	color: var(--popover-foreground) !important;
+	border: 1px solid var(--border) !important;
+	border-radius: var(--radius-lg) !important;
+	box-shadow:
+		0 10px 30px -10px rgb(0 0 0 / 25%),
+		0 2px 8px -2px rgb(0 0 0 / 10%) !important;
+}
+
+/*
+ * Cards do shadcn: o padrão `--card-spacing: 4` (16px) fica apertado.
+ * Um passo acima dá respiro sem inchar a página.
+ */
+[data-slot='card'] {
+	--card-spacing: --spacing(6);
+}
+
+@media (width >= 40rem) {
+	[data-slot='card'] {
+		--card-spacing: --spacing(7);
+	}
+}
+
+/*
+ * Botões do shadcn: o padrão (`h-8 px-2.5`) fica apertado para o sistema.
+ * Só o tamanho `default` e `lg` mudam; `xs`/`sm`/`icon` seguem compactos.
+ */
+[data-slot='button']:not([data-size='xs']):not([data-size='sm']):not([data-size^='icon']) {
+	height: --spacing(10);
+	padding-inline: --spacing(4);
+}
+
+/*
+ * Sidebar no mobile: o Sheet do shadcn desliza só 10px, o que lê como fade.
+ * Aqui o painel entra e sai da borda esquerda por inteiro.
+ *
+ * Precisa ser `animation` (e não `transition`): o Radix desmonta o elemento ao
+ * fechar e só espera o fim de uma animação para removê-lo do DOM.
+ *
+ * O elemento sai com `data-slot="sidebar"` (o Sidebar sobrescreve o do Sheet),
+ * então o seletor mira `data-mobile` + o `data-state` que o Radix emite.
+ * `!important` porque as utilities do Tailwind pesam mais.
+ */
+@keyframes sidebar-in {
+	from {
+		transform: translate3d(-100%, 0, 0);
+	}
+	to {
+		transform: translate3d(0, 0, 0);
+	}
+}
+
+@keyframes sidebar-out {
+	from {
+		transform: translate3d(0, 0, 0);
+	}
+	to {
+		transform: translate3d(-100%, 0, 0);
+	}
+}
+
+[data-mobile='true'][data-state='open'] {
+	animation: sidebar-in 0.3s cubic-bezier(0.32, 0.72, 0, 1) both !important;
+}
+
+[data-mobile='true'][data-state='closed'] {
+	animation: sidebar-out 0.25s cubic-bezier(0.32, 0.72, 0, 1) both !important;
 }

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { fromNodeHeaders } from 'better-auth/node';
-import { auth } from 'src/auth/auth';
+import { auth } from 'src/modules/auth/auth';
 import { IS_PUBLIC_KEY } from 'src/common/decorators/public.decorator';
 import type { OptionalAuthRequest } from 'src/common/types/req-types';
 

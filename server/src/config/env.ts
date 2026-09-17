@@ -12,11 +12,6 @@ const envSchema = z.object({
 	CORS_ORIGIN: z.string().default(''),
 
 	LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'fatal']).default('info'),
-	DISABLE_PUBLIC_SIGNUP: z
-		.enum(['true', 'false'])
-		.default('false')
-		.transform((value) => value === 'true'),
-
 	SWAGGER_USER: z.string().default('admin'),
 	SWAGGER_PASSWORD: z.string().default('admin'),
 });

@@ -44,7 +44,7 @@ Todo `export type` em `<escopo>/types/<nome>.types.ts`:
 ```
 src/modules/users/types/user.types.ts     # PublicUser
 src/common/types/pagination.types.ts      # Paginated<T>
-src/auth/types/auth.types.ts              # Session, User
+src/modules/auth/types/auth.types.ts      # Session, User
 src/db/types/db.types.ts                  # Database
 ```
 
@@ -64,9 +64,52 @@ modules/<feature>/
   <feature>.module.ts
   dto/<acao>-<feature>.dto.ts
   types/<feature>.types.ts
+  utils/<assunto>.utils.ts
 ```
 
 Uma classe exportada por arquivo.
+
+### Função pura — `utils/`
+
+Service exporta uma classe e **nada mais**. Função pura (sem `db`, sem estado,
+sem injeção) vai para `utils/<assunto>.utils.ts`, reexportada pelo
+`utils/index.ts` do mesmo nível.
+
+```typescript
+// RUIM — helper solto no service
+function parseScreens(value: string | null): Screen[] { ... }
+
+@Injectable()
+export class RolesService { ... }
+
+// BOM — modules/roles/utils/screens.utils.ts
+export function parseScreens(value: string | null | undefined): Screen[] { ... }
+// roles.service.ts
+import { parseScreens } from 'src/modules/roles/utils';
+```
+
+Um assunto por arquivo, nunca um `utils.ts` depósito. Precisa do `db`? É método
+de service.
+
+Exceção **única**: mapper de row para o tipo público da feature (`toPublicRole`,
+`toEntry`) fica no service — é a tradução da borda dele. Qualquer outra função
+sai, exportada ou não. Em dúvida: faria sentido num teste unitário sem o service?
+Então vai para `utils/`.
+
+### `common/` = 2+ consumidores
+
+`common/` é código **compartilhado**, não código "genérico". Arquivo com um único
+consumidor mora no módulo que o consome — dto, type, util, tanto faz. Sobe
+quando o segundo aparecer.
+
+```
+modules/roles/utils/screens.utils.ts   # só roles           -> módulo
+common/types/pagination.types.ts       # audit+roles+users  -> common
+common/utils/roles.utils.ts            # service + guard    -> common
+```
+
+Exceção: infra transversal (`guards/`, `pipes/`, `filters/`, `interceptors/`,
+`decorators/`) fica em `common/` mesmo com um consumidor — `OwnershipGuard` é o caso.
 
 ## Banco — Drizzle
 

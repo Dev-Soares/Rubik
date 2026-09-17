@@ -1,4 +1,5 @@
 import { Trash2Icon } from 'lucide-react';
+import { UserScreensDialog } from '@/modules/roles/components/UserScreensDialog';
 import { RoleBadge } from '@/modules/users/components/RoleBadge';
 import { UserAvatar } from '@/modules/users/components/UserAvatar';
 import { useDeleteUser } from '@/modules/users/hooks/useDeleteUser';
@@ -12,6 +13,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/shared/components/ui/table';
+import { isAdminRole } from '@/shared/utils/roles';
 
 type UsersTableProps = {
 	users: User[];
@@ -55,18 +57,25 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
 							<TableCell className="text-muted-foreground">
 								{dateFormatter.format(new Date(user.createdAt))}
 							</TableCell>
-							<TableCell className="text-right">
-								{user.id === currentUserId ? null : (
-									<Button
-										variant="ghost"
-										size="icon"
-										aria-label={`Remover ${user.name}`}
-										disabled={isPending && variables === user.id}
-										onClick={() => deleteUser(user.id)}
-									>
-										<Trash2Icon />
-									</Button>
-								)}
+							<TableCell>
+								<span className="flex justify-end gap-1">
+									{/* Admin enxerga tudo: não há o que personalizar. */}
+									{isAdminRole(user.role) ? null : (
+										<UserScreensDialog userId={user.id} userName={user.name} />
+									)}
+
+									{user.id === currentUserId ? null : (
+										<Button
+											variant="ghost"
+											size="icon"
+											aria-label={`Remover ${user.name}`}
+											disabled={isPending && variables === user.id}
+											onClick={() => deleteUser(user.id)}
+										>
+											<Trash2Icon />
+										</Button>
+									)}
+								</span>
 							</TableCell>
 						</TableRow>
 					))}

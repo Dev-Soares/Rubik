@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from '@tanstack/react-router';
 import { LockIcon, UserIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useSignIn } from '@/modules/auth/hooks/useSignIn';
@@ -39,13 +38,6 @@ export function SignInForm() {
 			<Button type="submit" className="h-11 w-full font-bold" disabled={isPending}>
 				{isPending ? 'Entrando...' : 'Entrar'}
 			</Button>
-
-			<p className="text-muted-foreground text-center text-sm">
-				Não tem conta?{' '}
-				<Link to="/sign-up" className="text-primary font-medium hover:underline">
-					Criar conta
-				</Link>
-			</p>
 		</form>
 	);
 }

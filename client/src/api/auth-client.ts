@@ -7,4 +7,6 @@ export const authClient = createAuthClient({
 	plugins: [adminClient()],
 });
 
-export const { signIn, signUp, signOut, useSession, getSession } = authClient;
+// Cadastro público está desativado no servidor; usuários são criados por um
+// admin via `authClient.admin.createUser`.
+export const { signIn, signOut, useSession, getSession } = authClient;

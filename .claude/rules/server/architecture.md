@@ -156,7 +156,8 @@ Regras:
   `utils.ts` genérico virando depósito.
 - Util não injeta dependência nem toca `db`: se precisa do banco, é método de service.
 - Achou a mesma transformação em dois lugares (guard e service, por exemplo) →
-  extraia para util e troque os dois. Duplicata é bug latente.
+  extraia para util e troque os dois. Duplicata de regra é bug latente.
+  Quando **não** extrair: `.claude/rules/engenharia-minima.md`, seção DRY.
 - Exceção única: mapper de row para o tipo público da própria feature
   (`toPublicRole`, `toEntry`) fica no service — é a tradução da borda dele.
   Qualquer outra função sai, exportada ou não.

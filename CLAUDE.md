@@ -39,8 +39,9 @@ Texto de UI e mensagem de erro do produto seguem em pt-BR normal — a compress�
 - Prefira editar a reescrever arquivo inteiro.
 - Rode `pnpm check` antes de declarar concluído.
 - Consistência com o código vizinho > elegância abstrata.
-- Sem feature, validação ou log que não foi pedido. Exceção: feature nova visível
-  ao usuário exige seção na aba "Como usar" (`.claude/rules/client/guide.md`) —
-  isso faz parte da entrega, não é escopo extra.
+- Sem feature, validação ou log que não foi pedido — escada YAGNI, KISS e DRY em
+  `.claude/rules/engenharia-minima.md`. Exceção: feature nova visível ao usuário
+  exige seção na aba "Como usar" (`.claude/rules/client/guide.md`) — isso faz
+  parte da entrega, não é escopo extra.
 - Comentário só para explicar **por que** não-óbvio, nunca **o que** o código faz.
 - Instruções do usuário sempre sobrescrevem este arquivo.

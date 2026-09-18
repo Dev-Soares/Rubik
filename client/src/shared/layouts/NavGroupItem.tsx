@@ -14,7 +14,7 @@ import {
 	SidebarMenuSubItem,
 	useSidebar,
 } from '@/shared/components/ui/sidebar';
-import { NAV_ACTIVE_CLASS } from '@/shared/navigation';
+import { NAV_ACTIVE_CLASS, NAV_ITEM_CLASS } from '@/shared/navigation';
 import type { NavItem } from '@/shared/types/navigation';
 
 type NavGroupItemProps = {
@@ -55,13 +55,13 @@ export function NavGroupItem({ item, onNavigate }: NavGroupItemProps) {
 			<SidebarMenuItem>
 				<CollapsibleTrigger asChild>
 					{/*
-					 * O grupo não é uma rota: nunca deve parecer a aba atual. Os `!` zeram
-					 * o fundo que o shadcn aplica em `active` e em `data-open:hover` —
-					 * sem eles o toque no celular deixa o item aceso.
+					 * O grupo não é uma rota: nunca deve parecer a aba atual. O
+					 * `data-open:hover` zera o fundo que o shadcn aplica no grupo expandido
+					 * — sem ele o toque no celular deixa o item aceso.
 					 */}
 					<SidebarMenuButton
 						tooltip={item.label}
-						className="text-foreground/70 hover:bg-foreground/5 h-9 active:bg-transparent! data-open:hover:bg-foreground/5!"
+						className={`text-foreground/70 h-9 data-open:hover:bg-foreground/5! ${NAV_ITEM_CLASS}`}
 					>
 						<item.icon className="size-4 shrink-0" strokeWidth={2} />
 						<span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
@@ -77,12 +77,7 @@ export function NavGroupItem({ item, onNavigate }: NavGroupItemProps) {
 					<SidebarMenuSub>
 						{item.children?.map((child) => (
 							<SidebarMenuSubItem key={child.to}>
-								<SidebarMenuSubButton
-									asChild
-									// Mesmo motivo do item plano: quem pinta o ativo é o
-									// NAV_ACTIVE_CLASS, senão hover e ativo se confundem.
-									className="h-8 hover:bg-foreground/5 data-active:bg-transparent active:bg-transparent!"
-								>
+								<SidebarMenuSubButton asChild className={`h-8 ${NAV_ITEM_CLASS}`}>
 									<Link
 										to={child.to}
 										onClick={onNavigate}

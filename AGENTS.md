@@ -119,6 +119,7 @@ Nada carrega "por precaução". Pela tarefa:
 
 | Tarefa | Leia |
 |---|---|
+| **Qualquer tarefa que escreve código** | `.claude/rules/engenharia-minima.md` |
 | Endpoint, controller, service, regra de negócio | `.claude/rules/server/architecture.md` |
 | Schema, migration, query Drizzle | `.claude/rules/server/db.md` |
 | Guard, sessão, papel, permissão | `.claude/rules/server/auth.md` |
@@ -144,8 +145,12 @@ não o diretório inteiro.
 
 | Tipo | Lugar |
 |---|---|
-| Regra de código (como escrever) | `.claude/rules/<escopo>/<assunto>.md` |
-| Invariante curta, válida em todo escopo | §1 ou §2 deste arquivo |
+| Regra de código de um escopo | `.claude/rules/<escopo>/<assunto>.md` (com `globs:`) |
+| Regra de código válida nos dois escopos | `.claude/rules/<assunto>.md` (sem `globs:`) + linha na tabela §7 |
+| Invariante curta, sem exemplo | §1 ou §2 deste arquivo |
 
 `.claude/rules/**` é a **fonte única** — Claude Code carrega por `globs:`,
 outros harnesses leem via a tabela §7. Não existe cópia para espelhar.
+
+Rule sem `globs:` **não** é carregada automaticamente: ela depende da tabela §7.
+Criou uma, registre lá no mesmo commit.

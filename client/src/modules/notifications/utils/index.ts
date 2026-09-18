@@ -1,6 +1,5 @@
 export {
 	formatAge,
-	formatBadgeCount,
 	formatFullDate,
 	nextOffset,
 	toneOf,

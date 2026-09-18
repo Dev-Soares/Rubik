@@ -12,6 +12,7 @@ import {
 	SidebarRail,
 	useSidebar,
 } from '@/shared/components/ui/sidebar';
+import { useUnseenResolved } from '@/modules/tickets/hooks/useUnseenResolved';
 import { NavGroupItem } from '@/shared/layouts/NavGroupItem';
 import { NavLinkItem } from '@/shared/layouts/NavLinkItem';
 import { SidebarToggle } from '@/shared/layouts/SidebarToggle';
@@ -20,6 +21,9 @@ import { NAV_FOOTER_ITEMS, NAV_ITEMS } from '@/shared/navigation';
 export function AppSidebar() {
 	const { can } = useMyScreens();
 	const { isMobile, setOpenMobile } = useSidebar();
+	const { data: unseen } = useUnseenResolved();
+
+	const unseenResolved = unseen?.count ?? 0;
 
 	/*
 	 * Um item com filhos só aparece se sobrar ao menos um filho liberado. Quem
@@ -69,7 +73,14 @@ export function AppSidebar() {
 				{/* Apoio (ex: "Como usar") fica fixo no fim, separado das abas de trabalho. */}
 				<SidebarMenu className="gap-1 pb-2">
 					{NAV_FOOTER_ITEMS.map((item) => (
-						<NavLinkItem key={item.to} item={item} onNavigate={closeOnMobile} />
+						<NavLinkItem
+							key={item.to}
+							item={item}
+							// O aviso é dos chamados resolvidos do próprio usuário; os
+							// demais itens do rodapé não têm novidade a sinalizar.
+							badge={item.to === '/tickets' ? unseenResolved : 0}
+							onNavigate={closeOnMobile}
+						/>
 					))}
 				</SidebarMenu>
 

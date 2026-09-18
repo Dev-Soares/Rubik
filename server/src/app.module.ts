@@ -13,6 +13,7 @@ import { AuthModule } from 'src/modules/auth/auth.module';
 import { HealthModule } from 'src/modules/health/health.module';
 import { NotificationsModule } from 'src/modules/notifications/notifications.module';
 import { RolesModule } from 'src/modules/roles/roles.module';
+import { TicketsModule } from 'src/modules/tickets/tickets.module';
 import { UsersModule } from 'src/modules/users/users.module';
 
 const THROTTLE_TTL_MS = 60_000;
@@ -28,6 +29,7 @@ const THROTTLE_LIMIT = 100;
 		UsersModule,
 		RolesModule,
 		NotificationsModule,
+		TicketsModule,
 		HealthModule,
 	],
 	providers: [

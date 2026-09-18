@@ -35,8 +35,15 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 	}
 
 	return (
+		/*
+		 * `fixed` em vez de `absolute`: ancorado ao elemento, a largura dependia
+		 * do container ter sido contido corretamente, e qualquer ancestral que
+		 * transbordasse levava o painel junto — era o que cortava o cabeçalho no
+		 * celular. Preso à viewport, `inset-x-2` garante a margem dos dois lados
+		 * e `ml-auto` mantém o painel encostado à direita, sob o sino.
+		 */
 		<div
-			className="bg-popover text-popover-foreground absolute right-0 z-50 mt-2 flex w-[min(22rem,calc(100vw-2rem))] flex-col rounded-md border shadow-md"
+			className="bg-popover text-popover-foreground fixed inset-x-2 top-15 z-50 ml-auto flex max-w-88 flex-col rounded-md border shadow-md sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 sm:mt-2 sm:w-88"
 			role="dialog"
 			aria-label="Notificações"
 		>

@@ -3,7 +3,7 @@ import { BellIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { NotificationDropdown } from '@/modules/notifications/components/NotificationDropdown';
 import { useUnreadCount } from '@/modules/notifications/hooks/useNotifications';
-import { formatBadgeCount } from '@/modules/notifications/utils';
+import { formatBadgeCount } from '@/shared/utils/badge';
 import { Button } from '@/shared/components/ui/button';
 
 export function NotificationBell() {

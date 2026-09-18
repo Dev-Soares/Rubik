@@ -4,6 +4,7 @@ import {
 	IdCardIcon,
 	LogInIcon,
 	ScrollTextIcon,
+	TicketIcon,
 	UserRoundIcon,
 	UsersIcon,
 } from 'lucide-react';
@@ -160,6 +161,47 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 			title: 'Os avisos são só seus',
 			description:
 				'Cada pessoa vê apenas as próprias notificações — nem administradores acessam a lista de outro usuário. Nada sai da lista: o histórico fica, e o duplo check azul indica o que já foi lido.',
+		},
+	},
+	{
+		id: 'tickets',
+		group: 'Sua conta',
+		label: 'Solicitar ajuda',
+		title: 'Solicitar ajuda',
+		description: 'Abertura de chamados para a equipe, com fotos do problema.',
+		icon: TicketIcon,
+		to: '/tickets',
+		steps: [
+			{
+				title: 'Abra a aba Solicitar ajuda',
+				description:
+					'Ela fica no rodapé do menu lateral, logo abaixo de "Como usar". A lista traz os chamados já abertos, do mais recente para o mais antigo.',
+			},
+			{
+				title: 'Registre o chamado',
+				description:
+					'Clique em "Nos envie seu problema" e escreva, em uma frase, o que está acontecendo. É o único campo obrigatório.',
+			},
+			{
+				title: 'Anexe fotos, se ajudarem',
+				description:
+					'Cole uma imagem com Ctrl+V ou use "Adicionar foto" para enviar até três imagens. Uma foto da tela ou do equipamento costuma poupar toda uma troca de mensagens.',
+			},
+			{
+				title: 'Acompanhe pela lista',
+				description:
+					'Ao confirmar, o chamado entra no topo de "Abertos" com seu nome e o horário. Alterne para "Resolvidos" para ver o que a equipe já atendeu.',
+			},
+			{
+				title: 'Saiba quando for resolvido',
+				description:
+					'Assim que a equipe resolve um chamado seu, você recebe um aviso no sino e um número aparece ao lado de "Solicitar ajuda" no menu. O número some quando você abre a aba.',
+			},
+		],
+		note: {
+			title: 'Todos veem todos os chamados',
+			description:
+				'A aba é aberta a qualquer pessoa com acesso ao sistema, e o chamado não pode ser editado nem apagado depois de enviado. Quem marca um chamado como resolvido é a equipe de atendimento, fora desta tela. Não escreva senhas nem dados pessoais no título, e confira a foto antes de anexá-la.',
 		},
 	},
 	{

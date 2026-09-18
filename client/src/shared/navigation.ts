@@ -1,10 +1,10 @@
 import {
 	BookOpenIcon,
-	HeadsetIcon,
 	HouseIcon,
 	IdCardIcon,
 	ScrollTextIcon,
 	ShieldIcon,
+	TicketIcon,
 	UsersIcon,
 } from 'lucide-react';
 import type { NavItem } from '@/shared/types/navigation';
@@ -40,7 +40,7 @@ export const NAV_ITEMS: NavItem[] = [
  */
 export const NAV_FOOTER_ITEMS: NavItem[] = [
 	{ label: 'Como usar', to: '/guide', icon: BookOpenIcon },
-	{ label: 'Suporte ao vivo', to: '/support', icon: HeadsetIcon },
+	{ label: 'Solicitar ajuda', to: '/tickets', icon: TicketIcon },
 ];
 
 /**

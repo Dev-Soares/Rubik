@@ -19,7 +19,14 @@ export function AppLayout({ children, className }: AppLayoutProps) {
 		<SidebarProvider>
 			<AppSidebar />
 
-			<SidebarInset>
+			{/*
+			 * `min-w-0` é o que impede o inset de transbordar: item de flex tem
+			 * `min-width: auto` por padrão e não encolhe abaixo do conteúdo, então
+			 * sem isto ele fica mais largo que a tela quando a sidebar ocupa
+			 * espaço — e tudo que se mede por ele (como o painel do sino) herda a
+			 * largura inflada.
+			 */}
+			<SidebarInset className="@container min-w-0">
 				<nav className="bg-background sticky top-0 z-30 flex h-15 shrink-0 items-center border-b px-4">
 					{/* No mobile a sidebar é drawer: o header traz o botão de abrir. */}
 					<SidebarToggle className="md:hidden" />

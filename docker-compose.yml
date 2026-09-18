@@ -20,6 +20,40 @@ services:
       timeout: 5s
       retries: 15
 
+  # Storage S3-compatível para as fotos de chamado. Em produção troque por S3
+  # ou R2 — o server só conhece as variáveis `S3_*`, não o MinIO.
+  minio:
+    image: minio/minio:latest
+    container_name: app-minio
+    restart: unless-stopped
+    command: server /data --console-address ':9001'
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - '9000:9000'
+      # Console web: http://localhost:9001
+      - '9001:9001'
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 3s
+      timeout: 5s
+      retries: 15
+
+  # Cria o bucket no primeiro `pnpm dev` e sai. Sem isto o primeiro upload
+  # falha com NoSuchBucket, que parece erro de credencial e não é.
+  minio-init:
+    image: minio/mc:latest
+    container_name: app-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "mc alias set local http://minio:9000 minioadmin minioadmin &&
+             mc mb --ignore-existing local/app-tickets"
+
   server:
     profiles: ['dev']
     build:
@@ -29,6 +63,8 @@ services:
     restart: unless-stopped
     depends_on:
       postgres:
+        condition: service_healthy
+      minio:
         condition: service_healthy
     environment:
       NODE_ENV: development
@@ -41,6 +77,15 @@ services:
       LOG_LEVEL: debug
       SWAGGER_USER: admin
       SWAGGER_PASSWORD: admin
+      INTEGRATION_API_KEY: ${INTEGRATION_API_KEY:-dev-integration-key-com-mais-de-32-caracteres}
+      # `minio` é o hostname do serviço na rede do compose.
+      S3_REGION: us-east-1
+      S3_BUCKET: app-tickets
+      S3_ACCESS_KEY_ID: minioadmin
+      S3_SECRET_ACCESS_KEY: minioadmin
+      S3_ENDPOINT: http://minio:9000
+      S3_PUBLIC_ENDPOINT: http://localhost:9000
+      S3_FORCE_PATH_STYLE: 'true'
     volumes:
       # Código do host -> container (hot reload).
       - ./server/src:/app/server/src
@@ -120,3 +165,4 @@ services:
 
 volumes:
   postgres_data:
+  minio_data:

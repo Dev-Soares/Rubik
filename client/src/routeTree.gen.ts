@@ -15,7 +15,7 @@ import { Route as AuthGuideRouteImport } from './routes/_auth/guide'
 import { Route as AuthInicioRouteImport } from './routes/_auth/inicio'
 import { Route as AuthNotificationsRouteImport } from './routes/_auth/notifications'
 import { Route as AuthProfileRouteImport } from './routes/_auth/profile'
-import { Route as AuthSupportRouteImport } from './routes/_auth/support'
+import { Route as AuthTicketsRouteImport } from './routes/_auth/tickets'
 import { Route as AuthAdminIndexRouteImport } from './routes/_auth/admin/index'
 import { Route as AuthAdminAuditRouteImport } from './routes/_auth/admin/audit'
 import { Route as AuthAdminRolesRouteImport } from './routes/_auth/admin/roles'
@@ -50,9 +50,9 @@ const AuthProfileRoute = AuthProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthSupportRoute = AuthSupportRouteImport.update({
-  id: '/support',
-  path: '/support',
+const AuthTicketsRoute = AuthTicketsRouteImport.update({
+  id: '/tickets',
+  path: '/tickets',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthAdminIndexRoute = AuthAdminIndexRouteImport.update({
@@ -82,7 +82,7 @@ export interface FileRoutesByFullPath {
   '/inicio': typeof AuthInicioRoute
   '/notifications': typeof AuthNotificationsRoute
   '/profile': typeof AuthProfileRoute
-  '/support': typeof AuthSupportRoute
+  '/tickets': typeof AuthTicketsRoute
   '/admin/audit': typeof AuthAdminAuditRoute
   '/admin/roles': typeof AuthAdminRolesRoute
   '/admin/users': typeof AuthAdminUsersRoute
@@ -94,7 +94,7 @@ export interface FileRoutesByTo {
   '/inicio': typeof AuthInicioRoute
   '/notifications': typeof AuthNotificationsRoute
   '/profile': typeof AuthProfileRoute
-  '/support': typeof AuthSupportRoute
+  '/tickets': typeof AuthTicketsRoute
   '/admin/audit': typeof AuthAdminAuditRoute
   '/admin/roles': typeof AuthAdminRolesRoute
   '/admin/users': typeof AuthAdminUsersRoute
@@ -108,7 +108,7 @@ export interface FileRoutesById {
   '/_auth/inicio': typeof AuthInicioRoute
   '/_auth/notifications': typeof AuthNotificationsRoute
   '/_auth/profile': typeof AuthProfileRoute
-  '/_auth/support': typeof AuthSupportRoute
+  '/_auth/tickets': typeof AuthTicketsRoute
   '/_auth/admin/audit': typeof AuthAdminAuditRoute
   '/_auth/admin/roles': typeof AuthAdminRolesRoute
   '/_auth/admin/users': typeof AuthAdminUsersRoute
@@ -122,7 +122,7 @@ export interface FileRouteTypes {
     | '/inicio'
     | '/notifications'
     | '/profile'
-    | '/support'
+    | '/tickets'
     | '/admin/audit'
     | '/admin/roles'
     | '/admin/users'
@@ -134,7 +134,7 @@ export interface FileRouteTypes {
     | '/inicio'
     | '/notifications'
     | '/profile'
-    | '/support'
+    | '/tickets'
     | '/admin/audit'
     | '/admin/roles'
     | '/admin/users'
@@ -147,7 +147,7 @@ export interface FileRouteTypes {
     | '/_auth/inicio'
     | '/_auth/notifications'
     | '/_auth/profile'
-    | '/_auth/support'
+    | '/_auth/tickets'
     | '/_auth/admin/audit'
     | '/_auth/admin/roles'
     | '/_auth/admin/users'
@@ -203,11 +203,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthProfileRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/support': {
-      id: '/_auth/support'
-      path: '/support'
-      fullPath: '/support'
-      preLoaderRoute: typeof AuthSupportRouteImport
+    '/_auth/tickets': {
+      id: '/_auth/tickets'
+      path: '/tickets'
+      fullPath: '/tickets'
+      preLoaderRoute: typeof AuthTicketsRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/admin/': {
@@ -246,7 +246,7 @@ interface AuthRouteChildren {
   AuthInicioRoute: typeof AuthInicioRoute
   AuthNotificationsRoute: typeof AuthNotificationsRoute
   AuthProfileRoute: typeof AuthProfileRoute
-  AuthSupportRoute: typeof AuthSupportRoute
+  AuthTicketsRoute: typeof AuthTicketsRoute
   AuthAdminAuditRoute: typeof AuthAdminAuditRoute
   AuthAdminRolesRoute: typeof AuthAdminRolesRoute
   AuthAdminUsersRoute: typeof AuthAdminUsersRoute
@@ -258,7 +258,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthInicioRoute: AuthInicioRoute,
   AuthNotificationsRoute: AuthNotificationsRoute,
   AuthProfileRoute: AuthProfileRoute,
-  AuthSupportRoute: AuthSupportRoute,
+  AuthTicketsRoute: AuthTicketsRoute,
   AuthAdminAuditRoute: AuthAdminAuditRoute,
   AuthAdminRolesRoute: AuthAdminRolesRoute,
   AuthAdminUsersRoute: AuthAdminUsersRoute,

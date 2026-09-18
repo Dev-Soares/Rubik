@@ -16,13 +16,6 @@ export function toneOf(kind: string): NotificationTone {
 	return NOTIFICATION_TONES[kind] ?? DEFAULT_NOTIFICATION_TONE;
 }
 
-const MAX_BADGE_COUNT = 99;
-
-/** Acima do teto o número perde legibilidade no badge do sino. */
-export function formatBadgeCount(count: number): string {
-	return count > MAX_BADGE_COUNT ? `${MAX_BADGE_COUNT}+` : String(count);
-}
-
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
 const DAY_MS = 24 * HOUR_MS;

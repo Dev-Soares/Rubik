@@ -109,6 +109,9 @@ consumidores da função tocada: um guard na função compartilhada rende diff m
 que um por chamador, e corrigir só o caminho do ticket deixa o chamador irmão
 quebrado — o mesmo bug volta com outro número.
 
+Bug que não estava catalogado vira entrada em `.claude/rules/licoes.md`, no
+mesmo commit do fix.
+
 ## Deletar conta como entregar
 
 Código morto é custo de manutenção sem receita. Removeu o último consumidor de

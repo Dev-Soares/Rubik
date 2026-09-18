@@ -30,6 +30,7 @@ nunca uma seção aqui.
 - [ ] Frontend: zero `style={{}}`, zero CSS por componente. Tailwind v4 com tokens semânticos.
 - [ ] Backend: erros via exceptions do Nest, nunca string genérica.
 - [ ] Sem feature/validação/log que o usuário não pediu.
+- [ ] Corrigiu bug que não estava catalogado? Entrada em `.claude/rules/licoes.md`.
 - [ ] `pnpm check` passa.
 
 ## 2. Decisões fixas (não reabrir)
@@ -120,6 +121,7 @@ Nada carrega "por precaução". Pela tarefa:
 | Tarefa | Leia |
 |---|---|
 | **Qualquer tarefa que escreve código** | `.claude/rules/engenharia-minima.md` |
+| **Corrigir bug** | `.claude/rules/licoes.md` — antes de investigar e ao registrar o fix |
 | Endpoint, controller, service, regra de negócio | `.claude/rules/server/architecture.md` |
 | Schema, migration, query Drizzle | `.claude/rules/server/db.md` |
 | Guard, sessão, papel, permissão | `.claude/rules/server/auth.md` |
@@ -148,6 +150,7 @@ não o diretório inteiro.
 | Regra de código de um escopo | `.claude/rules/<escopo>/<assunto>.md` (com `globs:`) |
 | Regra de código válida nos dois escopos | `.claude/rules/<assunto>.md` (sem `globs:`) + linha na tabela §7 |
 | Invariante curta, sem exemplo | §1 ou §2 deste arquivo |
+| Bug que já aconteceu + como evitar | `.claude/rules/licoes.md` |
 
 `.claude/rules/**` é a **fonte única** — Claude Code carrega por `globs:`,
 outros harnesses leem via a tabela §7. Não existe cópia para espelhar.

@@ -16,7 +16,7 @@ export default defineConfig({
 		},
 	},
 	server: {
-		port: 5173,
+		port: 3001,
 		host: true,
 		watch: isDocker ? { usePolling: true, interval: 300 } : undefined,
 	},

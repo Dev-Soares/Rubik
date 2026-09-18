@@ -37,7 +37,7 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/appdb
       BETTER_AUTH_URL: http://localhost:3000
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-local-com-mais-de-32-caracteres}
-      CORS_ORIGIN: http://localhost:5173
+      CORS_ORIGIN: http://localhost:3001
       LOG_LEVEL: debug
       SWAGGER_USER: admin
       SWAGGER_PASSWORD: admin
@@ -81,7 +81,7 @@ services:
       - /app/node_modules
       - /app/client/node_modules
     ports:
-      - '5173:5173'
+      - '3001:3001'
 
   # ---- Imagens de produção (perfil `prod`) ----
 

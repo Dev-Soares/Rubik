@@ -162,42 +162,4 @@ new Intl.DateTimeFormat(...) # constante de módulo
 Em dúvida: se a função faria sentido num teste unitário sem o componente, vai
 para `utils/`.
 
-## Layout de páginas e formulários
-
-Toda página autenticada usa `AppLayout`, que já limita a largura de leitura
-(`max-w-3xl`). Não crie outro container de largura por cima.
-
-Estrutura padrão de uma página:
-
-```tsx
-<AppLayout>
-  <div className="flex flex-col gap-8">
-    <PageHeader title="..." description="..." />
-    {/* conteúdo */}
-  </div>
-</AppLayout>
-```
-
-- **Título da página**: sempre `PageHeader` (cor primária, com descrição opcional).
-  Nunca um `<h1>` solto.
-- **Seções de formulário**: sempre `FormSection` — título e descrição **acima**
-  dos campos, nunca ao lado.
-- **Não** coloque `max-w-*` no `<form>`: quem controla a largura é a `FormSection`.
-- Separe seções dentro do mesmo card com `<Separator />` e `gap-8`.
-- Ação da página (ex: "Novo usuário") fica na mesma linha do `PageHeader`,
-  alinhada à direita.
-
-```tsx
-// BOM
-<Card>
-  <CardContent className="flex flex-col gap-8">
-    <FormSection title="Dados da conta" description="Como seu nome aparece.">
-      <ProfileForm ... />
-    </FormSection>
-    <Separator />
-    <FormSection title="Senha" description="...">
-      <ChangePasswordForm />
-    </FormSection>
-  </CardContent>
-</Card>
-```
+Layout de página e formulário: `.claude/rules/client/layout.md`.

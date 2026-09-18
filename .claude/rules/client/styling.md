@@ -17,7 +17,12 @@ Antes de escrever um componente de UI genérico, **verifique se o shadcn já tem
 pnpm ui:add <componente>     # ex: pnpm ui:add dialog
 ```
 
-Instalados em `src/shared/components/ui/`. Já disponíveis: `button`, `input`, `label`, `card`, `table`, `skeleton`, `sonner`, `dropdown-menu`, `avatar`, `badge`.
+Instalados em `src/shared/components/ui/`: `alert-dialog`, `avatar`, `badge`,
+`button`, `card`, `checkbox`, `collapsible`, `dialog`, `dropdown-menu`, `input`,
+`label`, `select`, `separator`, `sheet`, `sidebar`, `skeleton`, `sonner`,
+`table`, `tooltip`.
+
+Esta lista sai de `ls client/src/shared/components/ui/` — em dúvida, confira lá.
 
 - **NÃO** edite arquivos em `ui/` à mão — são gerados e sobrescritos por `pnpm ui:add --overwrite`.
 - Precisa de variação? Componha por cima em `shared/components/` (ex: `FormField` = `Label` + `Input` + erro).

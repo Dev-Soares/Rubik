@@ -1,11 +1,15 @@
 # AGENTS.md — Normativo Global
 
-> `server/AGENTS.md` | `client/AGENTS.md` > este arquivo > preferência do agent
+Fonte única das regras detalhadas: `.claude/rules/**`.
+Este arquivo é o normativo curto; regra nova vira arquivo em `.claude/rules/`,
+nunca uma seção aqui.
+
+> Instrução do usuário > `.claude/rules/**` > este arquivo > preferência do agent
 
 ## 0. Antes de responder
 
 1. Identifique o escopo (`server/**`, `client/**`, ambos, neutro).
-2. Confirme que o `<escopo>/AGENTS.md` está carregado; se não, leia.
+2. Carregue as rules do escopo pela tabela de roteamento (§7).
 3. Inspecione 1-2 arquivos vizinhos antes de gerar código.
 
 ## 1. Checklist de entrega [OBRIGATÓRIO]
@@ -33,6 +37,9 @@
 - Backend NestJS, ORM Drizzle, auth Better Auth.
 - Frontend TanStack Router (file-based) + TanStack Query.
 - Sem camada de domínio/DDD. Regra de negócio mora no Service.
+  Revisar só se Service passar de ~400 linhas **depois** de já ter sido quebrado
+  por sub-domínio, ou se a mesma regra aparecer em três services. Não improvise
+  uma camada de domínio parcial em um módulo só.
 - Types **sempre** em `types/`, nunca no arquivo que os usa.
 - Função pura **sempre** em `utils/`, nunca solta no arquivo do service/componente.
   Exceções: mapper de row da feature (`toPublicRole`) e formatação de apresentação
@@ -43,6 +50,8 @@
 - Um componente por arquivo, sem exceção.
 - Skeleton para todo estado de carregamento visível.
 - Cookie httpOnly para auth; nunca localStorage.
+- Tailwind v4 + shadcn/ui com token semântico. Sem CSS por componente.
+- Docker com paridade dev/prod; Postgres sempre em container.
 
 ## 3. Prioridades
 
@@ -104,19 +113,39 @@ pnpm db:generate    # após alterar schema Drizzle
 pnpm db:migrate
 ```
 
-## 7. Formato de resposta
+## 7. Roteamento — carregue só o que a tarefa pede
+
+Nada carrega "por precaução". Pela tarefa:
+
+| Tarefa | Leia |
+|---|---|
+| Endpoint, controller, service, regra de negócio | `.claude/rules/server/architecture.md` |
+| Schema, migration, query Drizzle | `.claude/rules/server/db.md` |
+| Guard, sessão, papel, permissão | `.claude/rules/server/auth.md` |
+| Chamada HTTP, hook, query, mutation | `.claude/rules/client/data-flow.md` |
+| Componente React, props, container | `.claude/rules/client/components.md` |
+| Página, formulário, `PageHeader`, `FormSection` | `.claude/rules/client/layout.md` |
+| Arquivo de rota, `beforeLoad`, `loader` | `.claude/rules/client/routes.md` |
+| Tailwind, token, shadcn, responsivo, a11y | `.claude/rules/client/styling.md` |
+| Feature nova visível ao usuário | `.claude/rules/client/guide.md` |
+| Decidir/mudar arquitetura | §2 deste arquivo — decisão fixa, não reabrir |
+
+Escopo amplo (ex: feature full-stack) → carregue as rules dos dois lados,
+não o diretório inteiro.
+
+## 8. Formato de resposta
 
 - Sem saudação nem concordância performática.
 - Pergunta simples → resposta direta.
 - Implementação → diagnóstico breve → código → trade-offs se relevante.
 - Referências: `caminho/arquivo.ts:linha`.
 
-## 8. Dual-CLI
+## 9. Onde escrever regra nova
 
-| Arquivo | Lido por |
+| Tipo | Lugar |
 |---|---|
-| `CLAUDE.md` + `.claude/rules/**` | Claude Code (glob frontmatter) |
-| `AGENTS.md` (raiz) | opencode / Codex |
-| `server/AGENTS.md`, `client/AGENTS.md` | opencode (traversal por escopo) |
+| Regra de código (como escrever) | `.claude/rules/<escopo>/<assunto>.md` |
+| Invariante curta, válida em todo escopo | §1 ou §2 deste arquivo |
 
-Editou uma regra, espelhe no outro formato. Divergência é bug.
+`.claude/rules/**` é a **fonte única** — Claude Code carrega por `globs:`,
+outros harnesses leem via a tabela §7. Não existe cópia para espelhar.

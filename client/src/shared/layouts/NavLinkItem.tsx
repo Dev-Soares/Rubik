@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { SidebarMenuButton, SidebarMenuItem } from '@/shared/components/ui/sidebar';
 import type { NavItem } from '@/shared/types/navigation';
-import { NAV_ACTIVE_CLASS } from '@/shared/navigation';
+import { NAV_ACTIVE_CLASS, NAV_ITEM_CLASS } from '@/shared/navigation';
 
 type NavLinkItemProps = {
 	item: NavItem;
@@ -12,15 +12,7 @@ type NavLinkItemProps = {
 export function NavLinkItem({ item, onNavigate }: NavLinkItemProps) {
 	return (
 		<SidebarMenuItem>
-			<SidebarMenuButton
-				asChild
-				tooltip={item.label}
-				// Zera o fundo que o shadcn aplica no hover/ativo: quem manda na cor
-				// é o NAV_ACTIVE_CLASS, senão o item sob o cursor também fica azul e
-				// parecem dois selecionados. `active:` entra junto porque no celular o
-				// toque deixa o estado grudado depois de navegar.
-				className="h-9 hover:bg-foreground/5 data-active:bg-transparent active:bg-transparent!"
-			>
+			<SidebarMenuButton asChild tooltip={item.label} className={`h-9 ${NAV_ITEM_CLASS}`}>
 				<Link
 					to={item.to}
 					onClick={onNavigate}

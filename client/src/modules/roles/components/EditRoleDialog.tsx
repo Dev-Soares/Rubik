@@ -34,7 +34,7 @@ export function EditRoleDialog({ role, className }: EditRoleDialogProps) {
 				</Button>
 			</DialogTrigger>
 
-			<DialogContent className="gap-6 p-6 shadow-2xl sm:max-w-md">
+			<DialogContent className="gap-6 p-6 shadow-2xl sm:max-w-lg">
 				<DialogHeader>
 					<DialogTitle className="text-primary text-lg font-black tracking-tight">
 						Editar cargo

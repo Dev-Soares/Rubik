@@ -86,6 +86,16 @@ export const SCREEN_GRANT_LABELS: Record<ScreenGrant, string> = {
 	write: 'Ler e editar',
 };
 
+/**
+ * Curtos para os botões dentro do card, onde as opções dividem a largura. O
+ * rótulo longo vai no `title`/`aria-label`, então nada se perde.
+ */
+export const SCREEN_GRANT_SHORT_LABELS: Record<ScreenGrant, string> = {
+	none: 'Nenhum',
+	read: 'Ler',
+	write: 'Editar',
+};
+
 /** Estado do formulário de cargo: um nível por tela. */
 export type GrantByScreen = Record<Screen, ScreenGrant>;
 
@@ -102,6 +112,14 @@ export const SCREEN_ACCESS_LABELS: Record<ScreenAccess, string> = {
 	none: 'Sem acesso',
 	read: 'Somente ler',
 	write: 'Ler e editar',
+};
+
+/** Curtos para os botões do card — ver `SCREEN_GRANT_SHORT_LABELS`. */
+export const SCREEN_ACCESS_SHORT_LABELS: Record<ScreenAccess, string> = {
+	inherit: 'Cargo',
+	none: 'Nenhum',
+	read: 'Ler',
+	write: 'Editar',
 };
 
 /** Estado do formulário de exceções: uma escolha por tela. */

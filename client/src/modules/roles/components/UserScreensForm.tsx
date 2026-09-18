@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSetUserScreens } from '@/modules/roles/hooks/useSetUserScreens';
-import { UserScreenAccessRow } from '@/modules/roles/components/UserScreenAccessRow';
+import { UserScreenAccessCard } from '@/modules/roles/components/UserScreenAccessCard';
 import { SCREENS, type AccessByScreen, type UserScreens } from '@/modules/roles/types/role';
 import { toAccessByScreen, toGrant, toScreenOverrides } from '@/modules/roles/utils';
 import { FormError } from '@/shared/components/FormError';
@@ -26,17 +26,20 @@ export function UserScreensForm({ userId, screens, onDone }: UserScreensFormProp
 	return (
 		<form onSubmit={handleSubmit} className="flex flex-col gap-6">
 			<fieldset disabled={isPending} className="contents">
-				<div className="flex flex-col gap-4">
-					{SCREENS.map((screen) => (
-						<UserScreenAccessRow
-							key={screen}
-							screen={screen}
-							access={access[screen]}
-							inherited={toGrant(screens.inherited, screen)}
-							disabled={isPending}
-							onChange={(value) => setAccess((current) => ({ ...current, [screen]: value }))}
-						/>
-					))}
+				{/* Mesma grade do formulário de cargo: a lista cresce com o produto. */}
+				<div className="max-h-72 overflow-y-auto">
+					<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+						{SCREENS.map((screen) => (
+							<UserScreenAccessCard
+								key={screen}
+								screen={screen}
+								access={access[screen]}
+								inherited={toGrant(screens.inherited, screen)}
+								disabled={isPending}
+								onChange={(value) => setAccess((current) => ({ ...current, [screen]: value }))}
+							/>
+						))}
+					</div>
 				</div>
 
 				<FormError message={error?.message} />

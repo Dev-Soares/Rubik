@@ -61,4 +61,15 @@ EXPOSE 3000
 # Migrations antes do boot: um deploy com schema novo não pode subir um server
 # que quebra na primeira query. `migrate` sai != 0 se falhar, e o `&&` impede
 # a API de subir sobre um banco desatualizado.
-CMD ["sh", "-c", "node server/dist/db/migrate.js && node server/dist/main.js"]
+#
+# O seed vem entre os dois e cria o admin inicial quando a base ainda está
+# vazia — sem ele, um deploy novo sobe sem nenhuma forma de entrar, já que o
+# cadastro público é desativado. Em produção ele se ignora assim que existe
+# qualquer usuário, então repetir o deploy não recria nada.
+#
+# `||true` de propósito, ao contrário do migrate: o seed sai != 0 quando
+# chamado na mão e falha (é o que `pnpm db:seed` precisa reportar), mas no boot
+# isso derrubaria a aplicação inteira. Schema desatualizado quebra a API na
+# primeira query e justifica abortar; admin não criado, não — a aplicação sobe
+# e o erro fica no log do deploy.
+CMD ["sh", "-c", "node server/dist/db/migrate.js && { node server/dist/db/seed.js || true; } && node server/dist/main.js"]

@@ -12,6 +12,7 @@ import { ticket, ticketPhoto } from 'src/db/schema/ticket';
 import type { Database } from 'src/db/types/db.types';
 import type { QueryTicketsDto } from 'src/modules/tickets/dto/query-tickets.dto';
 import { TicketStorageService } from 'src/modules/tickets/ticket-storage.service';
+import { TicketWebhookService } from 'src/modules/tickets/ticket-webhook.service';
 import {
 	TICKET_STATUSES,
 	type CreateTicketInput,
@@ -42,6 +43,7 @@ export class TicketsService {
 	constructor(
 		@Inject(DB) private readonly db: Database,
 		private readonly storage: TicketStorageService,
+		private readonly webhook: TicketWebhookService,
 		private readonly notifications: NotificationsService,
 		private readonly logger: PinoLogger,
 	) {
@@ -73,23 +75,35 @@ export class TicketsService {
 					throw new Error('falha ao inserir chamado');
 				}
 
-				if (keys.length === 0) {
-					return toEntry(row, []);
-				}
+				const photoRows =
+					keys.length === 0
+						? []
+						: await tx
+								.insert(ticketPhoto)
+								.values(
+									keys.map((storageKey, index) => ({
+										id: randomUUID(),
+										ticketId: id,
+										storageKey,
+										contentType: input.photos[index]?.contentType ?? 'application/octet-stream',
+									})),
+								)
+								.returning();
 
-				const photoRows = await tx
-					.insert(ticketPhoto)
-					.values(
-						keys.map((storageKey, index) => ({
-							id: randomUUID(),
-							ticketId: id,
-							storageKey,
-							contentType: input.photos[index]?.contentType ?? 'application/octet-stream',
-						})),
-					)
-					.returning();
+				const entry = toEntry(row, await this.toPhotos(photoRows));
 
-				return toEntry(row, await this.toPhotos(photoRows));
+				/*
+				 * O envio roda dentro da transação porque falhar nele cancela a
+				 * abertura: lançar aqui desfaz o INSERT, e o `catch` externo
+				 * remove as fotos do bucket. Fora da transação, o chamado ficaria
+				 * gravado sem ter chegado ao atendimento.
+				 *
+				 * Precisa vir depois do INSERT: o corpo leva as URLs assinadas,
+				 * que só existem com as linhas de foto criadas.
+				 */
+				await this.webhook.send(entry);
+
+				return entry;
 			});
 		} catch (error) {
 			await this.discard(keys);

@@ -78,6 +78,10 @@ services:
       SWAGGER_USER: admin
       SWAGGER_PASSWORD: admin
       INTEGRATION_API_KEY: ${INTEGRATION_API_KEY:-dev-integration-key-com-mais-de-32-caracteres}
+      # Vazio: o envio ao sistema externo fica desligado no dev padrão.
+      TICKET_WEBHOOK_URL: ${TICKET_WEBHOOK_URL:-}
+      TICKET_WEBHOOK_API_KEY: ${TICKET_WEBHOOK_API_KEY:-}
+      TICKET_WEBHOOK_PROJECT_ID: ${TICKET_WEBHOOK_PROJECT_ID:-}
       # `minio` é o hostname do serviço na rede do compose.
       S3_REGION: us-east-1
       S3_BUCKET: app-tickets

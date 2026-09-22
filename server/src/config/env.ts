@@ -18,6 +18,18 @@ const envSchema = z.object({
 	 */
 	INTEGRATION_API_KEY: z.string().min(32),
 
+	/**
+	 * Sistema externo que recebe cada chamado aberto. Vazio desliga o envio —
+	 * é o que permite rodar o template sem a integração configurada.
+	 */
+	TICKET_WEBHOOK_URL: z.string().default(''),
+	/** Vai no header `x-api-key` da chamada ao sistema externo. */
+	TICKET_WEBHOOK_API_KEY: z.string().default(''),
+	/** Projeto que recebe os chamados desta instância no sistema externo. */
+	TICKET_WEBHOOK_PROJECT_ID: z.string().default(''),
+	/** Teto de espera do envio, em ms: sem isto a abertura trava se o externo pendurar. */
+	TICKET_WEBHOOK_TIMEOUT_MS: z.coerce.number().int().positive().default(10_000),
+
 	// Storage S3-compatível das fotos de chamado (AWS S3, Cloudflare R2, MinIO).
 	// `S3_ENDPOINT` fica vazio na AWS; nos demais aponta para o host do bucket.
 	S3_REGION: z.string().default('us-east-1'),

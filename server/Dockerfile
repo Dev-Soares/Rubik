@@ -1,9 +1,14 @@
 # Build a partir da RAIZ do repositório (workspace pnpm):
 #   docker build -f server/Dockerfile -t app-server .
 #
-# Sem `--mount=type=cache` no pnpm install: o Railway exige que o id do cache
-# seja `s/<service id>-<path>`, o que prenderia este arquivo a um serviço de um
-# projeto específico. O cache fica no Dockerfile.dev, que só roda no compose.
+# Sem `--mount=type=cache` no pnpm install: o Railway RECUSA o build com
+# "flag '--mount=type=cache,...' is missing the cacheKey prefix from its id".
+# Ele exige ids no formato `s/<service id>-<path>`, o que prenderia este arquivo
+# a um serviço de um projeto específico e quebraria `docker build` em qualquer
+# outro lugar. O cache fica no Dockerfile.dev, que só roda no compose.
+#
+# A velocidade aqui vem do CACHE DE CAMADAS, não de cache mount: os manifests
+# num stage próprio e os dois installs em stages paralelos.
 
 FROM node:22-alpine AS base
 ENV PNPM_HOME=/pnpm
@@ -11,22 +16,32 @@ ENV PATH=$PNPM_HOME:$PATH
 RUN corepack enable
 WORKDIR /app
 
-
-FROM base AS deps
+# Os manifests mudam muito menos que o código: isolá-los numa camada própria
+# faz o Docker reaproveitar os dois stages de install abaixo enquanto só houver
+# mudança em `server/src` — que é o caso comum de um deploy.
+FROM base AS manifests
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY server/package.json ./server/
+
+
+# Dependências COM as de desenvolvimento — é o que o `tsc` precisa para compilar.
+FROM manifests AS deps
 RUN pnpm install --filter server... --frozen-lockfile
 
 
-FROM base AS build
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-COPY server/package.json ./server/
+# Só as de produção, para o runtime. Stage PRÓPRIO e não um segundo install
+# dentro do `build`: sem a dependência serial, o BuildKit resolve este em
+# paralelo com o `deps`, e o tempo dos dois passa a ser o do mais lento em vez
+# da soma.
+FROM manifests AS prod-deps
+RUN pnpm install --filter server --prod --frozen-lockfile
+
+
+FROM manifests AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/server/node_modules ./server/node_modules
 COPY server ./server
 RUN pnpm --filter server build
-# Remove devDependencies do node_modules que será copiado para runtime
-RUN pnpm install --filter server --prod --frozen-lockfile
 
 
 FROM node:22-alpine AS runtime
@@ -35,8 +50,8 @@ WORKDIR /app
 
 RUN addgroup -S app && adduser -S app -G app
 
-COPY --from=build --chown=app:app /app/node_modules ./node_modules
-COPY --from=build --chown=app:app /app/server/node_modules ./server/node_modules
+COPY --from=prod-deps --chown=app:app /app/node_modules ./node_modules
+COPY --from=prod-deps --chown=app:app /app/server/node_modules ./server/node_modules
 COPY --from=build --chown=app:app /app/server/dist ./server/dist
 COPY --from=build --chown=app:app /app/server/package.json ./server/
 

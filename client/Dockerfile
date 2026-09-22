@@ -1,9 +1,11 @@
 # Build a partir da RAIZ do repositório (workspace pnpm):
 #   docker build -f client/Dockerfile --build-arg VITE_API_URL=https://api.exemplo.com -t app-client .
 #
-# Sem `--mount=type=cache` no pnpm install: o Railway exige que o id do cache
-# seja `s/<service id>-<path>`, o que prenderia este arquivo a um serviço de um
-# projeto específico. O cache fica no Dockerfile.dev, que só roda no compose.
+# Sem `--mount=type=cache` no pnpm install: o Railway RECUSA o build com
+# "flag '--mount=type=cache,...' is missing the cacheKey prefix from its id".
+# Ele exige ids no formato `s/<service id>-<path>`, o que prenderia este arquivo
+# a um serviço de um projeto específico e quebraria `docker build` em qualquer
+# outro lugar. O cache fica no Dockerfile.dev, que só roda no compose.
 
 FROM node:22-alpine AS base
 ENV PNPM_HOME=/pnpm
@@ -17,6 +19,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY client/package.json ./client/
 RUN pnpm install --filter client... --frozen-lockfile
 
+# O código depois do install: enquanto os manifests não mudarem, a camada de
+# dependências sai do cache mesmo com `client/src` alterado a cada commit.
 COPY client ./client
 
 # Vite injeta env no bundle em BUILD time, não em runtime.

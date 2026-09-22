@@ -8,7 +8,15 @@
  * boot. Por isso o seed chama a API interna do Better Auth diretamente, que
  * gera o hash da senha do mesmo jeito que o fluxo normal.
  *
- * Uso: `pnpm db:seed`.
+ * Roda de duas formas:
+ *   - `pnpm db:seed`, na mão, em qualquer ambiente;
+ *   - no boot do container, antes da API subir (ver o CMD do Dockerfile). Em
+ *     produção, só quando a base ainda não tem nenhum usuário.
+ *
+ * ⚠️ A credencial default é a MESMA em todo projeto que clonar este template.
+ * É conveniência de primeiro acesso, não uma conta de trabalho: troque a senha
+ * no primeiro login, ou defina `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` no
+ * ambiente para que este projeto nasça com credencial própria.
  */
 import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
@@ -19,9 +27,9 @@ import { user } from 'src/db/schema/auth';
 import { role } from 'src/db/schema/role';
 import { SCREEN_PERMISSIONS } from 'src/modules/roles/types/role.types';
 
-const SEED_NAME = process.env.SEED_ADMIN_NAME ?? 'Administrador';
-const SEED_EMAIL = process.env.SEED_ADMIN_EMAIL ?? 'admin@local.dev';
-const SEED_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'admin12345';
+const SEED_NAME = process.env.SEED_ADMIN_NAME ?? 'Desenvolvedor';
+const SEED_EMAIL = process.env.SEED_ADMIN_EMAIL ?? 'desenvolvedor@letsup.team';
+const SEED_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? '123mudar';
 
 function log(message: string): void {
 	process.stdout.write(`[seed] ${message}\n`);
@@ -63,10 +71,24 @@ async function seedSystemRoles(): Promise<void> {
 	}
 }
 
+/**
+ * Há algum usuário nesta base?
+ *
+ * É o que distingue "primeiro boot" de "aplicação em uso". Em produção o seed
+ * só roda quando a resposta é não: num sistema que já tem gente dentro, criar
+ * um admin de credencial conhecida seria abrir uma porta, não inicializar.
+ */
+async function isFirstBoot(): Promise<boolean> {
+	const [any] = await db.select({ id: user.id }).from(user).limit(1);
+	return any === undefined;
+}
+
 async function seed(): Promise<void> {
-	if (isProduction) {
-		log('NODE_ENV=production: seed bloqueado. Crie o admin manualmente.');
-		process.exitCode = 1;
+	// Em produção o seed é de INICIALIZAÇÃO, não de manutenção: roda no primeiro
+	// boot contra um banco vazio e nunca mais. Fora de produção roda sempre,
+	// porque é o que faz `pnpm db:seed` reparar um ambiente local bagunçado.
+	if (isProduction && !(await isFirstBoot())) {
+		log('base já tem usuários: seed de inicialização ignorado.');
 		return;
 	}
 

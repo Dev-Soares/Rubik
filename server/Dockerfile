@@ -41,4 +41,7 @@ COPY --from=build --chown=app:app /app/server/package.json ./server/
 USER app
 EXPOSE 3000
 
-CMD ["node", "server/dist/main.js"]
+# Migrations antes do boot: um deploy com schema novo não pode subir um server
+# que quebra na primeira query. `migrate` sai != 0 se falhar, e o `&&` impede
+# a API de subir sobre um banco desatualizado.
+CMD ["sh", "-c", "node server/dist/db/migrate.js && node server/dist/main.js"]

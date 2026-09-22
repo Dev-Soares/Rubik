@@ -1,5 +1,9 @@
 # Build a partir da RAIZ do repositório (workspace pnpm):
 #   docker build -f client/Dockerfile --build-arg VITE_API_URL=https://api.exemplo.com -t app-client .
+#
+# Sem `--mount=type=cache` no pnpm install: o Railway exige que o id do cache
+# seja `s/<service id>-<path>`, o que prenderia este arquivo a um serviço de um
+# projeto específico. O cache fica no Dockerfile.dev, que só roda no compose.
 
 FROM node:22-alpine AS base
 ENV PNPM_HOME=/pnpm
@@ -11,8 +15,7 @@ WORKDIR /app
 FROM base AS build
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY client/package.json ./client/
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-	pnpm install --filter client... --frozen-lockfile
+RUN pnpm install --filter client... --frozen-lockfile
 
 COPY client ./client
 

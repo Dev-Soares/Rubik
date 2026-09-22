@@ -1,5 +1,9 @@
 # Build a partir da RAIZ do repositório (workspace pnpm):
 #   docker build -f server/Dockerfile -t app-server .
+#
+# Sem `--mount=type=cache` no pnpm install: o Railway exige que o id do cache
+# seja `s/<service id>-<path>`, o que prenderia este arquivo a um serviço de um
+# projeto específico. O cache fica no Dockerfile.dev, que só roda no compose.
 
 FROM node:22-alpine AS base
 ENV PNPM_HOME=/pnpm
@@ -11,8 +15,7 @@ WORKDIR /app
 FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY server/package.json ./server/
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-	pnpm install --filter server... --frozen-lockfile
+RUN pnpm install --filter server... --frozen-lockfile
 
 
 FROM base AS build
@@ -23,8 +26,7 @@ COPY --from=deps /app/server/node_modules ./server/node_modules
 COPY server ./server
 RUN pnpm --filter server build
 # Remove devDependencies do node_modules que será copiado para runtime
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-	pnpm install --filter server --prod --frozen-lockfile
+RUN pnpm install --filter server --prod --frozen-lockfile
 
 
 FROM node:22-alpine AS runtime

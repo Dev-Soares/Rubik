@@ -67,9 +67,14 @@ EXPOSE 3000
 # cadastro público é desativado. Em produção ele se ignora assim que existe
 # qualquer usuário, então repetir o deploy não recria nada.
 #
-# `||true` de propósito, ao contrário do migrate: o seed sai != 0 quando
-# chamado na mão e falha (é o que `pnpm db:seed` precisa reportar), mas no boot
-# isso derrubaria a aplicação inteira. Schema desatualizado quebra a API na
-# primeira query e justifica abortar; admin não criado, não — a aplicação sobe
-# e o erro fica no log do deploy.
-CMD ["sh", "-c", "node server/dist/db/migrate.js && { node server/dist/db/seed.js || true; } && node server/dist/main.js"]
+# O sync de chamados fecha o que o atendimento já concluiu e avisa quem abriu.
+# Roda no deploy e não na API de propósito: o cliente só deve ser avisado
+# quando o que ele pediu estiver em produção, e é este boot que o coloca lá.
+#
+# `||true` de propósito no seed e no sync, ao contrário do migrate: o seed sai
+# != 0 quando chamado na mão e falha (é o que `pnpm db:seed` precisa reportar),
+# e o sync sai != 0 quando o sistema externo está fora do ar — no boot, os dois
+# derrubariam a aplicação inteira. Schema desatualizado quebra a API na
+# primeira query e justifica abortar; admin não criado ou atendimento
+# indisponível, não — a aplicação sobe e o erro fica no log do deploy.
+CMD ["sh", "-c", "node server/dist/db/migrate.js && { node server/dist/db/seed.js || true; } && { node server/dist/modules/tickets/ticket-sync.js || true; } && node server/dist/main.js"]

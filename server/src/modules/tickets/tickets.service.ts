@@ -12,6 +12,7 @@ import { ticket, ticketPhoto } from 'src/db/schema/ticket';
 import type { Database } from 'src/db/types/db.types';
 import type { QueryTicketsDto } from 'src/modules/tickets/dto/query-tickets.dto';
 import { TicketStorageService } from 'src/modules/tickets/ticket-storage.service';
+import { TicketSyncService } from 'src/modules/tickets/ticket-sync.service';
 import { TicketWebhookService } from 'src/modules/tickets/ticket-webhook.service';
 import {
 	TICKET_STATUSES,
@@ -44,6 +45,7 @@ export class TicketsService {
 		@Inject(DB) private readonly db: Database,
 		private readonly storage: TicketStorageService,
 		private readonly webhook: TicketWebhookService,
+		private readonly sync: TicketSyncService,
 		private readonly notifications: NotificationsService,
 		private readonly logger: PinoLogger,
 	) {
@@ -196,6 +198,39 @@ export class TicketsService {
 		}
 
 		return toEntry(row, await this.photosOf(row.id));
+	}
+
+	/**
+	 * Fecha os chamados abertos que o sistema externo já deu por concluídos.
+	 *
+	 * Roda no deploy, não na API: o usuário só deve ser avisado quando o que
+	 * ele pediu estiver em produção, e "concluído no atendimento" acontece
+	 * antes disso. Ver `src/modules/tickets/ticket-sync.ts`.
+	 *
+	 * A interseção é feita aqui e não delegada ao externo porque a lista de
+	 * abertos é a nossa verdade: o externo pode devolver chamado de outra
+	 * instância, ou um que já fechamos num deploy anterior.
+	 */
+	async syncResolved(): Promise<{ resolved: string[] }> {
+		const resolvedIds = await this.sync.findResolvedIds();
+
+		if (resolvedIds.length === 0) {
+			return { resolved: [] };
+		}
+
+		const open = await this.db
+			.select({ id: ticket.id })
+			.from(ticket)
+			.where(and(eq(ticket.status, 'aberto'), inArray(ticket.id, resolvedIds)));
+
+		// Em série, não em `Promise.all`: cada `updateStatus` grava notificação
+		// para o autor e para todos os admins, e um lote grande em paralelo
+		// abriria uma conexão por chamado no pool.
+		for (const row of open) {
+			await this.updateStatus(row.id, 'resolvido');
+		}
+
+		return { resolved: open.map((row) => row.id) };
 	}
 
 	/**

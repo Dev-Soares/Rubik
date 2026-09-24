@@ -5,7 +5,8 @@ import { AppLayout } from '@/shared/layouts/AppLayout';
 
 export function Tickets() {
 	return (
-		/* Duas colunas de chamados não cabem na largura de leitura padrão. */
+		/* A tabela de chamados tem quatro colunas: na largura de leitura padrão o
+		 * assunto ficaria truncado cedo demais. */
 		<AppLayout className="max-w-5xl">
 			<div className="flex flex-col gap-10">
 				<PageHeader title="Solicitar ajuda" />

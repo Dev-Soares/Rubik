@@ -1,4 +1,4 @@
-import { TicketCard } from '@/modules/tickets/components/TicketCard';
+import { TicketsTable } from '@/modules/tickets/components/TicketsTable';
 import { useTickets } from '@/modules/tickets/hooks/useTickets';
 import type { TicketStatus } from '@/modules/tickets/types/ticket';
 import { formatTicketCount } from '@/modules/tickets/utils';
@@ -35,15 +35,7 @@ export function TicketList({ status, highlightedId }: TicketListProps) {
 
 	return (
 		<div className="flex flex-col gap-4">
-			{/* Sem `items-start`: a célula assume a altura da linha e o `h-full` do
-			 * card a preenche, deixando todos do mesmo tamanho. */}
-			<ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-				{tickets.map((ticket) => (
-					<li key={ticket.id}>
-						<TicketCard ticket={ticket} highlighted={ticket.id === highlightedId} />
-					</li>
-				))}
-			</ul>
+			<TicketsTable tickets={tickets} highlightedId={highlightedId} />
 
 			{/* Sentinela: entrar na tela dispara a próxima página. */}
 			<div ref={sentinelRef} aria-hidden />

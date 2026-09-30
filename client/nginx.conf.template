@@ -1,5 +1,15 @@
+# Template, não conf final: o entrypoint da imagem nginx roda `envsubst` sobre
+# `/etc/nginx/templates/*.template` no boot e escreve o resultado em
+# `conf.d/`. É o que permite a porta vir do ambiente.
+#
+# `NGINX_ENVSUBST_FILTER=PORT` no Dockerfile restringe a substituição a essa
+# variável. Sem o filtro, `envsubst` também comeria `$uri` e `$http_upgrade` —
+# variáveis do próprio nginx, que não existem no ambiente e virariam string
+# vazia: `try_files $uri` sem argumento, e o SPA para de resolver rota.
 server {
-	listen 80;
+	# Railway, Cloud Run e afins injetam `PORT` e roteiam só para ela. O default
+	# mantém `docker run -p 8080:80` funcionando fora desses ambientes.
+	listen ${PORT};
 	server_name _;
 	root /usr/share/nginx/html;
 	index index.html;

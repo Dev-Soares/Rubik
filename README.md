@@ -165,11 +165,17 @@ Depois, `pnpm dev:reset` para o banco nascer com o nome novo.
 
 Cada app tem seu `Dockerfile` de produção e um `railway.json`. No Railway, dois
 serviços apontando para o mesmo repo, cada um com seu `railway.json`. O server
-expõe `/health` para o healthcheck e roda as migrations no boot.
+expõe `/health` para o healthcheck e roda as migrations no boot; o client serve
+o bundle por nginx, na porta que a plataforma injetar em `PORT`.
 
 Em produção, garanta: `NODE_ENV=production`, `BETTER_AUTH_SECRET` com 32+
 caracteres aleatórios (nunca o do dev), `CORS_ORIGIN` com o domínio real e
 `DATABASE_URL` do banco gerenciado.
+
+> **`VITE_API_URL` é build-arg, não variável de runtime.** O Vite injeta o valor
+> no bundle na hora do build; definida só em runtime, ela não chega ao código e
+> o client sai apontando para lugar nenhum. No Railway, declare como *Build
+> Variable* no serviço do client.
 
 ---
 

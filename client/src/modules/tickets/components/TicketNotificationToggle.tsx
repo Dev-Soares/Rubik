@@ -49,14 +49,14 @@ export function TicketNotificationToggle() {
 
 			<span
 				className={cn(
-					'relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors',
+					'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors',
 					enabled ? 'bg-destructive' : 'bg-muted-foreground/40',
 				)}
 			>
 				<span
 					className={cn(
-						'bg-background block size-5 rounded-full shadow-sm transition-transform',
-						enabled ? 'translate-x-6' : 'translate-x-1',
+						'bg-background block size-4.5 rounded-full shadow-sm transition-transform',
+						enabled ? 'translate-x-5.5' : 'translate-x-0.75',
 					)}
 				/>
 			</span>

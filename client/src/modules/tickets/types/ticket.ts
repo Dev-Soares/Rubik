@@ -88,6 +88,14 @@ export type UnseenResolvedCount = {
 	count: number;
 };
 
+/**
+ * Se o usuário recebe avisos de chamado no sino. Não afeta o contador da barra
+ * lateral, que é sobre os chamados dele mesmo.
+ */
+export type TicketNotificationPreference = {
+	enabled: boolean;
+};
+
 export type PaginatedTickets = {
 	items: Ticket[];
 	total: number;

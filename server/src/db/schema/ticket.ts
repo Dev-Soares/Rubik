@@ -54,6 +54,25 @@ export const ticket = pgTable(
 );
 
 /**
+ * Quem desligou os avisos de chamado. Linha presente = silenciado; ausente =
+ * recebe. Tabela em vez de coluna em `user` porque `user` é gerada pelo CLI do
+ * Better Auth (`auth:generate`) e seria reescrita.
+ *
+ * Silencia só a notificação do sino, sem exceção: os avisos que a pessoa
+ * recebe por ser admin e também o do chamado que ela mesma abriu.
+ *
+ * **Não** afeta o contador da barra lateral: aquele conta os chamados do
+ * próprio usuário resolvidos e ainda não vistos, e é a tela dele — quem
+ * desligou o aviso não pediu para deixar de ver o próprio chamado.
+ */
+export const ticketNotificationOptOut = pgTable('ticket_notification_opt_out', {
+	userId: text('user_id')
+		.primaryKey()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+/**
  * Foto anexada a um chamado, até o teto de `MAX_TICKET_PHOTOS`. Tabela
  * separada em vez de três colunas no `ticket`: o anexo é opcional e variável,
  * e colunas nulas numeradas (`photo1Key`, `photo2Key`) espalham a regra de

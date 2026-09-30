@@ -197,6 +197,11 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 				description:
 					'Assim que a equipe resolve um chamado seu, você recebe um aviso no sino e um número aparece ao lado de "Suporte" no menu. O número some quando você abre a aba.',
 			},
+			{
+				title: 'Desligue os avisos, se preferir',
+				description:
+					'A chave "Receber avisos de chamado", ao lado do título da lista, controla apenas os seus avisos no sino. O número ao lado de "Suporte" no menu continua aparecendo — ele é sobre os chamados que você mesmo abriu.',
+			},
 		],
 		note: {
 			title: 'A aba é só de administradores',

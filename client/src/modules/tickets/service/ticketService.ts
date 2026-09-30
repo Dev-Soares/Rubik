@@ -4,6 +4,7 @@ import type {
 	Ticket,
 	TicketCounts,
 	TicketFormInput,
+	TicketNotificationPreference,
 	TicketStatus,
 	UnseenResolvedCount,
 } from '@/modules/tickets/types/ticket';
@@ -35,6 +36,21 @@ export async function getUnseenResolvedService(): Promise<UnseenResolvedCount> {
 
 export async function markTicketsSeenService(): Promise<{ marked: number }> {
 	const { data } = await api.patch<{ marked: number }>('/tickets/seen');
+	return data;
+}
+
+export async function getTicketNotificationService(): Promise<TicketNotificationPreference> {
+	const { data } = await api.get<TicketNotificationPreference>('/tickets/notification-preference');
+	return data;
+}
+
+export async function setTicketNotificationService(
+	enabled: boolean,
+): Promise<TicketNotificationPreference> {
+	const { data } = await api.patch<TicketNotificationPreference>(
+		'/tickets/notification-preference',
+		{ enabled },
+	);
 	return data;
 }
 

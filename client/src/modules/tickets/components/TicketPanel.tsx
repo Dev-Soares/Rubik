@@ -1,6 +1,7 @@
 import { useSearch } from '@tanstack/react-router';
 import { Suspense, useEffect, useState } from 'react';
 import { TicketList } from '@/modules/tickets/components/TicketList';
+import { TicketNotificationToggle } from '@/modules/tickets/components/TicketNotificationToggle';
 import { TicketStatusTabs } from '@/modules/tickets/components/TicketStatusTabs';
 import { useMarkTicketsSeen } from '@/modules/tickets/hooks/useMarkTicketsSeen';
 import { useTicket } from '@/modules/tickets/hooks/useTicket';
@@ -47,7 +48,13 @@ export function TicketPanel() {
 	return (
 		<div className="flex flex-col gap-6">
 			<div className="flex flex-col gap-3">
-				<h2 className="text-lg font-bold tracking-tight">Chamados</h2>
+				{/* No celular o controle desce para a linha de baixo: lado a lado,
+				    o rótulo do aviso espreme o título. */}
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<h2 className="text-lg font-bold tracking-tight">Chamados</h2>
+
+					<TicketNotificationToggle />
+				</div>
 
 				<TicketStatusTabs value={status} counts={counts} onChange={setStatus} />
 			</div>

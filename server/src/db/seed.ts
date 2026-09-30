@@ -13,10 +13,10 @@
  *   - no boot do container, antes da API subir (ver o CMD do Dockerfile). Em
  *     produção, só quando a base ainda não tem nenhum usuário.
  *
- * ⚠️ A credencial default é a MESMA em todo projeto que clonar este template.
+ * ⚠️ A credencial abaixo é fixa e a MESMA em todo projeto que clonar o Rubik.
  * É conveniência de primeiro acesso, não uma conta de trabalho: troque a senha
- * no primeiro login, ou defina `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` no
- * ambiente para que este projeto nasça com credencial própria.
+ * no primeiro login. Em produção, o seed só roda contra base vazia — um sistema
+ * com gente dentro nunca ganha um admin de senha conhecida.
  */
 import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
@@ -27,9 +27,9 @@ import { user } from 'src/db/schema/auth';
 import { role } from 'src/db/schema/role';
 import { SCREEN_PERMISSIONS } from 'src/modules/roles/types/role.types';
 
-const SEED_NAME = process.env.SEED_ADMIN_NAME ?? 'Desenvolvedor';
-const SEED_EMAIL = process.env.SEED_ADMIN_EMAIL ?? 'desenvolvedor@letsup.team';
-const SEED_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? '123mudar';
+const SEED_NAME = 'Desenvolvedor';
+const SEED_EMAIL = 'desenvolvedor@letsup.team';
+const SEED_PASSWORD = '123mudar';
 
 function log(message: string): void {
 	process.stdout.write(`[seed] ${message}\n`);

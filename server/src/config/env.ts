@@ -31,6 +31,15 @@ const envSchema = z.object({
 	TICKET_WEBHOOK_TIMEOUT_MS: z.coerce.number().int().positive().default(10_000),
 
 	/**
+	 * Dias que um chamado resolvido sobrevive antes da limpeza diária apagá-lo,
+	 * junto das fotos no bucket. Conta a partir da resolução, não da abertura.
+	 *
+	 * O chamado é registro operacional: depois de resolvido e visto, ninguém
+	 * volta nele. Sem teto, tabela e bucket crescem para sempre.
+	 */
+	TICKET_RETENTION_DAYS: z.coerce.number().int().positive().default(30),
+
+	/**
 	 * Storage das fotos de chamado (AWS S3 ou Cloudflare R2).
 	 *
 	 * Opcional de propósito: sem bucket configurado a aplicação sobe inteira e

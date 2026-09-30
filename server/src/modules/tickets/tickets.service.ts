@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, count, desc, eq, inArray, isNotNull, isNull, ne } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, isNotNull, isNull, lt, ne } from 'drizzle-orm';
 import { PinoLogger } from 'nestjs-pino';
 import { isAdmin } from 'src/common/utils';
+import { env } from 'src/config/env';
 import { NotificationsService } from 'src/modules/notifications/notifications.service';
 import type { CreateNotificationInput } from 'src/modules/notifications/types/notification.types';
 import type { Paginated } from 'src/common/types/pagination.types';
@@ -25,6 +26,8 @@ import {
 import { isTicketStatus } from 'src/modules/tickets/utils';
 
 type TicketRow = typeof ticket.$inferSelect;
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 /** Mapper da borda: a linha vira o tipo público, com as fotos já assinadas. */
 function toEntry(row: TicketRow, photos: TicketPhoto[]): TicketEntry {
@@ -293,6 +296,58 @@ export class TicketsService {
 			.where(isNotNull(user.role));
 
 		return rows.filter((row) => isAdmin(row.role)).map((row) => row.id);
+	}
+
+	/**
+	 * Apaga os chamados resolvidos há mais de `TICKET_RETENTION_DAYS` dias.
+	 *
+	 * O chamado é registro operacional, não histórico: depois de resolvido e
+	 * visto, ninguém volta nele. Sem a limpeza a tabela e o bucket crescem para
+	 * sempre — e o bucket é o que custa.
+	 *
+	 * A janela conta do `resolvedAt`, não do `createdAt`: chamado antigo que
+	 * ficou meses aberto e acabou de ser resolvido tem o mesmo mês de vida que
+	 * qualquer outro recém-resolvido.
+	 */
+	async purgeResolved(): Promise<{ deleted: number }> {
+		const cutoff = new Date(Date.now() - env.TICKET_RETENTION_DAYS * MS_PER_DAY);
+
+		const expired = await this.db
+			.select({ id: ticket.id })
+			.from(ticket)
+			.where(and(eq(ticket.status, 'resolvido'), lt(ticket.resolvedAt, cutoff)));
+
+		if (expired.length === 0) {
+			return { deleted: 0 };
+		}
+
+		const ids = expired.map((row) => row.id);
+
+		/*
+		 * As fotos saem do bucket antes do DELETE: o cascade apaga a linha de
+		 * `ticket_photo` e, com ela, a única referência à chave do objeto — que
+		 * ficaria órfã no bucket para sempre.
+		 */
+		const photos = await this.db
+			.select({ storageKey: ticketPhoto.storageKey })
+			.from(ticketPhoto)
+			.where(inArray(ticketPhoto.ticketId, ids));
+
+		// `discard` engole o erro de propósito: falha no bucket não pode travar
+		// a limpeza do banco, senão a tabela cresce enquanto o S3 estiver ruim.
+		await this.discard(photos.map((row) => row.storageKey));
+
+		const removed = await this.db
+			.delete(ticket)
+			.where(inArray(ticket.id, ids))
+			.returning({ id: ticket.id });
+
+		this.logger.info(
+			{ count: removed.length, olderThanDays: env.TICKET_RETENTION_DAYS },
+			'chamados resolvidos removidos',
+		);
+
+		return { deleted: removed.length };
 	}
 
 	/**

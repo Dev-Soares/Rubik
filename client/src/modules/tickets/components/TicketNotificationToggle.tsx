@@ -4,8 +4,7 @@ import {
 	useSetTicketNotification,
 	useTicketNotification,
 } from '@/modules/tickets/hooks/useTicketNotification';
-import { Label } from '@/shared/components/ui/label';
-import { Switch } from '@/shared/components/ui/switch';
+import { cn } from 'cn';
 
 /**
  * Liga e desliga os avisos de chamado deste usuário. Preferência individual:
@@ -24,24 +23,43 @@ export function TicketNotificationToggle() {
 	const Icon = enabled ? BellIcon : BellOffIcon;
 
 	return (
-		<div className="flex items-center gap-3">
+		/*
+		 * Toggle escrito à mão, e não o `Switch` do shadcn: as classes dele fixam
+		 * 32x18px por `data-[size=default]:h-[18.4px]`, especificidade maior que
+		 * um `h-7 w-12` passado por `className` — o controle ficava minúsculo e
+		 * sumia no fundo escuro.
+		 *
+		 * O botão envolve ícone, texto e trilho: clicar em qualquer ponto
+		 * alterna, e o foco por teclado é um só.
+		 */
+		<button
+			id={switchId}
+			type="button"
+			role="switch"
+			aria-checked={enabled}
+			/* Enquanto carrega a preferência, o controle mostraria "ligado" e
+			 * permitiria um clique que parte do valor errado. */
+			disabled={isPending || isSaving}
+			onClick={() => setEnabled(!enabled)}
+			className="focus-visible:ring-ring flex cursor-pointer items-center gap-3 rounded-full focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+		>
 			<Icon className="text-destructive size-4 shrink-0" aria-hidden />
 
-			<Label htmlFor={switchId} className="text-destructive text-sm font-medium">
-				Receber avisos de chamado
-			</Label>
+			<span className="text-destructive text-sm font-medium">Receber avisos de chamado</span>
 
-			<Switch
-				id={switchId}
-				checked={enabled}
-				/* Enquanto carrega a preferência, o controle mostraria "ligado" e
-				 * permitiria um clique que parte do valor errado. */
-				disabled={isPending || isSaving}
-				onCheckedChange={(checked) => setEnabled(checked)}
-				// Ligado acende no vermelho do rótulo; desligado fica no cinza neutro.
-				// `data-checked` é o estado que o Switch do shadcn expõe.
-				className="data-checked:bg-destructive **:data-[slot=switch-thumb]:size-5 h-6 w-11"
-			/>
-		</div>
+			<span
+				className={cn(
+					'relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors',
+					enabled ? 'bg-destructive' : 'bg-muted-foreground/40',
+				)}
+			>
+				<span
+					className={cn(
+						'bg-background block size-5 rounded-full shadow-sm transition-transform',
+						enabled ? 'translate-x-6' : 'translate-x-1',
+					)}
+				/>
+			</span>
+		</button>
 	);
 }

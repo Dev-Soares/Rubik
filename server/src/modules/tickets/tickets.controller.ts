@@ -26,6 +26,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { ApiKeyGuard, RolesGuard } from 'src/common/guards';
 import { UpdateTicketStatusDto } from 'src/modules/tickets/dto/update-ticket-status.dto';
 import { QueryTicketsDto } from 'src/modules/tickets/dto/query-tickets.dto';
+import { SetTicketNotificationDto } from 'src/modules/tickets/dto/set-ticket-notification.dto';
 import type { Paginated } from 'src/common/types/pagination.types';
 import type { User } from 'src/modules/auth/types/auth.types';
 import { CreateTicketDto } from 'src/modules/tickets/dto/create-ticket.dto';
@@ -36,6 +37,7 @@ import {
 	MAX_TICKET_PHOTOS,
 	type TicketCounts,
 	type TicketEntry,
+	type TicketNotificationPreference,
 	type UnseenResolvedCount,
 } from 'src/modules/tickets/types/ticket.types';
 import { toUploadedPhotos } from 'src/modules/tickets/utils';
@@ -78,6 +80,33 @@ export class TicketsController {
 	@ApiOkResponse({ description: 'Chamados resolvidos marcados como vistos.' })
 	async markSeen(@CurrentUser('id') userId: string): Promise<{ marked: number }> {
 		return { marked: await this.ticketsService.markResolvedSeenForUser(userId) };
+	}
+
+	/** Se o usuário recebe avisos de chamado no sino. */
+	@Get('notification-preference')
+	@ApiOkResponse({ description: 'Preferência de aviso do usuário.' })
+	async getNotificationPreference(
+		@CurrentUser('id') userId: string,
+	): Promise<TicketNotificationPreference> {
+		return { enabled: await this.ticketsService.isNotificationEnabled(userId) };
+	}
+
+	/**
+	 * Liga ou desliga os avisos de chamado do usuário.
+	 *
+	 * Só o sino: o contador da barra lateral continua, porque conta os chamados
+	 * do próprio usuário — desligar o aviso não é pedir para deixar de ver o
+	 * que ele mesmo abriu.
+	 */
+	@Patch('notification-preference')
+	@ApiOkResponse({ description: 'Preferência atualizada.' })
+	async setNotificationPreference(
+		@CurrentUser('id') userId: string,
+		@Body() dto: SetTicketNotificationDto,
+	): Promise<TicketNotificationPreference> {
+		return {
+			enabled: await this.ticketsService.setNotificationEnabled(userId, dto.enabled),
+		};
 	}
 
 	/** Quantos chamados há em cada status. Alimenta os contadores das abas. */

@@ -64,6 +64,13 @@
       "when": 1789759646966,
       "tag": "0008_minor_prodigy",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790788276008,
+      "tag": "0009_noisy_polaris",
+      "breakpoints": true
     }
   ]
 }

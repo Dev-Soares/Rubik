@@ -47,9 +47,7 @@ export function TicketList({ status, highlightedId }: TicketListProps) {
 			) : null}
 
 			<p className="text-muted-foreground text-sm">
-				{hasNextPage
-					? `${tickets.length} de ${total} chamados`
-					: formatTicketCount(total, status)}
+				{hasNextPage ? `${tickets.length} de ${total} chamados` : formatTicketCount(total, status)}
 			</p>
 		</div>
 	);

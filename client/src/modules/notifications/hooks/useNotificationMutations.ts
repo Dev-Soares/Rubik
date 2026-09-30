@@ -38,7 +38,9 @@ export function useMarkAllNotificationsRead() {
 		onSuccess: async ({ marked }) => {
 			await invalidate();
 			toast.success(
-				marked === 1 ? '1 notificação marcada como lida.' : `${marked} notificações marcadas como lidas.`,
+				marked === 1
+					? '1 notificação marcada como lida.'
+					: `${marked} notificações marcadas como lidas.`,
 			);
 		},
 		onError: (error) => toast.error(getErrorMessage(error)),

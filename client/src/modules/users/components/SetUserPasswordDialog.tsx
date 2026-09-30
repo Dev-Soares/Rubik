@@ -28,15 +28,12 @@ export function SetUserPasswordDialog({
 						Alterar senha
 					</DialogTitle>
 					<DialogDescription>
-						Defina uma nova senha para {userName}. As outras sessões dessa pessoa continuam
-						abertas.
+						Defina uma nova senha para {userName}. As outras sessões dessa pessoa continuam abertas.
 					</DialogDescription>
 				</DialogHeader>
 
 				{/* Desmontar ao fechar limpa os campos: senha digitada não deve sobreviver. */}
-				{open ? (
-					<SetUserPasswordForm userId={userId} onDone={() => onOpenChange(false)} />
-				) : null}
+				{open ? <SetUserPasswordForm userId={userId} onDone={() => onOpenChange(false)} /> : null}
 			</DialogContent>
 		</Dialog>
 	);

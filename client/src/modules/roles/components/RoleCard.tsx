@@ -2,12 +2,7 @@ import { Trash2Icon } from 'lucide-react';
 import { EditRoleDialog } from '@/modules/roles/components/EditRoleDialog';
 import { useDeleteRole } from '@/modules/roles/hooks/useDeleteRole';
 import { useMyScreens } from '@/modules/roles/hooks/useMyScreens';
-import {
-	SCREEN_GRANT_LABELS,
-	SCREEN_LABELS,
-	SCREENS,
-	type Role,
-} from '@/modules/roles/types/role';
+import { SCREEN_GRANT_LABELS, SCREEN_LABELS, SCREENS, type Role } from '@/modules/roles/types/role';
 import { toGrantByScreen } from '@/modules/roles/utils';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';

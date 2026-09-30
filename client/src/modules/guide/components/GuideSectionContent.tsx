@@ -43,9 +43,7 @@ export function GuideSectionContent({ section }: GuideSectionContentProps) {
 
 					<div className="flex min-w-0 flex-col gap-1">
 						<h4 className="text-sm font-bold">{section.note.title}</h4>
-						<p className="text-muted-foreground text-sm text-pretty">
-							{section.note.description}
-						</p>
+						<p className="text-muted-foreground text-sm text-pretty">{section.note.description}</p>
 					</div>
 				</aside>
 			) : null}

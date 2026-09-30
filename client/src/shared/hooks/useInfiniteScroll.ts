@@ -30,7 +30,7 @@ export function useInfiniteScroll({ hasMore, isLoading, onLoadMore }: UseInfinit
 					loadMoreRef.current();
 				}
 			},
-			{ rootMargin: '200px' }
+			{ rootMargin: '200px' },
 		);
 
 		observer.observe(sentinel);

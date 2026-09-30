@@ -30,23 +30,23 @@ const envSchema = z.object({
 	/** Teto de espera do envio, em ms: sem isto a abertura trava se o externo pendurar. */
 	TICKET_WEBHOOK_TIMEOUT_MS: z.coerce.number().int().positive().default(10_000),
 
-	// Storage S3-compatível das fotos de chamado (AWS S3, Cloudflare R2, MinIO).
-	// `S3_ENDPOINT` fica vazio na AWS; nos demais aponta para o host do bucket.
+	/**
+	 * Storage das fotos de chamado (AWS S3 ou Cloudflare R2).
+	 *
+	 * Opcional de propósito: sem bucket configurado a aplicação sobe inteira e
+	 * só o upload de foto fica desligado (ver `isStorageEnabled` abaixo). É o
+	 * que permite clonar o template e rodar `pnpm dev` sem nenhuma credencial
+	 * de nuvem na mão.
+	 */
+	S3_BUCKET: z.string().default(''),
+	S3_ACCESS_KEY_ID: z.string().default(''),
+	S3_SECRET_ACCESS_KEY: z.string().default(''),
 	S3_REGION: z.string().default('us-east-1'),
-	S3_BUCKET: z.string().min(1),
-	S3_ACCESS_KEY_ID: z.string().min(1),
-	S3_SECRET_ACCESS_KEY: z.string().min(1),
+	/** Vazio na AWS — o SDK resolve o host sozinho. R2 exige o endpoint da conta. */
 	S3_ENDPOINT: z.string().default(''),
 	/**
-	 * Host que o navegador usa para baixar a foto. Existe porque em container o
-	 * server fala com `http://minio:9000`, hostname da rede do compose que não
-	 * resolve fora dela — assinar a URL com ele geraria link quebrado no
-	 * cliente. Vazio: a URL é assinada com `S3_ENDPOINT` mesmo.
-	 */
-	S3_PUBLIC_ENDPOINT: z.string().default(''),
-	/**
-	 * MinIO e R2 exigem path-style (`<endpoint>/<bucket>/<key}`); a AWS usa
-	 * virtual-host. Errar isto dá 404 no upload, não erro de credencial.
+	 * R2 exige path-style (`<endpoint>/<bucket>/<key>`); a AWS usa virtual-host.
+	 * Errar isto dá 404 no upload, não erro de credencial.
 	 */
 	S3_FORCE_PATH_STYLE: z
 		.enum(['true', 'false'])
@@ -73,6 +73,14 @@ if (!result.success) {
 export const env = result.data;
 
 export const isProduction = env.NODE_ENV === 'production';
+
+/**
+ * Há bucket configurado? As três variáveis andam juntas: com qualquer uma
+ * faltando o SDK só falharia na hora do upload, com erro de credencial que não
+ * explica que o storage nunca foi configurado.
+ */
+export const isStorageEnabled =
+	env.S3_BUCKET !== '' && env.S3_ACCESS_KEY_ID !== '' && env.S3_SECRET_ACCESS_KEY !== '';
 
 export const corsOrigins = env.CORS_ORIGIN
 	? env.CORS_ORIGIN.split(',').map((origin) => origin.trim())

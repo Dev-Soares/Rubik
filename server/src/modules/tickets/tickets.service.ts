@@ -8,7 +8,7 @@ import type { CreateNotificationInput } from 'src/modules/notifications/types/no
 import type { Paginated } from 'src/common/types/pagination.types';
 import { DB } from 'src/db/db.provider';
 import { user } from 'src/db/schema/auth';
-import { ticket, ticketPhoto } from 'src/db/schema/ticket';
+import { ticket, ticketNotificationOptOut, ticketPhoto } from 'src/db/schema/ticket';
 import type { Database } from 'src/db/types/db.types';
 import type { QueryTicketsDto } from 'src/modules/tickets/dto/query-tickets.dto';
 import { TicketStorageService } from 'src/modules/tickets/ticket-storage.service';
@@ -245,9 +245,11 @@ export class TicketsService {
 		// um segundo aviso, mas resolver de novo após reabrir gera.
 		const event = `${row.id}:${row.resolvedAt?.toISOString() ?? ''}`;
 
+		const silenced = await this.findSilencedIds();
+
 		const notices: CreateNotificationInput[] = [];
 
-		if (row.userId) {
+		if (row.userId && !silenced.has(row.userId)) {
 			notices.push({
 				id: `ticket.resolved:${event}:${row.userId}`,
 				userId: row.userId,
@@ -261,7 +263,7 @@ export class TicketsService {
 		}
 
 		for (const adminId of await this.findAdminIds()) {
-			if (adminId === row.userId) {
+			if (adminId === row.userId || silenced.has(adminId)) {
 				continue;
 			}
 
@@ -291,6 +293,49 @@ export class TicketsService {
 			.where(isNotNull(user.role));
 
 		return rows.filter((row) => isAdmin(row.role)).map((row) => row.id);
+	}
+
+	/**
+	 * Ids de quem desligou os avisos de chamado. Consulta única por resolução —
+	 * a alternativa seria um `SELECT` por destinatário.
+	 */
+	private async findSilencedIds(): Promise<Set<string>> {
+		const rows = await this.db
+			.select({ userId: ticketNotificationOptOut.userId })
+			.from(ticketNotificationOptOut);
+
+		return new Set(rows.map((row) => row.userId));
+	}
+
+	/** Se o usuário recebe avisos de chamado. */
+	async isNotificationEnabled(userId: string): Promise<boolean> {
+		const [row] = await this.db
+			.select({ userId: ticketNotificationOptOut.userId })
+			.from(ticketNotificationOptOut)
+			.where(eq(ticketNotificationOptOut.userId, userId))
+			.limit(1);
+
+		return !row;
+	}
+
+	/**
+	 * Liga ou desliga os avisos de chamado do usuário.
+	 *
+	 * Ligar remove a linha; desligar a insere. `onConflictDoNothing` porque
+	 * desligar duas vezes é a mesma coisa que desligar uma.
+	 */
+	async setNotificationEnabled(userId: string, enabled: boolean): Promise<boolean> {
+		if (enabled) {
+			await this.db
+				.delete(ticketNotificationOptOut)
+				.where(eq(ticketNotificationOptOut.userId, userId));
+
+			return true;
+		}
+
+		await this.db.insert(ticketNotificationOptOut).values({ userId }).onConflictDoNothing();
+
+		return false;
 	}
 
 	/** Um chamado pelo id, com as fotos assinadas. */

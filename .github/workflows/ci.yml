@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# PR com push novo cancela a run anterior — não adianta esperar CI de commit morto.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: typecheck + lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # `lint` roda com --fix nos scripts; aqui o código vem do repo e o job só
+      # reporta. Um fix aplicado no runner não volta para o PR de qualquer jeito.
+      - name: typecheck
+        run: pnpm typecheck
+
+      - name: lint
+        run: pnpm lint
+
+      - name: formatação
+        run: pnpm exec prettier --check "**/*.{ts,tsx,js,json,css}"
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # O build do client gera `routeTree.gen.ts` e compila o bundle; o do
+      # server roda o nest. Quebra aqui é quebra de deploy.
+      - name: build
+        run: pnpm build
+        env:
+          VITE_API_URL: http://localhost:3000
+
+  migrations:
+    name: migrations aplicam em base limpa
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: rubikdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d rubikdb"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Migration só quebra quando roda contra base vazia de verdade — no dev de
+      # quem a escreveu, o schema já estava lá e o erro não aparece.
+      - name: db:migrate
+        run: pnpm --filter server db:migrate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rubikdb
+
+      # Schema alterado sem `pnpm db:generate` passa no typecheck e morre no
+      # deploy. Se o generate produzir arquivo novo aqui, falta migration no PR.
+      - name: migration pendente?
+        run: |
+          pnpm --filter server db:generate
+          if [ -n "$(git status --porcelain server/src/db/migrations)" ]; then
+            echo "::error::Schema mudou sem migration. Rode 'pnpm db:generate' e commite o resultado."
+            git status --porcelain server/src/db/migrations
+            exit 1
+          fi
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rubikdb

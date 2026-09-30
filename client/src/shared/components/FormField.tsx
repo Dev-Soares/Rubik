@@ -14,15 +14,7 @@ type FormFieldProps = ComponentProps<typeof Input> & {
  * Input do shadcn com label, ícone opcional à esquerda e erro acessível.
  * Campos `type="password"` ganham botão para revelar a senha.
  */
-export function FormField({
-	label,
-	error,
-	icon: Icon,
-	hint,
-	id,
-	type,
-	...props
-}: FormFieldProps) {
+export function FormField({ label, error, icon: Icon, hint, id, type, ...props }: FormFieldProps) {
 	const [revealed, setRevealed] = useState(false);
 
 	const fieldId = id ?? props.name;

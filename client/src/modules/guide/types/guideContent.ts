@@ -1,10 +1,10 @@
 import {
 	BellIcon,
+	CircleQuestionMarkIcon,
 	CompassIcon,
 	IdCardIcon,
 	LogInIcon,
 	ScrollTextIcon,
-	TicketIcon,
 	UserRoundIcon,
 	UsersIcon,
 } from 'lucide-react';
@@ -165,15 +165,15 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 	{
 		id: 'tickets',
 		group: 'Administração',
-		label: 'Chamados',
-		title: 'Chamados',
+		label: 'Suporte',
+		title: 'Suporte',
 		description: 'Abertura e acompanhamento de chamados, com fotos do problema.',
-		icon: TicketIcon,
+		icon: CircleQuestionMarkIcon,
 		to: '/tickets',
 		adminOnly: true,
 		steps: [
 			{
-				title: 'Abra a aba Chamados',
+				title: 'Abra a aba Suporte',
 				description:
 					'Ela fica no rodapé do menu lateral, logo abaixo de "Como usar". A lista traz os chamados já abertos, do mais recente para o mais antigo.',
 			},
@@ -195,7 +195,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 			{
 				title: 'Saiba quando for resolvido',
 				description:
-					'Assim que a equipe resolve um chamado seu, você recebe um aviso no sino e um número aparece ao lado de "Chamados" no menu. O número some quando você abre a aba.',
+					'Assim que a equipe resolve um chamado seu, você recebe um aviso no sino e um número aparece ao lado de "Suporte" no menu. O número some quando você abre a aba.',
 			},
 		],
 		note: {

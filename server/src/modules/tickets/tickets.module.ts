@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { TicketCleanupService } from 'src/modules/tickets/ticket-cleanup.service';
 import { TicketStorageService } from 'src/modules/tickets/ticket-storage.service';
 import { TicketSyncService } from 'src/modules/tickets/ticket-sync.service';
 import { TicketWebhookService } from 'src/modules/tickets/ticket-webhook.service';
@@ -7,6 +8,12 @@ import { TicketsService } from 'src/modules/tickets/tickets.service';
 
 @Module({
 	controllers: [TicketsController],
-	providers: [TicketsService, TicketStorageService, TicketWebhookService, TicketSyncService],
+	providers: [
+		TicketsService,
+		TicketStorageService,
+		TicketWebhookService,
+		TicketSyncService,
+		TicketCleanupService,
+	],
 })
 export class TicketsModule {}

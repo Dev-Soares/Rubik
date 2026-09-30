@@ -138,6 +138,7 @@ O `pnpm setup` já gera um `.env` funcional. O que talvez você queira mexer:
 | `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Liga o upload de foto nos chamados. Vazio: a aplicação roda, só o upload fica desligado. Use AWS S3 ou Cloudflare R2 (R2 exige `S3_ENDPOINT` + `S3_FORCE_PATH_STYLE=true`). |
 | `TICKET_WEBHOOK_URL` | Envia cada chamado aberto para um sistema externo. Vazio desliga. |
 | `INTEGRATION_API_KEY` | Deixa o sistema externo marcar chamado como resolvido, via header `x-api-key`. |
+| `TICKET_RETENTION_DAYS` | Dias que um chamado resolvido sobrevive. Uma limpeza diária às 4h apaga o que passou disso, com as fotos no bucket. Default 30. |
 | `CORS_ORIGIN` | Origens liberadas, separadas por vírgula. |
 
 O admin inicial é **fixo no código** (`server/src/db/seed.ts`), não em variável

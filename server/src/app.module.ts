@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { AllExceptionsFilter } from 'src/common/filters/all-exceptions.filter';
@@ -23,6 +24,8 @@ const THROTTLE_LIMIT = 100;
 	imports: [
 		LoggerModule.forRoot(loggerConfig),
 		ThrottlerModule.forRoot([{ ttl: THROTTLE_TTL_MS, limit: THROTTLE_LIMIT }]),
+		// Agenda os jobs decorados com `@Cron`. Hoje só a limpeza de chamados.
+		ScheduleModule.forRoot(),
 		DbModule,
 		AuditModule,
 		AuthModule,

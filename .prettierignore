@@ -1,0 +1,15 @@
+# Gerado pelo drizzle-kit. A regra de `.claude/rules/server/db.md` é não editar
+# migrations à mão, e reformatar é editar: o próximo `db:generate` reescreve o
+# arquivo no formato dele e a churn volta em todo PR.
+server/src/db/migrations/
+
+# Gerado pelo plugin do TanStack Router a cada `pnpm dev` / `pnpm build`.
+client/src/routeTree.gen.ts
+
+# Artefatos de build e dependências.
+node_modules/
+dist/
+build/
+coverage/
+client/.tanstack/
+pnpm-lock.yaml

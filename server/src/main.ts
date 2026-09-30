@@ -1,18 +1,24 @@
 import 'reflect-metadata';
 
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import basicAuth from 'express-basic-auth';
 import helmet from 'helmet';
+import { Logger as PinoAppLogger } from 'nestjs-pino';
 import { auth } from 'src/modules/auth/auth';
 import { toNodeHandler } from 'better-auth/node';
 import { AppModule } from 'src/app.module';
-import { corsOrigins, env, isProduction } from 'src/config/env';
+import { corsOrigins, env, isProduction, isStorageEnabled } from 'src/config/env';
 
 async function bootstrap(): Promise<void> {
 	const app = await NestFactory.create(AppModule, { bufferLogs: true });
+
+	// Sem isto, todo log do próprio Nest (boot, rotas, shutdown) sai pelo logger
+	// padrão em texto solto, fora do JSON que a produção coleta.
+	const logger = app.get(PinoAppLogger);
+	app.useLogger(logger);
 
 	app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 	app.use(cookieParser());
@@ -58,7 +64,19 @@ async function bootstrap(): Promise<void> {
 
 	await app.listen(env.PORT);
 
-	Logger.log(`API em http://localhost:${env.PORT}`, 'Bootstrap');
+	// Estado das integrações opcionais no boot: descobrir que o storage estava
+	// desligado só quando o upload falha custa uma investigação inteira.
+	logger.log(
+		{
+			port: env.PORT,
+			env: env.NODE_ENV,
+			logLevel: env.LOG_LEVEL,
+			storage: isStorageEnabled ? 'on' : 'off',
+			ticketWebhook: env.TICKET_WEBHOOK_URL === '' ? 'off' : 'on',
+			corsOrigins,
+		},
+		'API no ar',
+	);
 }
 
 void bootstrap();

@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Rede local dos portões, para as janelas em que o CI não roda — minutos de
+# Actions esgotados, remote sem CI configurado, trabalho offline.
+#
+# O que ele NÃO é: garantia. `--no-verify` pula. O que ele muda é o PADRÃO: de
+# "nada confere" para "você pulou de propósito".
+#
+# Instalação: `pnpm hooks:install` (uma vez por clone — `core.hooksPath` é
+# config de repositório, então cobre todos os worktrees de uma vez).
+set -uo pipefail
+
+if [ -t 1 ]; then AZUL=$'\033[36m'; FIM=$'\033[0m'; else AZUL=""; FIM=""; fi
+falhou=0
+
+passo() {
+  nome="$1"; shift
+  printf '%s→ %s%s\n' "$AZUL" "$nome" "$FIM"
+  if ! "$@"; then
+    falhou=1
+    printf '  🔴 %s reprovou\n' "$nome"
+  fi
+}
+
+# A mesma base que o CI usaria. Sem `origin/main` (clone raso, remote com outro
+# nome), cai para `main` em vez de comparar com o nada.
+BASE="origin/main"
+git rev-parse --verify --quiet "$BASE" >/dev/null || BASE="main"
+
+passo "typecheck + lint" pnpm check
+passo "bump de versão" bash scripts/check-version-bump.sh "$BASE" HEAD
+
+if [ "$falhou" -ne 0 ]; then
+  cat <<'MSG'
+
+🔴 push BLOQUEADO por um portão local.
+
+   Conserte o que está acima, ou — se tiver motivo — pule com:
+       git push --no-verify
+
+   Pular é uma DECISÃO, não um atalho.
+MSG
+  exit 1
+fi
+
+printf '%s✓ portões locais passaram%s\n' "$AZUL" "$FIM"

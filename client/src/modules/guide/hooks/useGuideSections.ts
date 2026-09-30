@@ -1,6 +1,7 @@
 import { GUIDE_SECTIONS } from '@/modules/guide/types/guideContent';
 import { groupSections, isGuideItemVisible } from '@/modules/guide/utils';
 import { useMyScreens } from '@/modules/roles/hooks/useMyScreens';
+import { useAuth } from '@/shared/hooks/useAuth';
 
 /**
  * Seções do guia visíveis ao usuário, já agrupadas para o índice e com os
@@ -8,13 +9,14 @@ import { useMyScreens } from '@/modules/roles/hooks/useMyScreens';
  */
 export function useGuideSections() {
 	const { can, isPending } = useMyScreens();
+	const { isAdmin } = useAuth();
 
-	const sections = GUIDE_SECTIONS.filter((section) => isGuideItemVisible(section, can)).map(
-		(section) => ({
-			...section,
-			steps: section.steps.filter((step) => isGuideItemVisible(step, can)),
-		}),
-	);
+	const sections = GUIDE_SECTIONS.filter((section) =>
+		isGuideItemVisible(section, can, isAdmin),
+	).map((section) => ({
+		...section,
+		steps: section.steps.filter((step) => isGuideItemVisible(step, can, isAdmin)),
+	}));
 
 	return { sections, groups: groupSections(sections), isPending };
 }

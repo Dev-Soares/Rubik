@@ -22,7 +22,8 @@ import {
 } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
-import { ApiKeyGuard } from 'src/common/guards';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { ApiKeyGuard, RolesGuard } from 'src/common/guards';
 import { UpdateTicketStatusDto } from 'src/modules/tickets/dto/update-ticket-status.dto';
 import { QueryTicketsDto } from 'src/modules/tickets/dto/query-tickets.dto';
 import type { Paginated } from 'src/common/types/pagination.types';
@@ -40,14 +41,18 @@ import {
 import { toUploadedPhotos } from 'src/modules/tickets/utils';
 
 /**
- * Sem `ScreensGuard`: a aba é geral, como a de "Como usar" — todo usuário
- * autenticado abre chamado e lê os de todos. O `AuthGuard` global já garante
- * a sessão.
+ * Aba restrita a administradores: a exigência vale para a classe inteira.
+ *
+ * A única exceção é `PATCH :id/status`, da integração de atendimento — ela é
+ * `@Public()` e se autentica por `x-api-key`, sem sessão e portanto sem role
+ * para comparar.
  *
  * Não há rota de edição nem de remoção: o chamado nasce e é lido.
  */
 @ApiTags('tickets')
 @Controller('tickets')
+@Roles('admin')
+@UseGuards(RolesGuard)
 export class TicketsController {
 	constructor(private readonly ticketsService: TicketsService) {}
 
@@ -102,6 +107,9 @@ export class TicketsController {
 	 */
 	@Patch(':id/status')
 	@Public()
+	// Zera a exigência da classe: sem sessão não há role a comparar, e sem isto
+	// o `RolesGuard` recusaria a integração com 403.
+	@Roles()
 	@UseGuards(ApiKeyGuard)
 	@ApiHeader({ name: 'x-api-key', description: 'Chave da integração.', required: true })
 	@ApiOkResponse({ description: 'Status atualizado.' })

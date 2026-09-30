@@ -164,15 +164,16 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 	},
 	{
 		id: 'tickets',
-		group: 'Sua conta',
-		label: 'Solicitar ajuda',
-		title: 'Solicitar ajuda',
-		description: 'Abertura de chamados para a equipe, com fotos do problema.',
+		group: 'Administração',
+		label: 'Chamados',
+		title: 'Chamados',
+		description: 'Abertura e acompanhamento de chamados, com fotos do problema.',
 		icon: TicketIcon,
 		to: '/tickets',
+		adminOnly: true,
 		steps: [
 			{
-				title: 'Abra a aba Solicitar ajuda',
+				title: 'Abra a aba Chamados',
 				description:
 					'Ela fica no rodapé do menu lateral, logo abaixo de "Como usar". A lista traz os chamados já abertos, do mais recente para o mais antigo.',
 			},
@@ -194,13 +195,13 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 			{
 				title: 'Saiba quando for resolvido',
 				description:
-					'Assim que a equipe resolve um chamado seu, você recebe um aviso no sino e um número aparece ao lado de "Solicitar ajuda" no menu. O número some quando você abre a aba.',
+					'Assim que a equipe resolve um chamado seu, você recebe um aviso no sino e um número aparece ao lado de "Chamados" no menu. O número some quando você abre a aba.',
 			},
 		],
 		note: {
-			title: 'Todos veem todos os chamados',
+			title: 'A aba é só de administradores',
 			description:
-				'A aba é aberta a qualquer pessoa com acesso ao sistema, e o chamado não pode ser editado nem apagado depois de enviado. Quem marca um chamado como resolvido é a equipe de atendimento, fora desta tela. Não escreva senhas nem dados pessoais no título, e confira a foto antes de anexá-la.',
+				'Apenas administradores enxergam esta aba e abrem chamados; quem tem acesso vê os chamados de todos. O chamado não pode ser editado nem apagado depois de enviado, e quem o marca como resolvido é a equipe de atendimento, fora desta tela. Não escreva senhas nem dados pessoais no título, e confira a foto antes de anexá-la.',
 		},
 	},
 	{

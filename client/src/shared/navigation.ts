@@ -51,6 +51,16 @@ export const NAV_ACTIVE_CLASS =
 	'bg-primary/15! text-primary font-bold hover:bg-primary/20! hover:text-primary!';
 
 /**
+ * Fundo do item sob o cursor. Vale para tudo que é clicável na sidebar —
+ * item de navegação, grupo, sub-item e o card de perfil no rodapé.
+ *
+ * 10% e não menos: no tema escuro o contraste entre o fundo da sidebar e um
+ * branco a 5% fica abaixo do que o olho registra em movimento, e o item passa
+ * por não-clicável.
+ */
+export const NAV_HOVER_CLASS = 'hover:bg-foreground/10';
+
+/**
  * Base dos itens de navegação (plano, grupo e sub-item).
  *
  * O `transition-[width,height,padding]` do SidebarMenuButton não inclui cor,
@@ -64,5 +74,4 @@ export const NAV_ACTIVE_CLASS =
  * selecionados. `active:` entra junto porque no celular o toque deixa o estado
  * grudado depois de navegar.
  */
-export const NAV_ITEM_CLASS =
-	'transition-colors duration-150 hover:bg-foreground/5 hover:text-foreground data-active:bg-transparent active:bg-transparent!';
+export const NAV_ITEM_CLASS = `transition-colors duration-150 ${NAV_HOVER_CLASS} hover:text-foreground data-active:bg-transparent active:bg-transparent!`;

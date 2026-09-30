@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { MoreVerticalIcon } from 'lucide-react';
 import { UserAvatar } from '@/modules/users/components/UserAvatar';
 import { SidebarMenuButton } from '@/shared/components/ui/sidebar';
+import { NAV_HOVER_CLASS } from '@/shared/navigation';
 import { useAuth } from '@/shared/hooks/useAuth';
 
 /** Atalho para o perfil, fixo no rodapé da sidebar. */
@@ -13,11 +14,11 @@ export function UserMenu() {
 			asChild
 			size="lg"
 			tooltip={user?.name ?? 'Perfil'}
-			className="text-foreground hover:bg-foreground/5 h-auto gap-3 py-2.5 group-data-[collapsible=icon]:size-auto! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:bg-transparent! group-data-[collapsible=icon]:p-0!"
+			className={`text-foreground ${NAV_HOVER_CLASS} h-auto gap-3 py-2.5 transition-colors duration-150 group-data-[collapsible=icon]:size-auto! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:bg-transparent! group-data-[collapsible=icon]:p-0!`}
 		>
 			<Link
 				to="/profile"
-				activeProps={{ className: 'bg-foreground/5 group-data-[collapsible=icon]:bg-transparent' }}
+				activeProps={{ className: 'bg-foreground/10 group-data-[collapsible=icon]:bg-transparent' }}
 			>
 				<UserAvatar
 					name={user?.name ?? '?'}

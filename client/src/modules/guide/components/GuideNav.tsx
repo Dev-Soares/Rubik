@@ -1,4 +1,5 @@
 import { cn } from 'cn';
+import { NAV_HOVER_CLASS } from '@/shared/navigation';
 import type { GuideGroup } from '@/modules/guide/types/guide';
 
 type GuideNavProps = {
@@ -27,7 +28,7 @@ export function GuideNav({ groups, activeId, onSelect }: GuideNavProps) {
 								'flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors',
 								section.id === activeId
 									? 'bg-primary text-primary-foreground font-bold'
-									: 'text-foreground/70 hover:bg-foreground/5 hover:text-foreground'
+									: `text-foreground/70 ${NAV_HOVER_CLASS} hover:text-foreground`,
 							)}
 						>
 							<section.icon className="size-4 shrink-0" />

@@ -54,24 +54,26 @@ export const NAV_ACTIVE_CLASS =
  * Fundo do item sob o cursor. Vale para tudo que é clicável na sidebar —
  * item de navegação, grupo, sub-item e o card de perfil no rodapé.
  *
- * 10% e não menos: no tema escuro o contraste entre o fundo da sidebar e um
- * branco a 5% fica abaixo do que o olho registra em movimento, e o item passa
- * por não-clicável.
+ * O `!` é obrigatório: o `SidebarMenuButton` traz `hover:bg-sidebar-accent`, e
+ * o Tailwind emite essa classe DEPOIS desta no arquivo final. Mesma
+ * especificidade, última ganha — sem o `!` o item não selecionado acende no
+ * tom de destaque do shadcn e este valor nunca chega a ser aplicado.
  */
-export const NAV_HOVER_CLASS = 'hover:bg-foreground/10';
+export const NAV_HOVER_CLASS = 'hover:bg-foreground/10!';
 
 /**
  * Base dos itens de navegação (plano, grupo e sub-item).
  *
  * O `transition-[width,height,padding]` do SidebarMenuButton não inclui cor,
  * então sem `transition-colors` o hover entra e sai seco. O
- * `hover:text-foreground` segura o texto: o padrão do shadcn é saltar para
+ * `hover:text-foreground!` segura o texto: o padrão do shadcn é saltar para
  * `sidebar-accent-foreground`, e a troca de cor no mesmo frame do fundo é o que
- * faz o hover parecer forte demais.
+ * faz o hover parecer forte demais. Leva `!` pelo mesmo motivo do fundo — a
+ * classe do shadcn é emitida depois desta.
  *
  * `data-active:bg-transparent` zera o fundo do shadcn — quem pinta o ativo é o
  * NAV_ACTIVE_CLASS, senão o item sob o cursor também acende e parecem dois
  * selecionados. `active:` entra junto porque no celular o toque deixa o estado
  * grudado depois de navegar.
  */
-export const NAV_ITEM_CLASS = `transition-colors duration-150 ${NAV_HOVER_CLASS} hover:text-foreground data-active:bg-transparent active:bg-transparent!`;
+export const NAV_ITEM_CLASS = `transition-colors duration-150 ${NAV_HOVER_CLASS} hover:text-foreground! data-active:bg-transparent! active:bg-transparent!`;

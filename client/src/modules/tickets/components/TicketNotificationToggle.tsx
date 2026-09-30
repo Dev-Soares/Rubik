@@ -25,9 +25,9 @@ export function TicketNotificationToggle() {
 
 	return (
 		<div className="flex items-center gap-3">
-			<Icon className="text-muted-foreground size-4 shrink-0" aria-hidden />
+			<Icon className="text-destructive size-4 shrink-0" aria-hidden />
 
-			<Label htmlFor={switchId} className="text-muted-foreground text-sm font-normal">
+			<Label htmlFor={switchId} className="text-destructive text-sm font-medium">
 				Receber avisos de chamado
 			</Label>
 
@@ -38,6 +38,9 @@ export function TicketNotificationToggle() {
 				 * permitiria um clique que parte do valor errado. */
 				disabled={isPending || isSaving}
 				onCheckedChange={(checked) => setEnabled(checked)}
+				// Ligado acende no vermelho do rótulo; desligado fica no cinza neutro.
+				// `data-checked` é o estado que o Switch do shadcn expõe.
+				className="data-checked:bg-destructive **:data-[slot=switch-thumb]:size-5 h-6 w-11"
 			/>
 		</div>
 	);

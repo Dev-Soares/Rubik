@@ -68,7 +68,9 @@ export function AuditFiltersBar({ filters, onChange }: AuditFiltersBarProps) {
 						name="entity"
 						options={ENTITY_OPTIONS}
 						value={filters.entity ?? ALL}
-						onChange={(value) => onChange({ ...filters, entity: value === ALL ? undefined : value })}
+						onChange={(value) =>
+							onChange({ ...filters, entity: value === ALL ? undefined : value })
+						}
 					/>
 				</div>
 

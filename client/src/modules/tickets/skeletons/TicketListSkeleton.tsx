@@ -11,7 +11,10 @@ export function TicketListSkeleton({ items = 6 }: TicketListSkeletonProps) {
 		<div className="rounded-xl border">
 			<div className="h-12 border-b" />
 			{Array.from({ length: items }, (_, index) => (
-				<div key={index} className="flex items-center gap-3 border-b px-4 py-4 last:border-b-0 sm:px-6">
+				<div
+					key={index}
+					className="flex items-center gap-3 border-b px-4 py-4 last:border-b-0 sm:px-6"
+				>
 					<Skeleton className="h-4 flex-1" />
 					<Skeleton className="h-5 w-20 rounded-full" />
 					<Skeleton className="hidden h-4 w-32 sm:block" />

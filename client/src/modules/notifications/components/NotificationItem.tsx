@@ -1,7 +1,10 @@
 import { Link } from '@tanstack/react-router';
 import { cn } from 'cn';
 import { CheckCheckIcon } from 'lucide-react';
-import type { NotificationEntry, NotificationTone } from '@/modules/notifications/types/notification';
+import type {
+	NotificationEntry,
+	NotificationTone,
+} from '@/modules/notifications/types/notification';
 import { formatAge, formatFullDate, toneOf } from '@/modules/notifications/utils';
 import { Button } from '@/shared/components/ui/button';
 

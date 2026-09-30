@@ -2,10 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { LockIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useSetUserPassword } from '@/modules/users/hooks/useSetUserPassword';
-import {
-	setUserPasswordSchema,
-	type SetUserPasswordFormInput,
-} from '@/modules/users/types/user';
+import { setUserPasswordSchema, type SetUserPasswordFormInput } from '@/modules/users/types/user';
 import { FormError } from '@/shared/components/FormError';
 import { FormField } from '@/shared/components/FormField';
 import { Button } from '@/shared/components/ui/button';

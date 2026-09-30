@@ -62,7 +62,7 @@ export function AppSidebar() {
 									<NavGroupItem key={item.to} item={item} onNavigate={closeOnMobile} />
 								) : (
 									<NavLinkItem key={item.to} item={item} onNavigate={closeOnMobile} />
-								)
+								),
 							)}
 						</SidebarMenu>
 					</SidebarGroupContent>

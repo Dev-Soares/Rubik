@@ -19,14 +19,10 @@ const UNREAD_COUNT_REFETCH_MS = 30_000;
 /** Prefixo comum às duas queries — invalidar por ele atinge lista e contador. */
 export const NOTIFICATIONS_QUERY_KEY = ['notifications'] as const;
 
-export function notificationsQueryOptions(
-	filters: NotificationFilters = {},
-	limit = PAGE_SIZE,
-) {
+export function notificationsQueryOptions(filters: NotificationFilters = {}, limit = PAGE_SIZE) {
 	return infiniteQueryOptions({
 		queryKey: [...NOTIFICATIONS_QUERY_KEY, 'list', { limit, ...filters }],
-		queryFn: ({ pageParam }) =>
-			listNotificationsService({ limit, offset: pageParam, ...filters }),
+		queryFn: ({ pageParam }) => listNotificationsService({ limit, offset: pageParam, ...filters }),
 		initialPageParam: 0,
 		getNextPageParam: nextOffset,
 	});

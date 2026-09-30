@@ -50,8 +50,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 			},
 			{
 				title: 'Registro de uso — histórico',
-				description:
-					'Tudo que foi alterado no sistema, com autor e horário. Somente leitura.',
+				description: 'Tudo que foi alterado no sistema, com autor e horário. Somente leitura.',
 				screen: 'admin.audit',
 			},
 		],

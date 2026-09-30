@@ -30,7 +30,23 @@ RUN pnpm --filter client build
 
 
 FROM nginx:alpine AS runtime
-COPY client/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Em `templates/`, não em `conf.d/`: o entrypoint da imagem roda `envsubst`
+# sobre os templates no boot e grava o resultado em `conf.d/`. É o que resolve
+# a porta em runtime — Railway e Cloud Run injetam `PORT` e roteiam só para ela,
+# então um `listen 80` fixo deixa o healthcheck batendo onde não há ninguém.
+COPY client/nginx.conf.template /etc/nginx/templates/default.conf.template
+
+# Restringe a substituição a `PORT`. Sem isto, `envsubst` trocaria também
+# `$uri` e outras variáveis do nginx por string vazia, e `try_files` pararia de
+# resolver as rotas do SPA.
+ENV NGINX_ENVSUBST_FILTER=PORT
+
+# Default para quem roda a imagem na mão (`docker run -p 8080:80`). Quem injeta
+# `PORT` sobrescreve. Sem um valor aqui, `listen ${PORT};` viraria `listen ;` e
+# o nginx nem subiria.
+ENV PORT=80
+
 COPY --from=build /app/client/dist /usr/share/nginx/html
 
 EXPOSE 80

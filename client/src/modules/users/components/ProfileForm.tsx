@@ -23,10 +23,7 @@ export function ProfileForm({ userId, defaultValues }: ProfileFormProps) {
 	});
 
 	return (
-		<form
-			onSubmit={handleSubmit((data) => updateUser(data))}
-			className="flex flex-col gap-5"
-		>
+		<form onSubmit={handleSubmit((data) => updateUser(data))} className="flex flex-col gap-5">
 			<FormField
 				label="Nome"
 				icon={IdCardIcon}

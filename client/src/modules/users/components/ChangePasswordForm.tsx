@@ -24,10 +24,7 @@ export function ChangePasswordForm() {
 	});
 
 	return (
-		<form
-			onSubmit={handleSubmit((data) => changePassword(data))}
-			className="flex flex-col gap-5"
-		>
+		<form onSubmit={handleSubmit((data) => changePassword(data))} className="flex flex-col gap-5">
 			<fieldset disabled={isPending} className="contents">
 				<FormField
 					label="Senha atual"

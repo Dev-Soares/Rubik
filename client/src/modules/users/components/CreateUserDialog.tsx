@@ -25,7 +25,9 @@ export function CreateUserDialog() {
 
 			<DialogContent className="gap-6 p-6 shadow-2xl sm:max-w-md">
 				<DialogHeader>
-					<DialogTitle className="text-primary text-lg font-black tracking-tight">Criar usuário</DialogTitle>
+					<DialogTitle className="text-primary text-lg font-black tracking-tight">
+						Criar usuário
+					</DialogTitle>
 					<DialogDescription className="sr-only">
 						Preencha os dados da nova conta.
 					</DialogDescription>

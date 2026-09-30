@@ -1,4 +1,5 @@
 import { useMyScreens } from '@/modules/roles/hooks/useMyScreens';
+import { useAuth } from '@/shared/hooks/useAuth';
 import { UserMenu } from '@/modules/users/components/UserMenu';
 import { AppVersion } from '@/shared/components/AppVersion';
 import {
@@ -20,8 +21,11 @@ import { NAV_FOOTER_ITEMS, NAV_ITEMS } from '@/shared/navigation';
 
 export function AppSidebar() {
 	const { can } = useMyScreens();
+	const { isAdmin } = useAuth();
 	const { isMobile, setOpenMobile } = useSidebar();
-	const { data: unseen } = useUnseenResolved();
+	// A rota exige admin: sem isto o refetch periódico viraria um 403 a cada
+	// 30 segundos para todo usuário comum.
+	const { data: unseen } = useUnseenResolved(isAdmin);
 
 	const unseenResolved = unseen?.count ?? 0;
 
@@ -39,6 +43,9 @@ export function AppSidebar() {
 
 		return children.length > 0 ? [{ ...item, children }] : [];
 	});
+
+	/** O rodapé segue a mesma ideia: item `adminOnly` some para os demais. */
+	const footerItems = NAV_FOOTER_ITEMS.filter((item) => !item.adminOnly || isAdmin);
 
 	/** No mobile a sidebar é um drawer: navegar deve fechá-lo. */
 	const closeOnMobile = () => {
@@ -62,7 +69,7 @@ export function AppSidebar() {
 									<NavGroupItem key={item.to} item={item} onNavigate={closeOnMobile} />
 								) : (
 									<NavLinkItem key={item.to} item={item} onNavigate={closeOnMobile} />
-								)
+								),
 							)}
 						</SidebarMenu>
 					</SidebarGroupContent>
@@ -72,7 +79,7 @@ export function AppSidebar() {
 			<SidebarFooter className="border-t px-2 pt-2 pb-6 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:pb-4">
 				{/* Apoio (ex: "Como usar") fica fixo no fim, separado das abas de trabalho. */}
 				<SidebarMenu className="gap-1 pb-2">
-					{NAV_FOOTER_ITEMS.map((item) => (
+					{footerItems.map((item) => (
 						<NavLinkItem
 							key={item.to}
 							item={item}

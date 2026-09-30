@@ -17,12 +17,7 @@ type TicketPhotoPickerProps = {
  * escondido atrás do botão: estilizá-lo diretamente não é possível de forma
  * consistente entre navegadores.
  */
-export function TicketPhotoPicker({
-	photos,
-	disabled,
-	error,
-	onChange,
-}: TicketPhotoPickerProps) {
+export function TicketPhotoPicker({ photos, disabled, error, onChange }: TicketPhotoPickerProps) {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const inputId = useId();
 	const isFull = photos.length >= MAX_TICKET_PHOTOS;

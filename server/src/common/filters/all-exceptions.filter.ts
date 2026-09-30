@@ -17,7 +17,14 @@ type ErrorBody = {
 	error: string;
 	path: string;
 	timestamp: string;
+	/**
+	 * Mesmo id que está no log do servidor. Vai para a tela em produção — é o
+	 * que o usuário informa no chamado e o que o dev usa para achar o stack.
+	 */
+	requestId?: string;
 };
+
+type RequestWithId = Request & { id?: string; user?: { id?: string } };
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -28,7 +35,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 	catch(exception: unknown, host: ArgumentsHost): void {
 		const ctx = host.switchToHttp();
 		const response = ctx.getResponse<Response>();
-		const request = ctx.getRequest<Request>();
+		const request = ctx.getRequest<RequestWithId>();
 
 		const status: number =
 			exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -39,12 +46,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
 			error: HttpStatus[status] ?? 'ERROR',
 			path: request.url,
 			timestamp: new Date().toISOString(),
+			requestId: request.id,
+		};
+
+		const context = {
+			requestId: request.id,
+			userId: request.user?.id,
+			method: request.method,
+			path: request.url,
+			status,
 		};
 
 		if (status >= SERVER_ERROR_THRESHOLD) {
-			this.logger.error({ err: exception, path: request.url }, 'erro não tratado');
+			this.logger.error({ ...context, err: exception }, 'erro não tratado');
 		} else {
-			this.logger.warn({ status, path: request.url, message: body.message }, 'requisição falhou');
+			this.logger.warn({ ...context, message: body.message }, 'requisição falhou');
 		}
 
 		response.status(status).json(body);

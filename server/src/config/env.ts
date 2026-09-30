@@ -84,6 +84,38 @@ export const env = result.data;
 export const isProduction = env.NODE_ENV === 'production';
 
 /**
+ * Regras que só valem em produção.
+ *
+ * Elas não cabem no schema porque o default permissivo é justamente o que faz
+ * `pnpm dev` subir sem configuração nenhuma. O que é conveniência em dev vira
+ * buraco em produção, e o lugar de descobrir isso é o boot — não uma auditoria
+ * seis meses depois.
+ */
+if (isProduction) {
+	const problems: string[] = [];
+
+	if (env.SWAGGER_PASSWORD === 'admin') {
+		problems.push('SWAGGER_PASSWORD: ainda é o valor padrão `admin`.');
+	}
+
+	if (env.CORS_ORIGIN === '') {
+		problems.push('CORS_ORIGIN: vazio em produção — nenhum frontend consegue chamar a API.');
+	}
+
+	if (env.BETTER_AUTH_URL.startsWith('http://')) {
+		problems.push('BETTER_AUTH_URL: precisa ser https em produção — cookie de sessão é `secure`.');
+	}
+
+	if (problems.length > 0) {
+		for (const problem of problems) {
+			// eslint-disable-next-line no-console -- o logger ainda não existe neste ponto do boot
+			console.error(`[env] ${problem}`);
+		}
+		process.exit(1);
+	}
+}
+
+/**
  * Há bucket configurado? As três variáveis andam juntas: com qualquer uma
  * faltando o SDK só falharia na hora do upload, com erro de credencial que não
  * explica que o storage nunca foi configurado.

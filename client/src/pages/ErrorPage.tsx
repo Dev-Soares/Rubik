@@ -1,6 +1,6 @@
 import { Link, useRouter } from '@tanstack/react-router';
 import { TriangleAlertIcon } from 'lucide-react';
-import { getErrorMessage } from '@/api/axios';
+import { getErrorMessage, getRequestId } from '@/api/axios';
 import { StatusPage } from '@/shared/components/StatusPage';
 import { Button } from '@/shared/components/ui/button';
 
@@ -12,14 +12,22 @@ type ErrorPageProps = {
 
 export function ErrorPage({ error, reset }: ErrorPageProps) {
 	const router = useRouter();
+	const requestId = getRequestId(error);
+
+	/**
+	 * Em dev, a mensagem técnica. Em produção, o id de correlação: não expõe
+	 * interno e ainda assim dá ao suporte como achar o erro no log.
+	 */
+	const detail = import.meta.env.DEV
+		? getErrorMessage(error)
+		: requestId && `Código do erro: ${requestId}`;
 
 	return (
 		<StatusPage
 			icon={TriangleAlertIcon}
 			title="Algo deu errado"
 			description="Não foi possível carregar esta página. Tente novamente em instantes."
-			// Detalhe técnico só em desenvolvimento: em produção não expõe interno.
-			detail={import.meta.env.DEV ? getErrorMessage(error) : undefined}
+			detail={detail || undefined}
 		>
 			<Button
 				variant="outline"

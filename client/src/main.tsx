@@ -6,6 +6,7 @@ import { queryClient } from '@/api/query-client';
 import { ErrorPage } from '@/pages/ErrorPage';
 import { NotFound } from '@/pages/NotFound';
 import { routeTree } from '@/routeTree.gen';
+import { AppErrorBoundary } from '@/shared/components/AppErrorBoundary';
 import '@/styles/global.css';
 
 const router = createRouter({
@@ -33,8 +34,12 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
 	<StrictMode>
-		<QueryClientProvider client={queryClient}>
-			<RouterProvider router={router} />
-		</QueryClientProvider>
+		{/* Fora do RouterProvider de propósito: assim um erro no próprio router
+		    ainda encontra um boundary acima dele. */}
+		<AppErrorBoundary>
+			<QueryClientProvider client={queryClient}>
+				<RouterProvider router={router} />
+			</QueryClientProvider>
+		</AppErrorBoundary>
 	</StrictMode>,
 );

@@ -24,6 +24,7 @@
 		"lint": "pnpm -r lint",
 		"format": "prettier --write \"**/*.{ts,tsx,js,json,css}\"",
 		"check": "pnpm typecheck && pnpm lint",
+		"hooks:install": "git config core.hooksPath .githooks && git update-index --chmod=+x .githooks/pre-push scripts/check-version-bump.sh 2>/dev/null || true",
 		"db:generate": "docker compose --profile dev exec server pnpm db:generate",
 		"db:migrate": "docker compose --profile dev exec server pnpm db:migrate",
 		"db:push": "docker compose --profile dev exec server pnpm db:push",

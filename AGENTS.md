@@ -53,6 +53,14 @@ nunca uma seção aqui.
 - Cookie httpOnly para auth; nunca localStorage.
 - Tailwind v4 + shadcn/ui com token semântico. Sem CSS por componente.
 - Docker com paridade dev/prod; Postgres sempre em container.
+- **Idioma único pt-BR, sem camada de i18n.** Texto de UI e mensagem de erro vão
+  literais no código, em pt-BR. Sem `react-i18next`, sem arquivo de tradução,
+  sem `t('chave')`. Os projetos que nascem daqui atendem um público só; uma
+  camada de i18n "por precaução" cobra chave em vez de frase em cada componente
+  e nunca ganha o segundo idioma que a justificaria. Se um projeto derivado
+  precisar mesmo de dois idiomas, i18n entra lá inteira — não meia, e não aqui.
+- Versão em `client/package.json`, congelada no build. Bump na própria PR —
+  `.claude/rules/versionamento.md`.
 
 ## 3. Prioridades
 
@@ -131,6 +139,8 @@ Nada carrega "por precaução". Pela tarefa:
 | Arquivo de rota, `beforeLoad`, `loader` | `.claude/rules/client/routes.md` |
 | Tailwind, token, shadcn, responsivo, a11y | `.claude/rules/client/styling.md` |
 | Feature nova visível ao usuário | `.claude/rules/client/guide.md` |
+| Log, erro, correlação, observabilidade | `.claude/rules/observabilidade.md` |
+| Abrir PR, bumpar versão, taggear release | `.claude/rules/versionamento.md` |
 | Decidir/mudar arquitetura | §2 deste arquivo — decisão fixa, não reabrir |
 
 Escopo amplo (ex: feature full-stack) → carregue as rules dos dois lados,

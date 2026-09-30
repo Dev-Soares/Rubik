@@ -8,6 +8,8 @@
 
 		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": true,
+		// `vite.config.ts` lê a versão de `package.json`.
+		"resolveJsonModule": true,
 		"verbatimModuleSyntax": true,
 		"moduleDetection": "force",
 		"noEmit": true,

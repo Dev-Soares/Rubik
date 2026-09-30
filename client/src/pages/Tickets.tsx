@@ -9,7 +9,7 @@ export function Tickets() {
 		 * assunto ficaria truncado cedo demais. */
 		<AppLayout className="max-w-5xl">
 			<div className="flex flex-col gap-10">
-				<PageHeader title="Solicitar ajuda" />
+				<PageHeader title="Chamados" description="Acompanhe e abra chamados de suporte." />
 
 				<TicketCallout />
 

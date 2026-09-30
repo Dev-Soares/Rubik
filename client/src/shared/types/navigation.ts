@@ -6,6 +6,8 @@ export type NavItem = {
 	label: string;
 	to: FileRouteTypes['to'];
 	icon: LucideIcon;
+	/** Só aparece para administradores. A autorização real é do backend. */
+	adminOnly?: boolean;
 	/** Quando presente, o item vira um grupo expansível na sidebar. */
 	children?: NavChildItem[];
 };

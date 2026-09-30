@@ -16,7 +16,10 @@ export function unseenResolvedQueryOptions() {
 /**
  * Contador do aviso na barra lateral. `useQuery` e não a variante suspense: a
  * sidebar fica no layout e não deve suspender a aplicação inteira.
+ *
+ * `enabled` porque a rota é restrita a administradores: sem ele, o refetch
+ * periódico viraria um 403 a cada 30 segundos para todo usuário comum.
  */
-export function useUnseenResolved() {
-	return useQuery(unseenResolvedQueryOptions());
+export function useUnseenResolved(enabled = true) {
+	return useQuery({ ...unseenResolvedQueryOptions(), enabled });
 }

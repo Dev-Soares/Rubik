@@ -3,12 +3,18 @@ import type { Screen, ScreenLevel } from '@/modules/roles/types/role';
 
 /**
  * Regra única de visibilidade do guia, aplicada a seções e a passos. Espelha a
- * da sidebar: quem manda é a permissão da tela, não o cargo.
+ * da sidebar: item restrito some para quem não acessa a aba que ele descreve,
+ * senão o guia promete tela que não abre.
  */
 export function isGuideItemVisible(
 	item: GuideRestricted,
 	can: (screen: Screen, level?: ScreenLevel) => boolean,
+	isAdmin: boolean,
 ): boolean {
+	if (item.adminOnly && !isAdmin) {
+		return false;
+	}
+
 	return !item.screen || can(item.screen);
 }
 

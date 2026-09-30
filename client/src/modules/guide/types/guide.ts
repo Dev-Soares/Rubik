@@ -36,6 +36,8 @@ export type GuideSection = {
 	icon: LucideIcon;
 	to?: FileRouteTypes['to'];
 	screen?: Screen;
+	/** Só administradores leem a seção. Espelha o `adminOnly` da sidebar. */
+	adminOnly?: boolean;
 	steps: GuideStep[];
 	note?: GuideNote;
 };
@@ -49,4 +51,5 @@ export type GuideGroup = {
 /** O que seção e passo têm em comum para a regra de visibilidade. */
 export type GuideRestricted = {
 	screen?: Screen;
+	adminOnly?: boolean;
 };

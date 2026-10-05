@@ -24,16 +24,23 @@ cd meu-projeto
 pnpm dev
 ```
 
-Um comando. `pnpm dev` sobe o banco, o server e o client em container, aplica as
-migrations e cria o admin inicial antes da API subir — não existe passo de
-preparação separado. Rodar de novo é seguro: a migration já aplicada não repete
-e o seed reconhece o admin que já existe.
+Um comando. `pnpm dev` escolhe as portas livres, sobe o banco, o server e o
+client em container, aplica as migrations e cria o admin inicial antes da API
+subir — não existe passo de preparação separado. Rodar de novo é seguro: a
+migration já aplicada não repete e o seed reconhece o admin que já existe.
 
 | | |
 |---|---|
 | Aplicação | <http://localhost:3001> |
 | API | <http://localhost:3000> |
 | Login inicial | `desenvolvedor@letsup.team` / `123mudar` |
+
+Porta ocupada por outro projeto da máquina não quebra o `pnpm dev`: o script
+desvia para a próxima livre e imprime a URL real na saída. É de lá que você lê
+o endereço, não desta tabela.
+
+Começando um projeto **novo** a partir do template? **[`SETUP.md`](SETUP.md)** —
+remotes, primeira subida e o que adaptar.
 
 > **Troque a senha do admin no primeiro login.** A credencial é a mesma em todo
 > projeto que nasce do Rubik — serve para entrar, não para trabalhar.

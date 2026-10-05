@@ -39,7 +39,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 			{
 				title: 'Usuários — quem tem acesso',
 				description:
-					'Cadastro de pessoas e definição do cargo de cada uma. Fica em Administração, no menu lateral.',
+					'Cadastro de pessoas e definição dos cargos de cada uma. Fica em Administração, no menu lateral.',
 				screen: 'admin.users',
 			},
 			{
@@ -112,7 +112,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 			{
 				title: 'Confira seus dados',
 				description:
-					'O card do topo mostra nome, e-mail, cargo e desde quando você faz parte da equipe. E-mail e cargo só o administrador altera.',
+					'O card do topo mostra nome, e-mail, cargos e desde quando você faz parte da equipe. E-mail e cargos só o administrador altera.',
 			},
 			{
 				title: 'Atualize seu nome',
@@ -190,7 +190,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 			{
 				title: 'Acompanhe pela lista',
 				description:
-					'Ao confirmar, o chamado entra no topo de "Abertos" com seu nome e o horário. Alterne para "Resolvidos" para ver o que a equipe já atendeu.',
+					'Ao confirmar, o chamado entra no topo de "Recebidos" com seu nome e o horário. Alterne para "Resolvidos" para ver o que a equipe já atendeu.',
 			},
 			{
 				title: 'Saiba quando for resolvido',
@@ -214,7 +214,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 		group: 'Administração',
 		label: 'Usuários',
 		title: 'Usuários',
-		description: 'Cadastro de pessoas, definição de cargo e remoção de acesso.',
+		description: 'Cadastro de pessoas, definição de cargos e remoção de acesso.',
 		icon: UsersIcon,
 		to: '/admin/users',
 		screen: 'admin.users',
@@ -227,12 +227,12 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 			{
 				title: 'Crie um usuário',
 				description:
-					'Clique em "Novo usuário", preencha nome, e-mail, senha inicial e escolha o cargo. A pessoa já entra com esse acesso.',
+					'Clique em "Novo usuário", preencha nome, e-mail e senha inicial e marque os cargos da pessoa. Pode marcar mais de um. A pessoa já entra com esse acesso.',
 			},
 			{
-				title: 'Troque o cargo de alguém',
+				title: 'Troque os cargos de alguém',
 				description:
-					'No menu de três pontos da linha, escolha "Editar" para mudar o nome e o cargo. O cargo define quais abas a pessoa enxerga, e a mudança vale na próxima vez que ela carregar o sistema. Você não pode alterar o seu próprio cargo.',
+					'No menu de três pontos da linha, escolha "Editar" para mudar o nome e marcar ou desmarcar cargos. Os cargos definem quais abas a pessoa enxerga, e a mudança vale na próxima vez que ela carregar o sistema. Você não pode alterar os seus próprios cargos.',
 			},
 			{
 				title: 'Personalize as permissões de uma pessoa',
@@ -264,7 +264,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 			{
 				title: 'Entenda o que é um cargo',
 				description:
-					'Um cargo é um conjunto de telas liberadas, cada uma com um nível. Todo usuário tem um cargo, e é ele que decide o que aparece no menu lateral.',
+					'Um cargo é um conjunto de telas liberadas, cada uma com um nível. Todo usuário tem pelo menos um cargo, e são eles que decidem o que aparece no menu lateral. Com mais de um cargo, o acesso soma: vale o nível mais alto que qualquer um deles der para a aba.',
 			},
 			{
 				title: 'Escolha o nível de cada aba',
@@ -290,7 +290,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 		note: {
 			title: 'Cargo sem tela nenhuma',
 			description:
-				'Um cargo com todas as abas em "Sem acesso" deixa a pessoa sem abas no menu lateral. Para excluir um cargo em uso, mova antes os usuários dele para outro cargo.',
+				'Um cargo com todas as abas em "Sem acesso" só deixa a pessoa sem abas se for o único cargo dela. Para excluir um cargo em uso, desmarque-o antes dos usuários que o têm.',
 		},
 	},
 	{

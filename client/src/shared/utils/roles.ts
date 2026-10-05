@@ -14,3 +14,8 @@ export function toRoleNames(role: string | null | undefined): string[] {
 export function isAdminRole(role: string | null | undefined): boolean {
 	return toRoleNames(role).includes(ADMIN_ROLE);
 }
+
+/** Inverso de `toRoleNames`: o formato que a API aceita em `user.role`. */
+export function toRoleCsv(roleNames: string[]): string {
+	return roleNames.join(',');
+}

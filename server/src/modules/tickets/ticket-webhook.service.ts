@@ -41,6 +41,9 @@ export class TicketWebhookService {
 				projectId: env.TICKET_WEBHOOK_PROJECT_ID,
 				ticketId: ticket.id,
 				title: ticket.title,
+				// O sistema externo não conhece nossos usuários: sem o nome, o
+				// atendimento não sabe com quem falar sobre o chamado.
+				reportedBy: ticket.userName,
 				// Endereço de retorno: é aqui que o sistema externo devolve a
 				// resolução, em `PATCH <originSystem>/tickets/<ticketId>/status`.
 				// Mesmo host público da API, já configurado para o Better Auth.

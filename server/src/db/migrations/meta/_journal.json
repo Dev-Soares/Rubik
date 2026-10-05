@@ -71,6 +71,13 @@
       "when": 1790788276008,
       "tag": "0009_noisy_polaris",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791234829063,
+      "tag": "0010_ticket_status_recebido",
+      "breakpoints": true
     }
   ]
 }

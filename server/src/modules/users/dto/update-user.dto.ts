@@ -14,12 +14,13 @@ export class UpdateUserDto {
 	image?: string;
 
 	/**
-	 * Cargo do usuário. Exige `admin.users:write`: o dono da conta editando o
-	 * próprio perfil não muda o próprio cargo.
+	 * Cargos do usuário, separados por vírgula — é como o Better Auth grava. Exige
+	 * `admin.users:write`: o dono da conta editando o próprio perfil não muda os
+	 * próprios cargos. O limite comporta vários nomes de até 50 caracteres.
 	 */
 	@IsOptional()
 	@IsString({ message: 'role deve ser um texto.' })
 	@MinLength(1, { message: 'role não pode ser vazio.' })
-	@MaxLength(100, { message: 'role deve ter no máximo 100 caracteres.' })
+	@MaxLength(500, { message: 'role deve ter no máximo 500 caracteres.' })
 	role?: string;
 }

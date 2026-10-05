@@ -1,24 +1,27 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IdCardIcon, LockIcon, MailIcon } from 'lucide-react';
 import { Controller, useForm } from 'react-hook-form';
+import { useRoles } from '@/modules/roles/hooks/useRoles';
 import { useCreateUser } from '@/modules/users/hooks/useCreateUser';
 import { createUserSchema, type CreateUserInput } from '@/modules/users/types/user';
+import { CheckboxGroupField } from '@/shared/components/CheckboxGroupField';
 import { FormError } from '@/shared/components/FormError';
 import { FormField } from '@/shared/components/FormField';
-import { SelectField, type SelectOption } from '@/shared/components/SelectField';
 import { Button } from '@/shared/components/ui/button';
 import { DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
 
-const ROLE_OPTIONS: SelectOption[] = [
-	{ value: 'user', label: 'Usuário' },
-	{ value: 'admin', label: 'Administrador' },
-];
+const ROLES_PAGE_SIZE = 100;
+
+/** Cargo inicial de quem entra sem escolha explícita — existe pelo seed. */
+const DEFAULT_ROLES = ['user'];
 
 type CreateUserFormProps = {
 	onCreated?: () => void;
 };
 
 export function CreateUserForm({ onCreated }: CreateUserFormProps) {
+	const { data: roles } = useRoles(0, ROLES_PAGE_SIZE);
+
 	const {
 		register,
 		control,
@@ -27,15 +30,21 @@ export function CreateUserForm({ onCreated }: CreateUserFormProps) {
 		formState: { errors },
 	} = useForm<CreateUserInput>({
 		resolver: zodResolver(createUserSchema),
-		defaultValues: { role: 'user' },
+		defaultValues: { roles: DEFAULT_ROLES },
 	});
+
+	const roleOptions = roles.items.map((role) => ({
+		value: role.name,
+		label: role.name,
+		description: role.description ?? undefined,
+	}));
 
 	const {
 		mutate: createUser,
 		isPending,
 		error,
 	} = useCreateUser(() => {
-		reset({ name: '', email: '', password: '', role: 'user' });
+		reset({ name: '', email: '', password: '', roles: DEFAULT_ROLES });
 		onCreated?.();
 	});
 
@@ -68,20 +77,21 @@ export function CreateUserForm({ onCreated }: CreateUserFormProps) {
 					{...register('password')}
 				/>
 
-				{/* Select do Radix não é input nativo: precisa de Controller. */}
+				{/* Checkbox do Radix não é input nativo: precisa de Controller. */}
 				<Controller
 					control={control}
-					name="role"
+					name="roles"
 					render={({ field }) => (
-						<SelectField
-							label="Papel"
-							options={ROLE_OPTIONS}
+						<CheckboxGroupField
+							label="Cargos"
+							options={roleOptions}
 							name={field.name}
 							value={field.value}
 							onChange={field.onChange}
 							onBlur={field.onBlur}
 							disabled={isPending}
-							error={errors.role?.message}
+							hint="As permissões somam: o usuário recebe as telas de todos os cargos marcados."
+							error={errors.roles?.message}
 						/>
 					)}
 				/>

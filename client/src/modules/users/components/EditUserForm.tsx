@@ -4,11 +4,12 @@ import { Controller, useForm } from 'react-hook-form';
 import { useRoles } from '@/modules/roles/hooks/useRoles';
 import { useEditUser } from '@/modules/users/hooks/useEditUser';
 import { editUserSchema, type EditUserInput, type User } from '@/modules/users/types/user';
+import { CheckboxGroupField } from '@/shared/components/CheckboxGroupField';
 import { FormError } from '@/shared/components/FormError';
 import { FormField } from '@/shared/components/FormField';
-import { SelectField } from '@/shared/components/SelectField';
 import { Button } from '@/shared/components/ui/button';
 import { DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
+import { toRoleNames } from '@/shared/utils/roles';
 
 const ROLES_PAGE_SIZE = 100;
 
@@ -29,12 +30,16 @@ export function EditUserForm({ user, isSelf, onDone }: EditUserFormProps) {
 		formState: { errors },
 	} = useForm<EditUserInput>({
 		resolver: zodResolver(editUserSchema),
-		defaultValues: { name: user.name, role: user.role ?? '' },
+		defaultValues: { name: user.name, roles: toRoleNames(user.role) },
 	});
 
 	const { mutate, isPending, error } = useEditUser(user.id, onDone);
 
-	const roleOptions = roles.items.map((role) => ({ value: role.name, label: role.name }));
+	const roleOptions = roles.items.map((role) => ({
+		value: role.name,
+		label: role.name,
+		description: role.description ?? undefined,
+	}));
 
 	return (
 		<form onSubmit={handleSubmit((data) => mutate(data))} className="flex flex-col gap-6">
@@ -48,21 +53,25 @@ export function EditUserForm({ user, isSelf, onDone }: EditUserFormProps) {
 					{...register('name')}
 				/>
 
-				{/* Select do Radix não é input nativo: precisa de Controller. */}
+				{/* Checkbox do Radix não é input nativo: precisa de Controller. */}
 				<Controller
 					control={control}
-					name="role"
+					name="roles"
 					render={({ field }) => (
-						<SelectField
-							label="Cargo"
+						<CheckboxGroupField
+							label="Cargos"
 							options={roleOptions}
 							name={field.name}
 							value={field.value}
 							onChange={field.onChange}
 							onBlur={field.onBlur}
 							disabled={isPending || isSelf}
-							hint={isSelf ? 'Você não pode alterar o seu próprio cargo.' : undefined}
-							error={errors.role?.message}
+							hint={
+								isSelf
+									? 'Você não pode alterar os seus próprios cargos.'
+									: 'As permissões somam: o usuário recebe as telas de todos os cargos marcados.'
+							}
+							error={errors.roles?.message}
 						/>
 					)}
 				/>

@@ -27,12 +27,12 @@ export const createUserSchema = z.object({
 		.max(100, 'O nome deve ter no máximo 100 caracteres.'),
 	email: z.email('E-mail inválido.'),
 	password: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres.'),
-	role: z.enum(['user', 'admin']),
+	roles: z.array(z.string()).min(1, 'Escolha ao menos um cargo.'),
 });
 
-/** Edição feita pela tela de administração: o cargo entra junto do nome. */
+/** Edição feita pela tela de administração: os cargos entram junto do nome. */
 export const editUserSchema = updateUserSchema.extend({
-	role: z.string().min(1, 'Escolha um cargo.'),
+	roles: z.array(z.string()).min(1, 'Escolha ao menos um cargo.'),
 });
 
 /**

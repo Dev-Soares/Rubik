@@ -1,7 +1,8 @@
 import { PlusIcon } from 'lucide-react';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { CreateUserForm } from '@/modules/users/components/CreateUserForm';
 import { Button } from '@/shared/components/ui/button';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import {
 	Dialog,
 	DialogContent,
@@ -33,7 +34,12 @@ export function CreateUserDialog() {
 					</DialogDescription>
 				</DialogHeader>
 
-				<CreateUserForm onCreated={() => setOpen(false)} />
+				{/* Só busca os cargos ao abrir: a tabela não espera por isso. */}
+				{open ? (
+					<Suspense fallback={<Skeleton className="h-96 w-full" />}>
+						<CreateUserForm onCreated={() => setOpen(false)} />
+					</Suspense>
+				) : null}
 			</DialogContent>
 		</Dialog>
 	);

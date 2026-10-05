@@ -26,13 +26,14 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # `lint` roda com --fix nos scripts; aqui o código vem do repo e o job só
-      # reporta. Um fix aplicado no runner não volta para o PR de qualquer jeito.
       - name: typecheck
         run: pnpm typecheck
 
+      # `lint:ci` é o `lint` sem `--fix`. Com `--fix` o eslint conserta no runner
+      # e sai 0: violação auto-corrigível passava no CI sem ninguém ver, e o
+      # conserto não volta para o PR de qualquer jeito.
       - name: lint
-        run: pnpm lint
+        run: pnpm lint:ci
 
       - name: formatação
         run: pnpm exec prettier --check "**/*.{ts,tsx,js,json,css}"

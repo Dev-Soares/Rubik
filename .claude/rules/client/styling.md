@@ -20,7 +20,7 @@ pnpm ui:add <componente>     # ex: pnpm ui:add dialog
 Instalados em `src/shared/components/ui/`: `alert-dialog`, `avatar`, `badge`,
 `button`, `card`, `checkbox`, `collapsible`, `dialog`, `dropdown-menu`, `input`,
 `label`, `select`, `separator`, `sheet`, `sidebar`, `skeleton`, `sonner`,
-`table`, `tooltip`.
+`switch`, `table`, `toggle`, `toggle-group`, `tooltip`.
 
 Esta lista sai de `ls client/src/shared/components/ui/` — em dúvida, confira lá.
 

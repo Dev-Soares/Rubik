@@ -22,6 +22,7 @@
 		"start": "pnpm --filter server start:prod",
 		"typecheck": "pnpm -r typecheck",
 		"lint": "pnpm -r lint",
+		"lint:ci": "pnpm -r lint:ci",
 		"format": "prettier --write \"**/*.{ts,tsx,js,json,css}\"",
 		"check": "pnpm typecheck && pnpm lint",
 		"hooks:install": "git config core.hooksPath .githooks && git update-index --chmod=+x .githooks/pre-push scripts/check-version-bump.sh 2>/dev/null || true",

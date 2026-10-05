@@ -26,4 +26,11 @@ EXPOSE 3000
 ENV TSC_WATCHFILE=PriorityPollingInterval
 ENV CHOKIDAR_USEPOLLING=true
 
-CMD ["pnpm", "start:dev"]
+# Migration e seed antes da API, como no Dockerfile de produção: `pnpm dev` é o
+# único comando do fluxo, e um clone novo sobe com o schema aplicado e o admin
+# inicial criado. O compose já garante que o Postgres está saudável aqui.
+#
+# `db:migrate` não é tolerante a falha: sem schema a API não tem o que servir, e
+# o erro precisa aparecer em vez de virar 500 na primeira requisição. O seed é,
+# porque ele é idempotente e um segundo clone com o admin já criado não é erro.
+CMD ["sh", "-c", "pnpm db:migrate && { pnpm db:seed || true; } && pnpm start:dev"]

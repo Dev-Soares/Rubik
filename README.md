@@ -21,18 +21,18 @@ Precisa de **Node 22+**, **pnpm** e **Docker Desktop** rodando.
 ```bash
 git clone <url-do-repo> meu-projeto
 cd meu-projeto
-pnpm setup
 pnpm dev
 ```
 
-`pnpm setup` roda uma vez: confere os pré-requisitos, cria os `.env` com
-segredos aleatórios, instala tudo, sobe o banco, aplica as migrations e cria o
-admin. `pnpm dev` é o comando do dia a dia.
+Um comando. `pnpm dev` sobe o banco, o server e o client em container, aplica as
+migrations e cria o admin inicial antes da API subir — não existe passo de
+preparação separado. Rodar de novo é seguro: a migration já aplicada não repete
+e o seed reconhece o admin que já existe.
 
 | | |
 |---|---|
 | Aplicação | <http://localhost:3001> |
-| API e docs | <http://localhost:3000/docs> |
+| API | <http://localhost:3000> |
 | Login inicial | `desenvolvedor@letsup.team` / `123mudar` |
 
 > **Troque a senha do admin no primeiro login.** A credencial é a mesma em todo
@@ -63,11 +63,22 @@ Cada um é um módulo isolado. O que o seu projeto não usa, você deleta —
 ### Dia a dia
 
 ```bash
-pnpm dev             # tudo em container, com hot reload
-pnpm dev:local       # server e client no host, só o banco em container (mais rápido)
+pnpm dev             # tudo em container, com hot reload — migra e seeda sozinho
 pnpm dev:logs        # logs dos containers
 pnpm dev:down        # derruba
 pnpm check           # typecheck + lint — rode antes de abrir PR
+```
+
+### Sem Docker para o app
+
+`pnpm dev:local` roda server e client no host, com só o banco em container. É
+mais rápido, mas precisa do ambiente preparado no host — `pnpm setup` faz isso
+uma vez: cria os `.env` com segredos aleatórios, instala as dependências, aplica
+as migrations e cria o admin.
+
+```bash
+pnpm setup
+pnpm dev:local
 ```
 
 ### Banco

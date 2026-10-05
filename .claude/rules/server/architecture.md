@@ -17,7 +17,10 @@ Controller  →  Service  →  Drizzle (db)
 
 Responsabilidade única: traduzir HTTP ↔ Service.
 
-Pode: rotas (`@Get`, `@Post`), status (`@HttpCode`), guards (`@UseGuards`), extrair input (`@Body`, `@Param`, `@Query`), Swagger (`@ApiTags`, `@ApiOkResponse`).
+Pode: rotas (`@Get`, `@Post`), status (`@HttpCode`), guards (`@UseGuards`), extrair input (`@Body`, `@Param`, `@Query`).
+
+Não existe Swagger neste projeto: sem `@nestjs/swagger`, sem `/api-docs`, sem
+`@Api*`. Documentação de rota é o JSDoc do handler.
 
 **Não pode:** query de banco, regra de negócio, `if` que decide negócio, try/catch de domínio, transformar dados.
 
@@ -82,7 +85,7 @@ Exceção: `type` local **não exportado**, usado só naquele arquivo, pode fica
 
 ## DTOs — só validação de entrada
 
-`dto/` contém classes com `class-validator` + `@ApiProperty`. É input, não type de retorno. Retorno é `type` em `types/`.
+`dto/` contém classes com `class-validator`. É input, não type de retorno. Retorno é `type` em `types/`.
 
 - Toda mensagem de erro em **pt-BR**.
 - Todo campo com decorator de validação — sem campo solto.

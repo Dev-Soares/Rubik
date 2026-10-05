@@ -1,4 +1,3 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Max, Min } from 'class-validator';
 
@@ -7,7 +6,6 @@ const MAX_LIMIT = 100;
 
 export class PaginationDto {
 	/** Quantidade de itens por página. */
-	@ApiPropertyOptional({ default: DEFAULT_LIMIT, maximum: MAX_LIMIT })
 	@IsOptional()
 	@Type(() => Number)
 	@IsInt({ message: 'limit deve ser um número inteiro.' })
@@ -16,7 +14,6 @@ export class PaginationDto {
 	limit: number = DEFAULT_LIMIT;
 
 	/** Quantidade de itens a pular. */
-	@ApiPropertyOptional({ default: 0 })
 	@IsOptional()
 	@Type(() => Number)
 	@IsInt({ message: 'offset deve ser um número inteiro.' })

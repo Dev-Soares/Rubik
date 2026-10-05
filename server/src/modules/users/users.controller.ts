@@ -10,7 +10,6 @@ import {
 	Query,
 	UseGuards,
 } from '@nestjs/common';
-import { ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import type { Paginated } from 'src/common/types/pagination.types';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
@@ -21,7 +20,6 @@ import { UpdateUserDto } from 'src/modules/users/dto/update-user.dto';
 import type { PublicUser } from 'src/modules/users/types/user.types';
 import { UsersService } from 'src/modules/users/users.service';
 
-@ApiTags('users')
 @Controller('users')
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
@@ -30,7 +28,6 @@ export class UsersController {
 	@Get()
 	@RequireScreen('admin.users', 'read')
 	@UseGuards(ScreensGuard)
-	@ApiOkResponse({ description: 'Lista paginada de usuários.' })
 	findAll(@Query() pagination: PaginationDto): Promise<Paginated<PublicUser>> {
 		return this.usersService.findAll(pagination);
 	}
@@ -38,7 +35,6 @@ export class UsersController {
 	/** Busca um usuário. Só o próprio usuário ou um admin. */
 	@Get(':id')
 	@UseGuards(OwnershipGuard)
-	@ApiOkResponse({ description: 'Usuário encontrado.' })
 	findOne(@Param('id') id: string): Promise<PublicUser> {
 		return this.usersService.findOne(id);
 	}
@@ -49,7 +45,6 @@ export class UsersController {
 	 */
 	@Patch(':id')
 	@UseGuards(OwnershipGuard)
-	@ApiOkResponse({ description: 'Usuário atualizado.' })
 	update(
 		@Param('id') id: string,
 		@Body() body: UpdateUserDto,
@@ -64,7 +59,6 @@ export class UsersController {
 	@RequireScreen('admin.users', 'write')
 	@UseGuards(ScreensGuard)
 	@HttpCode(HttpStatus.NO_CONTENT)
-	@ApiNoContentResponse({ description: 'Usuário removido.' })
 	remove(@Param('id') id: string): Promise<void> {
 		return this.usersService.remove(id);
 	}

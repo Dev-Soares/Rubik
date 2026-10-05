@@ -1,5 +1,4 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { User } from 'src/modules/auth/types/auth.types';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
@@ -8,12 +7,10 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
  * montado como middleware no `main.ts` — aquele namespace inteiro pertence a ele.
  * Por isso este controller responde em `/me`, fora do path `/auth`.
  */
-@ApiTags('auth')
 @Controller('me')
 export class AuthController {
 	/** Retorna o usuário da sessão atual. */
 	@Get()
-	@ApiOkResponse({ description: 'Usuário autenticado.' })
 	me(@CurrentUser() user: User): User {
 		return user;
 	}

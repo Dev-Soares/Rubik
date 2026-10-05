@@ -1,5 +1,10 @@
 /**
- * `pnpm setup` — do clone ao app rodando, sem passo manual.
+ * `pnpm setup` — prepara o HOST para rodar `pnpm dev:local`.
+ *
+ * Não é necessário para `pnpm dev`: lá tudo roda em container, a configuração
+ * vem do compose e o próprio container migra e cria o admin antes de subir a
+ * API. Este script existe para o caminho sem Docker no app, que precisa de
+ * `server/.env` e das dependências instaladas na máquina.
  *
  * Idempotente: pode rodar de novo a qualquer momento. Nada aqui sobrescreve um
  * `.env` existente; quem já configurou o ambiente não perde nada.
@@ -10,9 +15,6 @@
  *   3. instala as dependências;
  *   4. sobe o Postgres e aplica as migrations;
  *   5. cria o admin inicial.
- *
- * Deliberadamente NÃO sobe server e client: quem faz isso é `pnpm dev`, e é o
- * comando que a pessoa vai usar todo dia. Este roda uma vez.
  */
 import { execFileSync, execSync } from 'node:child_process';
 import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -143,11 +145,10 @@ run('pnpm', ['--filter', 'server', 'db:seed']);
 console.log(`
 ${GREEN}${BOLD}Rubik pronto.${RESET}
 
-  ${BOLD}pnpm dev${RESET}          tudo em container, com hot reload
   ${BOLD}pnpm dev:local${RESET}    server e client no host, só o banco em container
 
   Aplicação   ${BOLD}http://localhost:3001${RESET}
-  API / docs  ${BOLD}http://localhost:3000/docs${RESET}
+  API         ${BOLD}http://localhost:3000${RESET}
 
   Entre com  ${BOLD}desenvolvedor@letsup.team${RESET} / ${BOLD}123mudar${RESET}
 `);

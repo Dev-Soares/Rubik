@@ -182,7 +182,10 @@ export class TicketsService {
 	 * diferente torna a chamada idempotente: repetir o mesmo status não
 	 * reescreve a data nem dispara um segundo aviso.
 	 */
-	async updateStatus(id: string, status: TicketStatus | typeof LEGACY_OPEN_STATUS): Promise<TicketEntry> {
+	async updateStatus(
+		id: string,
+		status: TicketStatus | typeof LEGACY_OPEN_STATUS,
+	): Promise<TicketEntry> {
 		// Normaliza o alias aqui, na entrada: a partir desta linha só existem os
 		// dois estados atuais, e nada abaixo precisa conhecer o nome antigo.
 		const next: TicketStatus = status === LEGACY_OPEN_STATUS ? 'recebido' : status;

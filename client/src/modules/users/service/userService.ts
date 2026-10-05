@@ -1,4 +1,4 @@
-import { authClient } from '@/api/auth-client';
+import { authClient, createUserWithRoles } from '@/api/auth-client';
 import { api } from '@/api/axios';
 import { translateAuthError } from '@/modules/auth/types/errors';
 import type {
@@ -10,6 +10,7 @@ import type {
 	UpdateUserInput,
 	User,
 } from '@/modules/users/types/user';
+import { toRoleCsv } from '@/shared/utils/roles';
 
 /** Troca a senha do próprio usuário, exigindo a senha atual. */
 export async function changePasswordService(input: ChangePasswordInput): Promise<void> {
@@ -26,7 +27,8 @@ export async function changePasswordService(input: ChangePasswordInput): Promise
 
 /** Criação de usuário é exclusiva de admin (cadastro público está desativado). */
 export async function createUserService(input: CreateUserInput): Promise<void> {
-	const { error } = await authClient.admin.createUser(input);
+	const { roles, ...rest } = input;
+	const { error } = await createUserWithRoles({ ...rest, role: roles });
 	if (error) {
 		throw new Error(translateAuthError(error));
 	}
@@ -64,7 +66,11 @@ export async function updateUserService(
 	id: string,
 	input: UpdateUserInput | EditUserInput,
 ): Promise<User> {
-	const { data } = await api.patch<User>(`/users/${id}`, input);
+	// `user.role` é CSV na API; o formulário trabalha com a lista.
+	const body =
+		'roles' in input ? { name: input.name, role: toRoleCsv(input.roles) } : input;
+
+	const { data } = await api.patch<User>(`/users/${id}`, body);
 	return data;
 }
 

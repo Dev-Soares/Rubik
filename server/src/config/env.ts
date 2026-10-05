@@ -96,7 +96,16 @@ if (isProduction) {
 		problems.push('CORS_ORIGIN: vazio em produção — nenhum frontend consegue chamar a API.');
 	}
 
-	if (env.BETTER_AUTH_URL.startsWith('http://')) {
+	/**
+	 * `localhost` escapa porque é o smoke test das imagens de produção
+	 * (`pnpm docker:prod`), que não tem TLS para oferecer. Qualquer outro host em
+	 * `http://` é deploy de verdade mal configurado: o cookie de sessão é
+	 * `secure` e o navegador não o envia.
+	 */
+	const authUrl = new URL(env.BETTER_AUTH_URL);
+	const isLocalhost = authUrl.hostname === 'localhost' || authUrl.hostname === '127.0.0.1';
+
+	if (authUrl.protocol === 'http:' && !isLocalhost) {
 		problems.push('BETTER_AUTH_URL: precisa ser https em produção — cookie de sessão é `secure`.');
 	}
 

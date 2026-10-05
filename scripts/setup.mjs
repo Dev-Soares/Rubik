@@ -127,9 +127,26 @@ ok('dependências instaladas');
 
 // ---- 4. Banco ---------------------------------------------------------------
 
+step('Escolhendo as portas do host');
+run('node', ['scripts/ports.mjs']);
+
+/** Lê o que `ports.mjs` acabou de fixar; o default repete o do compose. */
+function port(name, fallback) {
+	const envFile = join(root, '.env');
+	if (!existsSync(envFile)) {
+		return fallback;
+	}
+	const match = new RegExp(`^${name}=(\\d+)$`, 'm').exec(readFileSync(envFile, 'utf8'));
+	return match ? Number(match[1]) : fallback;
+}
+
+const postgresPort = port('POSTGRES_PORT', 5432);
+const serverPort = port('SERVER_PORT', 3000);
+const clientPort = port('CLIENT_PORT', 3001);
+
 step('Subindo o Postgres');
 run('docker', ['compose', 'up', '-d', '--wait', 'postgres']);
-ok('Postgres pronto em localhost:5432');
+ok(`Postgres pronto em localhost:${postgresPort}`);
 
 step('Aplicando as migrations');
 run('pnpm', ['--filter', 'server', 'db:migrate']);
@@ -147,8 +164,8 @@ ${GREEN}${BOLD}Rubik pronto.${RESET}
 
   ${BOLD}pnpm dev:local${RESET}    server e client no host, só o banco em container
 
-  Aplicação   ${BOLD}http://localhost:3001${RESET}
-  API         ${BOLD}http://localhost:3000${RESET}
+  Aplicação   ${BOLD}http://localhost:${clientPort}${RESET}
+  API         ${BOLD}http://localhost:${serverPort}${RESET}
 
   Entre com  ${BOLD}desenvolvedor@letsup.team${RESET} / ${BOLD}123mudar${RESET}
 `);

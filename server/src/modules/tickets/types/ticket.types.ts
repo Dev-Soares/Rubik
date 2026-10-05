@@ -16,14 +16,28 @@ export const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
  * Situação do chamado. É o contrato com o frontend: mudou aqui, muda em
  * `client/src/modules/tickets/types/ticket.ts`.
  *
- * O chamado nasce `aberto`; quem grava `resolvido` é uma integração externa —
- * não existe rota nesta API que altere o status.
+ * O chamado nasce `recebido` — ele só existe depois de a central ter aceitado o
+ * envio, então "recebido" é literal: está lá, ninguém tratou ainda. Quem grava
+ * `resolvido` é a integração externa; não existe tela nesta API que altere isto.
+ *
+ * O nome espelha o vocabulário da central (`recebido`/`aberto`/`concluido` lá),
+ * onde `aberto` significa "a equipe assumiu" — estado que deste lado não existe.
  */
-export const TICKET_STATUSES = ['aberto', 'resolvido'] as const;
+export const TICKET_STATUSES = ['recebido', 'resolvido'] as const;
 
 export type TicketStatus = (typeof TICKET_STATUSES)[number];
 
-export const DEFAULT_TICKET_STATUS: TicketStatus = 'aberto';
+export const DEFAULT_TICKET_STATUS: TicketStatus = 'recebido';
+
+/**
+ * Nome antigo de `recebido`, aceito só na entrada do PATCH de status.
+ *
+ * yagni: alias de compatibilidade para integração que ainda não migrou. Em
+ * prática a central só empurra `resolvido`, então isto existe para não trocar
+ * um 400 por um chamado perdido. Remover quando as instâncias estiverem todas
+ * na versão nova.
+ */
+export const LEGACY_OPEN_STATUS = 'aberto';
 
 /** Foto como o client a recebe: a URL é assinada e temporária. */
 export type TicketPhoto = {

@@ -28,7 +28,7 @@ export function TicketList({ status, highlightedId }: TicketListProps) {
 			<p className="text-muted-foreground py-8 text-center text-sm">
 				{status === 'resolvido'
 					? 'Nenhum chamado resolvido ainda.'
-					: 'Nenhum chamado aberto. Use "Nos envie seu problema" para abrir o primeiro.'}
+					: 'Nenhum chamado recebido. Use "Nos envie seu problema" para abrir o primeiro.'}
 			</p>
 		);
 	}

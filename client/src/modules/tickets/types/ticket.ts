@@ -50,15 +50,16 @@ export type TicketPhoto = {
  * Situação do chamado. Espelha `TICKET_STATUSES` do backend
  * (`server/src/modules/tickets/types/ticket.types.ts`).
  *
- * Não existe tela que altere isto: o chamado nasce `aberto` e quem grava
- * `resolvido` é uma integração externa.
+ * Não existe tela que altere isto: o chamado nasce `recebido` — já chegou ao
+ * atendimento, ninguém tratou ainda — e quem grava `resolvido` é uma
+ * integração externa.
  */
-export const TICKET_STATUSES = ['aberto', 'resolvido'] as const;
+export const TICKET_STATUSES = ['recebido', 'resolvido'] as const;
 
 export type TicketStatus = (typeof TICKET_STATUSES)[number];
 
 export const TICKET_STATUS_LABELS: Record<TicketStatus, string> = {
-	aberto: 'Aberto',
+	recebido: 'Recebido',
 	resolvido: 'Resolvido',
 };
 

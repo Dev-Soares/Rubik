@@ -35,7 +35,7 @@ export const Route = createFileRoute('/_auth/tickets')({
 		await Promise.all([
 			// Mesmo filtro que o painel abre: precarregar outro status renderia
 			// duas requisições e nenhuma delas seria a exibida.
-			context.queryClient.ensureInfiniteQueryData(ticketsQueryOptions('aberto')),
+			context.queryClient.ensureInfiniteQueryData(ticketsQueryOptions('recebido')),
 			// O painel lê a contagem com `useSuspenseQuery`; sem o cache quente
 			// ele suspenderia a página inteira, não só a lista.
 			context.queryClient.ensureQueryData(ticketCountsQueryOptions()),

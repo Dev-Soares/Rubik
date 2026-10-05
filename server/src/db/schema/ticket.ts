@@ -18,15 +18,15 @@ export const ticket = pgTable(
 		userName: text('user_name').notNull(),
 		title: text('title').notNull(),
 		/**
-		 * `aberto` | `resolvido`. Texto e não enum do Postgres: alterar um enum
+		 * `recebido` | `resolvido`. Texto e não enum do Postgres: alterar um enum
 		 * exige migration só para acrescentar valor, e quem fecha o chamado é
 		 * uma integração externa que pode trazer estados novos.
 		 *
 		 * Nada no sistema escreve `resolvido` — a resolução vem de fora.
 		 */
-		status: text('status').notNull().default('aberto'),
+		status: text('status').notNull().default('recebido'),
 		/**
-		 * Quando o chamado foi resolvido. Nulo enquanto aberto — é o que separa
+		 * Quando o chamado foi resolvido. Nulo enquanto não resolvido — é o que separa
 		 * "nunca foi resolvido" de "resolvido e já visto".
 		 */
 		resolvedAt: timestamp('resolved_at', { withTimezone: true }),

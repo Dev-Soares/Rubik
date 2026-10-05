@@ -16,6 +16,7 @@ import { TicketStorageService } from 'src/modules/tickets/ticket-storage.service
 import { TicketSyncService } from 'src/modules/tickets/ticket-sync.service';
 import { TicketWebhookService } from 'src/modules/tickets/ticket-webhook.service';
 import {
+	LEGACY_OPEN_STATUS,
 	TICKET_STATUSES,
 	type CreateTicketInput,
 	type TicketCounts,
@@ -181,22 +182,26 @@ export class TicketsService {
 	 * diferente torna a chamada idempotente: repetir o mesmo status não
 	 * reescreve a data nem dispara um segundo aviso.
 	 */
-	async updateStatus(id: string, status: TicketStatus): Promise<TicketEntry> {
+	async updateStatus(id: string, status: TicketStatus | typeof LEGACY_OPEN_STATUS): Promise<TicketEntry> {
+		// Normaliza o alias aqui, na entrada: a partir desta linha só existem os
+		// dois estados atuais, e nada abaixo precisa conhecer o nome antigo.
+		const next: TicketStatus = status === LEGACY_OPEN_STATUS ? 'recebido' : status;
+
 		const [row] = await this.db
 			.update(ticket)
 			.set({
-				status,
-				resolvedAt: status === 'resolvido' ? new Date() : null,
+				status: next,
+				resolvedAt: next === 'resolvido' ? new Date() : null,
 				seenAt: null,
 			})
-			.where(and(eq(ticket.id, id), ne(ticket.status, status)))
+			.where(and(eq(ticket.id, id), ne(ticket.status, next)))
 			.returning();
 
 		if (!row) {
 			return this.findOne(id);
 		}
 
-		if (status === 'resolvido') {
+		if (next === 'resolvido') {
 			await this.notifications.createManySafe(await this.resolvedNotices(row));
 		}
 
@@ -204,14 +209,14 @@ export class TicketsService {
 	}
 
 	/**
-	 * Fecha os chamados abertos que o sistema externo já deu por concluídos.
+	 * Fecha os chamados recebidos que o sistema externo já deu por concluídos.
 	 *
 	 * Roda no deploy, não na API: o usuário só deve ser avisado quando o que
 	 * ele pediu estiver em produção, e "concluído no atendimento" acontece
 	 * antes disso. Ver `src/modules/tickets/ticket-sync.ts`.
 	 *
 	 * A interseção é feita aqui e não delegada ao externo porque a lista de
-	 * abertos é a nossa verdade: o externo pode devolver chamado de outra
+	 * recebidos é a nossa verdade: o externo pode devolver chamado de outra
 	 * instância, ou um que já fechamos num deploy anterior.
 	 */
 	async syncResolved(): Promise<{ resolved: string[] }> {
@@ -224,7 +229,7 @@ export class TicketsService {
 		const open = await this.db
 			.select({ id: ticket.id })
 			.from(ticket)
-			.where(and(eq(ticket.status, 'aberto'), inArray(ticket.id, resolvedIds)));
+			.where(and(eq(ticket.status, 'recebido'), inArray(ticket.id, resolvedIds)));
 
 		// Em série, não em `Promise.all`: cada `updateStatus` grava notificação
 		// para o autor e para todos os admins, e um lote grande em paralelo
@@ -260,7 +265,7 @@ export class TicketsService {
 				title: 'Seu chamado foi resolvido',
 				body: row.title,
 				// Aponta para o chamado: em `/tickets` puro a tela abre em
-				// "Abertos", onde o chamado resolvido não aparece.
+				// "Recebidos", onde o chamado resolvido não aparece.
 				link: `/tickets?ticket=${row.id}`,
 			});
 		}

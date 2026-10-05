@@ -190,7 +190,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 			{
 				title: 'Acompanhe pela lista',
 				description:
-					'Ao confirmar, o chamado entra no topo de "Abertos" com seu nome e o horário. Alterne para "Resolvidos" para ver o que a equipe já atendeu.',
+					'Ao confirmar, o chamado entra no topo de "Recebidos" com seu nome e o horário. Alterne para "Resolvidos" para ver o que a equipe já atendeu.',
 			},
 			{
 				title: 'Saiba quando for resolvido',

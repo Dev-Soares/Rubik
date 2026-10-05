@@ -13,7 +13,7 @@ import { isTicketStatus } from '@/modules/tickets/utils';
 
 export function TicketPanel() {
 	const { ticket: highlightedId } = useSearch({ from: '/_auth/tickets' });
-	const [status, setStatus] = useState<TicketStatus>('aberto');
+	const [status, setStatus] = useState<TicketStatus>('recebido');
 	const { data: counts } = useTicketCounts();
 	const { data: highlighted } = useTicket(highlightedId);
 	const { data: unseen } = useUnseenResolved();

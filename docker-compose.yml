@@ -1,4 +1,7 @@
-# Dev (padrão):  pnpm dev          -> postgres + server + client, todos em container, com hot reload
+# Dev (padrão):  pnpm dev          -> postgres + server + client em container, com hot reload.
+#                                     O server migra e cria o admin antes de subir a API
+#                                     (ver o CMD de `server/Dockerfile.dev`), então este é
+#                                     o único comando necessário num clone novo.
 # Prod local:    pnpm docker:prod  -> imagens de produção (nginx + node)
 
 services:

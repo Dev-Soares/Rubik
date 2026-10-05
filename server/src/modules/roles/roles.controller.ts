@@ -12,7 +12,6 @@ import {
 	Query,
 	UseGuards,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import type { Paginated } from 'src/common/types/pagination.types';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
@@ -25,7 +24,6 @@ import { SCREEN_PERMISSIONS } from 'src/modules/roles/types/role.types';
 import type { PublicRole, ScreenPermission, UserScreens } from 'src/modules/roles/types/role.types';
 import { RolesService } from 'src/modules/roles/roles.service';
 
-@ApiTags('roles')
 @Controller('roles')
 @RequireScreen('admin.roles', 'read')
 @UseGuards(ScreensGuard)
@@ -34,7 +32,6 @@ export class RolesController {
 
 	/** Permissões que podem ser atribuídas a um cargo. */
 	@Get('screens')
-	@ApiOkResponse({ description: 'Permissões disponíveis.' })
 	findScreens(): readonly ScreenPermission[] {
 		return SCREEN_PERMISSIONS;
 	}
@@ -46,7 +43,6 @@ export class RolesController {
 	 */
 	@Get('me/screens')
 	@AnyScreen()
-	@ApiOkResponse({ description: 'Permissões do usuário da sessão.' })
 	findMyScreens(
 		@CurrentUser('id') id: string,
 		@CurrentUser('role') role: string | null,
@@ -62,7 +58,6 @@ export class RolesController {
 	 */
 	@Get('users/:userId/screens')
 	@RequireScreen('admin.users', 'read')
-	@ApiOkResponse({ description: 'Visualização do usuário.' })
 	findUserScreens(@Param('userId') userId: string): Promise<UserScreens> {
 		return this.rolesService.findUserScreens(userId);
 	}
@@ -70,7 +65,6 @@ export class RolesController {
 	/** Substitui as exceções de permissão do usuário. */
 	@Put('users/:userId/screens')
 	@RequireScreen('admin.users', 'write')
-	@ApiOkResponse({ description: 'Visualização atualizada.' })
 	setUserScreens(
 		@Param('userId') userId: string,
 		@Body() body: SetUserScreensDto,
@@ -80,14 +74,12 @@ export class RolesController {
 
 	/** Lista cargos paginados. */
 	@Get()
-	@ApiOkResponse({ description: 'Lista paginada de cargos.' })
 	findAll(@Query() pagination: PaginationDto): Promise<Paginated<PublicRole>> {
 		return this.rolesService.findAll(pagination);
 	}
 
 	/** Busca um cargo. */
 	@Get(':id')
-	@ApiOkResponse({ description: 'Cargo encontrado.' })
 	findOne(@Param('id') id: string): Promise<PublicRole> {
 		return this.rolesService.findOne(id);
 	}
@@ -95,7 +87,6 @@ export class RolesController {
 	/** Cria um cargo. */
 	@Post()
 	@RequireScreen('admin.roles', 'write')
-	@ApiCreatedResponse({ description: 'Cargo criado.' })
 	create(@Body() body: CreateRoleDto): Promise<PublicRole> {
 		return this.rolesService.create(body);
 	}
@@ -103,7 +94,6 @@ export class RolesController {
 	/** Atualiza um cargo. */
 	@Patch(':id')
 	@RequireScreen('admin.roles', 'write')
-	@ApiOkResponse({ description: 'Cargo atualizado.' })
 	update(@Param('id') id: string, @Body() body: UpdateRoleDto): Promise<PublicRole> {
 		return this.rolesService.update(id, body);
 	}
@@ -112,7 +102,6 @@ export class RolesController {
 	@Delete(':id')
 	@RequireScreen('admin.roles', 'write')
 	@HttpCode(HttpStatus.NO_CONTENT)
-	@ApiNoContentResponse({ description: 'Cargo removido.' })
 	remove(@Param('id') id: string): Promise<void> {
 		return this.rolesService.remove(id);
 	}

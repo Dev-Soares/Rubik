@@ -65,8 +65,6 @@ const envSchema = z.object({
 	S3_SIGNED_URL_TTL: z.coerce.number().int().positive().default(900),
 
 	LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'fatal']).default('info'),
-	SWAGGER_USER: z.string().default('admin'),
-	SWAGGER_PASSWORD: z.string().default('admin'),
 });
 
 const result = envSchema.safeParse(process.env);
@@ -94,15 +92,20 @@ export const isProduction = env.NODE_ENV === 'production';
 if (isProduction) {
 	const problems: string[] = [];
 
-	if (env.SWAGGER_PASSWORD === 'admin') {
-		problems.push('SWAGGER_PASSWORD: ainda é o valor padrão `admin`.');
-	}
-
 	if (env.CORS_ORIGIN === '') {
 		problems.push('CORS_ORIGIN: vazio em produção — nenhum frontend consegue chamar a API.');
 	}
 
-	if (env.BETTER_AUTH_URL.startsWith('http://')) {
+	/**
+	 * `localhost` escapa porque é o smoke test das imagens de produção
+	 * (`pnpm docker:prod`), que não tem TLS para oferecer. Qualquer outro host em
+	 * `http://` é deploy de verdade mal configurado: o cookie de sessão é
+	 * `secure` e o navegador não o envia.
+	 */
+	const authUrl = new URL(env.BETTER_AUTH_URL);
+	const isLocalhost = authUrl.hostname === 'localhost' || authUrl.hostname === '127.0.0.1';
+
+	if (authUrl.protocol === 'http:' && !isLocalhost) {
 		problems.push('BETTER_AUTH_URL: precisa ser https em produção — cookie de sessão é `secure`.');
 	}
 

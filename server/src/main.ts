@@ -2,15 +2,13 @@ import 'reflect-metadata';
 
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
-import basicAuth from 'express-basic-auth';
 import helmet from 'helmet';
 import { Logger as PinoAppLogger } from 'nestjs-pino';
 import { auth } from 'src/modules/auth/auth';
 import { toNodeHandler } from 'better-auth/node';
 import { AppModule } from 'src/app.module';
-import { corsOrigins, env, isProduction, isStorageEnabled } from 'src/config/env';
+import { corsOrigins, env, isStorageEnabled } from 'src/config/env';
 
 async function bootstrap(): Promise<void> {
 	const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -42,25 +40,6 @@ async function bootstrap(): Promise<void> {
 	);
 
 	app.enableShutdownHooks();
-
-	if (!isProduction) {
-		const swaggerConfig = new DocumentBuilder()
-			.setTitle('App API')
-			.setDescription('Documentação da API')
-			.setVersion('0.1')
-			.addCookieAuth('app.session_token')
-			.build();
-
-		app.use(
-			'/api-docs',
-			basicAuth({
-				users: { [env.SWAGGER_USER]: env.SWAGGER_PASSWORD },
-				challenge: true,
-			}),
-		);
-
-		SwaggerModule.setup('api-docs', app, SwaggerModule.createDocument(app, swaggerConfig));
-	}
 
 	await app.listen(env.PORT);
 

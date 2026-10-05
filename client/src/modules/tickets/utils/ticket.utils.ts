@@ -51,11 +51,11 @@ export function isDone(status: string): boolean {
 	return status === 'resolvido';
 }
 
-/** Rodapé da lista: "3 chamados abertos", "1 chamado resolvido". */
+/** Rodapé da lista: "3 chamados recebidos", "1 chamado resolvido". */
 export function formatTicketCount(total: number, status: TicketStatus): string {
 	const noun = total === 1 ? 'chamado' : 'chamados';
 	const suffix = total === 1 ? '' : 's';
-	const state = status === 'resolvido' ? `resolvido${suffix}` : `aberto${suffix}`;
+	const state = status === 'resolvido' ? `resolvido${suffix}` : `recebido${suffix}`;
 	return `${total} ${noun} ${state}`;
 }
 

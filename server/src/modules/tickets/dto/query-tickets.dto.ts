@@ -5,6 +5,6 @@ import { TICKET_STATUSES, type TicketStatus } from 'src/modules/tickets/types/ti
 export class QueryTicketsDto extends PaginationDto {
 	/** Restringe a um status. Ausente, a lista traz todos. */
 	@IsOptional()
-	@IsIn(TICKET_STATUSES, { message: 'status deve ser "aberto" ou "resolvido".' })
+	@IsIn(TICKET_STATUSES, { message: 'status deve ser "recebido" ou "resolvido".' })
 	status?: TicketStatus;
 }

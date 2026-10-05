@@ -25,7 +25,7 @@ export function EditUserDialog({ user, isSelf, open, onOpenChange }: EditUserDia
 					<DialogTitle className="text-primary text-lg font-black tracking-tight">
 						Editar usuário
 					</DialogTitle>
-					<DialogDescription>Altere o nome e o cargo de {user.name}.</DialogDescription>
+					<DialogDescription>Altere o nome e os cargos de {user.name}.</DialogDescription>
 				</DialogHeader>
 
 				{/* Só busca os cargos ao abrir: a tabela não espera por isso. */}

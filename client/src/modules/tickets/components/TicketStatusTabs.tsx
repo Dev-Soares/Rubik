@@ -4,7 +4,7 @@ import { cn } from 'cn';
 
 /** Plural do rótulo: a aba fala do conjunto, o selo do card fala de um item. */
 const TAB_LABELS: Record<TicketStatus, string> = {
-	aberto: 'Abertos',
+	recebido: 'Recebidos',
 	resolvido: 'Resolvidos',
 };
 

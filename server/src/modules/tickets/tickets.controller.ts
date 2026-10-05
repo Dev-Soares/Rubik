@@ -12,14 +12,6 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import {
-	ApiBody,
-	ApiConsumes,
-	ApiCreatedResponse,
-	ApiHeader,
-	ApiOkResponse,
-	ApiTags,
-} from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -51,7 +43,6 @@ import { toUploadedPhotos } from 'src/modules/tickets/utils';
  *
  * Não há rota de edição nem de remoção: o chamado nasce e é lido.
  */
-@ApiTags('tickets')
 @Controller('tickets')
 @Roles('admin')
 @UseGuards(RolesGuard)
@@ -60,7 +51,6 @@ export class TicketsController {
 
 	/** Lista os chamados, do mais recente para o mais antigo. */
 	@Get()
-	@ApiOkResponse({ description: 'Lista paginada de chamados.' })
 	findAll(@Query() query: QueryTicketsDto): Promise<Paginated<TicketEntry>> {
 		return this.ticketsService.findAll(query);
 	}
@@ -70,21 +60,18 @@ export class TicketsController {
 	 * Alimenta o aviso ao lado do item na barra lateral.
 	 */
 	@Get('unseen-resolved')
-	@ApiOkResponse({ description: 'Chamados resolvidos ainda não vistos.' })
 	async countUnseenResolved(@CurrentUser('id') userId: string): Promise<UnseenResolvedCount> {
 		return { count: await this.ticketsService.countUnseenResolvedForUser(userId) };
 	}
 
 	/** Zera o aviso: marca como vistos os chamados resolvidos do usuário. */
 	@Patch('seen')
-	@ApiOkResponse({ description: 'Chamados resolvidos marcados como vistos.' })
 	async markSeen(@CurrentUser('id') userId: string): Promise<{ marked: number }> {
 		return { marked: await this.ticketsService.markResolvedSeenForUser(userId) };
 	}
 
 	/** Se o usuário recebe avisos de chamado no sino. */
 	@Get('notification-preference')
-	@ApiOkResponse({ description: 'Preferência de aviso do usuário.' })
 	async getNotificationPreference(
 		@CurrentUser('id') userId: string,
 	): Promise<TicketNotificationPreference> {
@@ -99,7 +86,6 @@ export class TicketsController {
 	 * que ele mesmo abriu.
 	 */
 	@Patch('notification-preference')
-	@ApiOkResponse({ description: 'Preferência atualizada.' })
 	async setNotificationPreference(
 		@CurrentUser('id') userId: string,
 		@Body() dto: SetTicketNotificationDto,
@@ -111,7 +97,6 @@ export class TicketsController {
 
 	/** Quantos chamados há em cada status. Alimenta os contadores das abas. */
 	@Get('counts')
-	@ApiOkResponse({ description: 'Quantidade de chamados por status.' })
 	countByStatus(): Promise<TicketCounts> {
 		return this.ticketsService.countByStatus();
 	}
@@ -124,7 +109,6 @@ export class TicketsController {
 	 * casaria com elas e as capturaria como id.
 	 */
 	@Get(':id')
-	@ApiOkResponse({ description: 'Chamado encontrado.' })
 	findOne(@Param('id') id: string): Promise<TicketEntry> {
 		return this.ticketsService.findOne(id);
 	}
@@ -140,8 +124,6 @@ export class TicketsController {
 	// o `RolesGuard` recusaria a integração com 403.
 	@Roles()
 	@UseGuards(ApiKeyGuard)
-	@ApiHeader({ name: 'x-api-key', description: 'Chave da integração.', required: true })
-	@ApiOkResponse({ description: 'Status atualizado.' })
 	updateStatus(@Param('id') id: string, @Body() dto: UpdateTicketStatusDto): Promise<TicketEntry> {
 		return this.ticketsService.updateStatus(id, dto.status);
 	}
@@ -154,22 +136,6 @@ export class TicketsController {
 	 * conferido aqui pelo mime real de cada arquivo, antes de qualquer upload.
 	 */
 	@Post()
-	@ApiConsumes('multipart/form-data')
-	@ApiBody({
-		schema: {
-			type: 'object',
-			required: ['title'],
-			properties: {
-				title: { type: 'string', maxLength: 120 },
-				photos: {
-					type: 'array',
-					maxItems: MAX_TICKET_PHOTOS,
-					items: { type: 'string', format: 'binary' },
-				},
-			},
-		},
-	})
-	@ApiCreatedResponse({ description: 'Chamado criado.' })
 	@UseFilters(MulterExceptionFilter)
 	@UseInterceptors(
 		FilesInterceptor('photos', MAX_TICKET_PHOTOS, { limits: { fileSize: MAX_PHOTO_BYTES } }),

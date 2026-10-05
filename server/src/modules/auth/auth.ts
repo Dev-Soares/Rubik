@@ -1,6 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { admin as adminPlugin, openAPI } from 'better-auth/plugins';
+import { admin as adminPlugin } from 'better-auth/plugins';
 import { corsOrigins, env, isProduction } from 'src/config/env';
 import { db } from 'src/db/db.provider';
 import { account, session, user, verification } from 'src/db/schema/auth';
@@ -57,5 +57,5 @@ export const auth = betterAuth({
 		},
 	},
 
-	plugins: [adminPlugin(), ...(isProduction ? [] : [openAPI()])],
+	plugins: [adminPlugin()],
 });

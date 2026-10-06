@@ -1,5 +1,5 @@
 import type { HomeShortcut } from '@/modules/home/types/home';
-import type { Screen, ScreenLevel } from '@/modules/roles/types/role';
+import type { Action, Module } from '@/modules/roles/types/role';
 import type { NavItem } from '@/shared/types/navigation';
 
 /**
@@ -8,7 +8,7 @@ import type { NavItem } from '@/shared/types/navigation';
  */
 export function toShortcuts(
 	items: readonly NavItem[],
-	can: (screen: Screen, level?: ScreenLevel) => boolean,
+	can: (module: Module, action?: Action) => boolean,
 ): HomeShortcut[] {
 	return items.flatMap((item): HomeShortcut[] => {
 		if (!item.children) {
@@ -16,7 +16,7 @@ export function toShortcuts(
 		}
 
 		return item.children
-			.filter((child) => !child.screen || can(child.screen))
+			.filter((child) => !child.module || can(child.module))
 			.map((child) => ({
 				label: child.label,
 				to: child.to,

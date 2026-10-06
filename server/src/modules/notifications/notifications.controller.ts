@@ -10,7 +10,7 @@ import type {
 
 /**
  * Todas as rotas operam sobre as notificações do usuário da sessão — o id vem
- * do `@CurrentUser`, nunca da requisição. Por isso não há `ScreensGuard` aqui:
+ * do `@CurrentUser`, nunca da requisição. Por isso não há `AccessGuard` aqui:
  * não existe caso em que um usuário leia a caixa de outro, nem mesmo admin.
  *
  * Não há rota de criação: quem notifica é a aplicação, via

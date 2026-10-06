@@ -78,6 +78,13 @@
       "when": 1791234829063,
       "tag": "0010_ticket_status_recebido",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791234830063,
+      "tag": "0011_cargos_modulo_acao",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 import { GUIDE_SECTIONS } from '@/modules/guide/types/guideContent';
 import { groupSections, isGuideItemVisible } from '@/modules/guide/utils';
-import { useMyScreens } from '@/modules/roles/hooks/useMyScreens';
+import { useMyPermissions } from '@/modules/roles/hooks/useMyPermissions';
 import { useAuth } from '@/shared/hooks/useAuth';
 
 /**
@@ -8,7 +8,7 @@ import { useAuth } from '@/shared/hooks/useAuth';
  * passos restritos removidos.
  */
 export function useGuideSections() {
-	const { can, isPending } = useMyScreens();
+	const { can, isPending } = useMyPermissions();
 	const { isAdmin } = useAuth();
 
 	const sections = GUIDE_SECTIONS.filter((section) =>

@@ -1,10 +1,10 @@
 import { HomeShortcutCard } from '@/modules/home/components/HomeShortcutCard';
 import { toShortcuts } from '@/modules/home/utils';
-import { useMyScreens } from '@/modules/roles/hooks/useMyScreens';
+import { useMyPermissions } from '@/modules/roles/hooks/useMyPermissions';
 import { NAV_FOOTER_ITEMS, NAV_ITEMS } from '@/shared/navigation';
 
 export function HomeShortcuts() {
-	const { can, isPending } = useMyScreens();
+	const { can, isPending } = useMyPermissions();
 
 	// Sem as permissões ainda, mostrar metade dos atalhos piscaria a lista.
 	if (isPending) {

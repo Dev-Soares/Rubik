@@ -1,17 +1,17 @@
 import type { LucideIcon } from 'lucide-react';
 import type { FileRouteTypes } from '@/routeTree.gen';
-import type { Screen } from '@/modules/roles/types/role';
+import type { Module } from '@/modules/roles/types/role';
 
 /**
  * Um passo numerado dentro de uma seção do guia.
  *
- * `screen` segue a mesma regra da seção: um passo que descreve uma aba
+ * `module` segue a mesma regra da seção: um passo que descreve uma aba
  * restrita some para quem não a acessa, senão o guia promete tela que não abre.
  */
 export type GuideStep = {
 	title: string;
 	description: string;
-	screen?: Screen;
+	module?: Module;
 };
 
 /** Observação destacada no rodapé da seção. */
@@ -23,7 +23,7 @@ export type GuideNote = {
 /**
  * Uma seção do guia: normalmente uma aba do sistema.
  *
- * `screen` amarra a seção à mesma chave usada pela sidebar — quem não tem a
+ * `module` amarra a seção à mesma chave usada pela sidebar — quem não tem a
  * tela liberada não lê o guia dela.
  */
 export type GuideSection = {
@@ -35,7 +35,7 @@ export type GuideSection = {
 	description: string;
 	icon: LucideIcon;
 	to?: FileRouteTypes['to'];
-	screen?: Screen;
+	module?: Module;
 	/** Só administradores leem a seção. Espelha o `adminOnly` da sidebar. */
 	adminOnly?: boolean;
 	steps: GuideStep[];
@@ -50,6 +50,6 @@ export type GuideGroup = {
 
 /** O que seção e passo têm em comum para a regra de visibilidade. */
 export type GuideRestricted = {
-	screen?: Screen;
+	module?: Module;
 	adminOnly?: boolean;
 };

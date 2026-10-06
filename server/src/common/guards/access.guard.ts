@@ -5,29 +5,29 @@ import {
 	Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { SCREEN_KEY } from 'src/common/decorators/screen.decorator';
-import type { ScreenRequirement } from 'src/common/decorators/screen.decorator';
+import { ACCESS_KEY } from 'src/common/decorators/access.decorator';
+import type { AccessRequirement } from 'src/common/decorators/access.decorator';
 import type { OptionalAuthRequest } from 'src/common/types/req-types';
 import { RolesService } from 'src/modules/roles/roles.service';
 import { toPermission } from 'src/modules/roles/utils';
 
 /**
  * Roda depois do AuthGuard. Compara as permissões efetivas do usuário — cargo
- * mais exceções pessoais — com a exigida por `@RequireScreen()`.
+ * mais exceções pessoais — com a exigida por `@RequireAccess()`.
  *
  * É a autorização de verdade: o filtro da sidebar é só UX.
  */
 @Injectable()
-export class ScreensGuard implements CanActivate {
+export class AccessGuard implements CanActivate {
 	constructor(
 		private readonly reflector: Reflector,
 		private readonly rolesService: RolesService,
 	) {}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
-		// `@AnyScreen()` grava `null` no handler e sobrescreve a exigência da classe.
-		const required = this.reflector.getAllAndOverride<ScreenRequirement | null | undefined>(
-			SCREEN_KEY,
+		// `@AnyAccess()` grava `null` no handler e sobrescreve a exigência da classe.
+		const required = this.reflector.getAllAndOverride<AccessRequirement | null | undefined>(
+			ACCESS_KEY,
 			[context.getHandler(), context.getClass()],
 		);
 
@@ -42,9 +42,9 @@ export class ScreensGuard implements CanActivate {
 			throw new ForbiddenException('Permissão insuficiente.');
 		}
 
-		const screens = await this.rolesService.findScreensForUser(user.id, user.role ?? null);
+		const permissions = await this.rolesService.findPermissionsForUser(user.id, user.role ?? null);
 
-		if (!screens.includes(toPermission(required.screen, required.level))) {
+		if (!permissions.includes(toPermission(required.module, required.action))) {
 			throw new ForbiddenException('Permissão insuficiente.');
 		}
 

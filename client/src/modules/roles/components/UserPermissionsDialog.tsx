@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
-import { UserScreensPanel } from '@/modules/roles/components/UserScreensPanel';
-import { UserScreensSkeleton } from '@/modules/roles/skeletons/UserScreensSkeleton';
+import { UserPermissionsPanel } from '@/modules/roles/components/UserPermissionsPanel';
+import { UserPermissionsSkeleton } from '@/modules/roles/skeletons/UserPermissionsSkeleton';
 import {
 	Dialog,
 	DialogContent,
@@ -9,19 +9,19 @@ import {
 	DialogTitle,
 } from '@/shared/components/ui/dialog';
 
-type UserScreensDialogProps = {
+type UserPermissionsDialogProps = {
 	userId: string;
 	userName: string;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 };
 
-export function UserScreensDialog({
+export function UserPermissionsDialog({
 	userId,
 	userName,
 	open,
 	onOpenChange,
-}: UserScreensDialogProps) {
+}: UserPermissionsDialogProps) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="gap-6 p-6 shadow-2xl sm:max-w-md">
@@ -34,8 +34,8 @@ export function UserScreensDialog({
 
 				{/* Só busca ao abrir: a tabela de usuários não espera por isso. */}
 				{open ? (
-					<Suspense fallback={<UserScreensSkeleton />}>
-						<UserScreensPanel userId={userId} onDone={() => onOpenChange(false)} />
+					<Suspense fallback={<UserPermissionsSkeleton />}>
+						<UserPermissionsPanel userId={userId} onDone={() => onOpenChange(false)} />
 					</Suspense>
 				) : null}
 			</DialogContent>

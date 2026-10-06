@@ -1,14 +1,23 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IdCardIcon, TextIcon } from 'lucide-react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useCreateRole } from '@/modules/roles/hooks/useCreateRole';
 import { useUpdateRole } from '@/modules/roles/hooks/useUpdateRole';
-import { ScreensField } from '@/modules/roles/components/ScreensField';
+import { BadgeField } from '@/modules/roles/components/BadgeField';
+import { PermissionsField } from '@/modules/roles/components/PermissionsField';
 import { roleFormSchema, type Role, type RoleFormInput } from '@/modules/roles/types/role';
 import { FormError } from '@/shared/components/FormError';
 import { FormField } from '@/shared/components/FormField';
 import { Button } from '@/shared/components/ui/button';
 import { DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
+
+const EMPTY: RoleFormInput = {
+	name: '',
+	description: '',
+	permissions: [],
+	color: 'neutral',
+	icon: 'pessoa',
+};
 
 type RoleFormProps = {
 	/** Ausente = criação. Presente = edição. */
@@ -25,20 +34,27 @@ export function RoleForm({ role, onDone }: RoleFormProps) {
 		formState: { errors },
 	} = useForm<RoleFormInput>({
 		resolver: zodResolver(roleFormSchema),
-		defaultValues: {
-			name: role?.name ?? '',
-			description: role?.description ?? '',
-			screens: role?.screens ?? [],
-		},
+		defaultValues: role
+			? {
+					name: role.name,
+					description: role.description ?? '',
+					permissions: role.permissions,
+					color: role.color,
+					icon: role.icon,
+				}
+			: EMPTY,
 	});
 
 	const create = useCreateRole(() => {
-		reset({ name: '', description: '', screens: [] });
+		reset(EMPTY);
 		onDone?.();
 	});
 	const update = useUpdateRole(role?.id ?? '', onDone);
 
 	const { mutate, isPending, error } = role ? update : create;
+
+	// A prévia do crachá acompanha o que está sendo digitado.
+	const name = useWatch({ control, name: 'name' });
 
 	return (
 		<form onSubmit={handleSubmit((data) => mutate(data))} className="flex flex-col gap-6">
@@ -64,13 +80,34 @@ export function RoleForm({ role, onDone }: RoleFormProps) {
 
 				<Controller
 					control={control}
-					name="screens"
+					name="color"
+					render={({ field: colorField }) => (
+						<Controller
+							control={control}
+							name="icon"
+							render={({ field: iconField }) => (
+								<BadgeField
+									name={name}
+									color={colorField.value}
+									icon={iconField.value}
+									onColorChange={colorField.onChange}
+									onIconChange={iconField.onChange}
+									disabled={isPending}
+								/>
+							)}
+						/>
+					)}
+				/>
+
+				<Controller
+					control={control}
+					name="permissions"
 					render={({ field }) => (
-						<ScreensField
+						<PermissionsField
 							value={field.value}
 							onChange={field.onChange}
 							disabled={isPending}
-							error={errors.screens?.message}
+							error={errors.permissions?.message}
 						/>
 					)}
 				/>

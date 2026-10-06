@@ -1,32 +1,81 @@
 /**
- * Telas que um cargo pode liberar. A chave é o contrato com o frontend:
- * mudou aqui, muda em `client/src/shared/navigation.ts`.
+ * A declaração de acesso do sistema: cada módulo e as ações que se fazem sobre
+ * ele. É o contrato com o frontend — mudou aqui, muda em
+ * `client/src/modules/roles/types/role.ts` e em `shared/navigation.ts`.
+ *
+ * As ações seguem um vocabulário comum, para a tela de cargos ler como uma
+ * tabela: `ver`, `criar`, `editar` e `apagar`. Um módulo declara só as que
+ * fazem sentido nele — auditoria é registro de uso, e não se cria nem se apaga
+ * um log pela tela.
+ *
+ * Toda ação declarada aqui é conferida em algum lugar do código: acrescentar
+ * uma é acrescentar também a porta que a confere (`@RequireAccess`).
  */
-export const SCREENS = ['admin.users', 'admin.roles', 'admin.audit'] as const;
+export const ACCESS_DECLARATION = {
+	usuarios: ['ver', 'criar', 'editar', 'apagar'],
+	cargos: ['ver', 'criar', 'editar', 'apagar'],
+	auditoria: ['ver'],
+} as const;
 
-export type Screen = (typeof SCREENS)[number];
+export type Module = keyof typeof ACCESS_DECLARATION;
 
-/** `read` abre a tela; `write` permite alterar o que há nela. */
-export const SCREEN_LEVELS = ['read', 'write'] as const;
+export const MODULES = Object.keys(ACCESS_DECLARATION) as Module[];
 
-export type ScreenLevel = (typeof SCREEN_LEVELS)[number];
+export type Action<M extends Module = Module> = (typeof ACCESS_DECLARATION)[M][number];
 
 /**
- * Permissão concreta, no formato `<tela>:<nível>` — é assim que ela viaja no
- * CSV de `role.screens`, na coluna `user_screen_override.screen` e na API.
+ * Permissão concreta, no formato `<módulo>:<ação>` — é assim que ela viaja no
+ * CSV de `role.permissions`, na coluna `user_permission_override.permission` e
+ * na API.
  */
-export type ScreenPermission = `${Screen}:${ScreenLevel}`;
+export type Permission = {
+	[M in Module]: `${M}:${Action<M>}`;
+}[Module];
 
-/** Todas as combinações existentes, na ordem das telas. */
-export const SCREEN_PERMISSIONS: ScreenPermission[] = SCREENS.flatMap((screen) =>
-	SCREEN_LEVELS.map((level): ScreenPermission => `${screen}:${level}`),
+/** Todas as permissões existentes, na ordem da declaração. */
+export const PERMISSIONS: Permission[] = MODULES.flatMap((module) =>
+	ACCESS_DECLARATION[module].map((action) => `${module}:${action}` as Permission),
 );
+
+/**
+ * As cores do crachá do cargo. São nomes de token do tema, não cores soltas:
+ * o desenho de cada uma mora na tela (`client/src/modules/roles/utils/badge.ts`).
+ */
+export const ROLE_COLORS = [
+	'primary',
+	'blue',
+	'green',
+	'amber',
+	'red',
+	'purple',
+	'neutral',
+] as const;
+
+export type RoleColor = (typeof ROLE_COLORS)[number];
+
+/** Os ícones que o crachá aceita. O desenho de cada um mora na tela. */
+export const ROLE_ICONS = [
+	'escudo',
+	'chave',
+	'estrela',
+	'pessoa',
+	'pessoas',
+	'maleta',
+	'engrenagem',
+	'grafico',
+	'livro',
+	'etiqueta',
+] as const;
+
+export type RoleIcon = (typeof ROLE_ICONS)[number];
 
 export type PublicRole = {
 	id: string;
 	name: string;
 	description: string | null;
-	screens: ScreenPermission[];
+	permissions: Permission[];
+	color: RoleColor;
+	icon: RoleIcon;
 	isSystem: boolean;
 	createdAt: Date;
 	updatedAt: Date;
@@ -36,16 +85,16 @@ export type PublicRole = {
  * Exceção de permissão por usuário. `allowed: true` libera uma permissão que o
  * cargo não dá; `false` bloqueia uma que ele dá. Ausente herda do cargo.
  */
-export type ScreenOverride = {
-	screen: ScreenPermission;
+export type PermissionOverride = {
+	permission: Permission;
 	allowed: boolean;
 };
 
 /** Visualização de um usuário: o que o cargo dá, as exceções e o efetivo. */
-export type UserScreens = {
+export type UserPermissions = {
 	/** União das permissões dos cargos do usuário, antes das exceções. */
-	inherited: ScreenPermission[];
-	overrides: ScreenOverride[];
-	/** `(inherited ∪ grants) \ denies`, com `write` implicando `read`. */
-	effective: ScreenPermission[];
+	inherited: Permission[];
+	overrides: PermissionOverride[];
+	/** `(inherited ∪ grants) \ denies`, com toda ação implicando `ver`. */
+	effective: Permission[];
 };

@@ -14,23 +14,25 @@ import { role } from 'src/db/schema/role';
 import type { PaginationDto } from 'src/common/dto/pagination.dto';
 import type { Paginated } from 'src/common/types/pagination.types';
 import { ADMIN_ROLE, isAdmin, toRoleNames } from 'src/common/utils';
-import { userScreenOverride } from 'src/db/schema/userScreenOverride';
+import { userPermissionOverride } from 'src/db/schema/userPermissionOverride';
 import type { CreateRoleDto } from 'src/modules/roles/dto/create-role.dto';
-import type { SetUserScreensDto } from 'src/modules/roles/dto/set-user-screens.dto';
+import type { SetUserPermissionsDto } from 'src/modules/roles/dto/set-user-permissions.dto';
 import type { UpdateRoleDto } from 'src/modules/roles/dto/update-role.dto';
-import { SCREEN_PERMISSIONS } from 'src/modules/roles/types/role.types';
+import { PERMISSIONS } from 'src/modules/roles/types/role.types';
 import type {
+	Permission,
+	PermissionOverride,
 	PublicRole,
-	ScreenOverride,
-	ScreenPermission,
-	UserScreens,
+	RoleColor,
+	RoleIcon,
+	UserPermissions,
 } from 'src/modules/roles/types/role.types';
 import {
-	applyScreenOverrides,
-	dedupeScreenOverrides,
-	expandWrite,
-	isScreenPermission,
-	parseScreens,
+	applyPermissionOverrides,
+	dedupePermissionOverrides,
+	expandView,
+	isPermission,
+	parsePermissions,
 } from 'src/modules/roles/utils';
 
 type RoleRow = typeof role.$inferSelect;
@@ -40,7 +42,9 @@ function toPublicRole(row: RoleRow): PublicRole {
 		id: row.id,
 		name: row.name,
 		description: row.description,
-		screens: parseScreens(row.screens),
+		permissions: parsePermissions(row.permissions),
+		color: row.color as RoleColor,
+		icon: row.icon as RoleIcon,
 		isSystem: row.isSystem,
 		createdAt: row.createdAt,
 		updatedAt: row.updatedAt,
@@ -56,28 +60,28 @@ export class RolesService {
 	 * pessoais aplicadas por cima. Admin recebe tudo, sem exceção — bloquear um
 	 * admin trancaria o próprio painel de permissões.
 	 */
-	async findScreensForUser(userId: string, roleNames: string | null): Promise<ScreenPermission[]> {
+	async findPermissionsForUser(userId: string, roleNames: string | null): Promise<Permission[]> {
 		if (isAdmin(roleNames)) {
-			return [...SCREEN_PERMISSIONS];
+			return [...PERMISSIONS];
 		}
 
 		const [inherited, overrides] = await Promise.all([
-			this.findInheritedScreens(roleNames),
+			this.findInheritedPermissions(roleNames),
 			this.findOverridesForUser(userId),
 		]);
 
-		return applyScreenOverrides(inherited, overrides);
+		return applyPermissionOverrides(inherited, overrides);
 	}
 
 	/**
 	 * Visualização de um usuário, para o painel de administração: o que o cargo
 	 * dá, as exceções pessoais e o resultado.
 	 */
-	async findUserScreens(userId: string): Promise<UserScreens> {
+	async findUserPermissions(userId: string): Promise<UserPermissions> {
 		const target = await this.findUserOrFail(userId);
 
 		const [inherited, overrides] = await Promise.all([
-			this.findInheritedScreens(target.role),
+			this.findInheritedPermissions(target.role),
 			this.findOverridesForUser(userId),
 		]);
 
@@ -85,8 +89,8 @@ export class RolesService {
 			inherited,
 			overrides,
 			effective: isAdmin(target.role)
-				? [...SCREEN_PERMISSIONS]
-				: applyScreenOverrides(inherited, overrides),
+				? [...PERMISSIONS]
+				: applyPermissionOverrides(inherited, overrides),
 		};
 	}
 
@@ -95,37 +99,37 @@ export class RolesService {
 	 * (concorda com o cargo) é descartada: o override existe para divergir, e
 	 * guardá-la congelaria a tela se o cargo mudasse depois.
 	 */
-	async setUserScreens(userId: string, data: SetUserScreensDto): Promise<UserScreens> {
+	async setUserPermissions(userId: string, data: SetUserPermissionsDto): Promise<UserPermissions> {
 		const target = await this.findUserOrFail(userId);
 
 		if (isAdmin(target.role)) {
-			throw new ForbiddenException('Administrador tem acesso total às telas.');
+			throw new ForbiddenException('Administrador tem acesso total ao sistema.');
 		}
 
-		const inherited = new Set(await this.findInheritedScreens(target.role));
-		const divergent = dedupeScreenOverrides(data.overrides).filter(
-			(override) => override.allowed !== inherited.has(override.screen),
+		const inherited = new Set(await this.findInheritedPermissions(target.role));
+		const divergent = dedupePermissionOverrides(data.overrides).filter(
+			(override) => override.allowed !== inherited.has(override.permission),
 		);
 
 		await this.db.transaction(async (tx) => {
-			await tx.delete(userScreenOverride).where(eq(userScreenOverride.userId, userId));
+			await tx.delete(userPermissionOverride).where(eq(userPermissionOverride.userId, userId));
 
 			if (divergent.length > 0) {
-				await tx.insert(userScreenOverride).values(
+				await tx.insert(userPermissionOverride).values(
 					divergent.map((override) => ({
 						userId,
-						screen: override.screen,
+						permission: override.permission,
 						allowed: override.allowed,
 					})),
 				);
 			}
 		});
 
-		return this.findUserScreens(userId);
+		return this.findUserPermissions(userId);
 	}
 
 	/** União das permissões dos cargos. `user.role` guarda nomes separados por vírgula. */
-	private async findInheritedScreens(roleNames: string | null): Promise<ScreenPermission[]> {
+	private async findInheritedPermissions(roleNames: string | null): Promise<Permission[]> {
 		const names = toRoleNames(roleNames);
 
 		if (names.length === 0) {
@@ -133,30 +137,33 @@ export class RolesService {
 		}
 
 		const rows = await this.db
-			.select({ screens: role.screens })
+			.select({ permissions: role.permissions })
 			.from(role)
 			.where(inArray(role.name, names));
 
-		const screens = new Set<ScreenPermission>();
+		const permissions = new Set<Permission>();
 		for (const row of rows) {
-			for (const screen of parseScreens(row.screens)) {
-				screens.add(screen);
+			for (const permission of parsePermissions(row.permissions)) {
+				permissions.add(permission);
 			}
 		}
 
-		return expandWrite([...screens]);
+		return expandView([...permissions]);
 	}
 
-	private async findOverridesForUser(userId: string): Promise<ScreenOverride[]> {
+	private async findOverridesForUser(userId: string): Promise<PermissionOverride[]> {
 		const rows = await this.db
-			.select({ screen: userScreenOverride.screen, allowed: userScreenOverride.allowed })
-			.from(userScreenOverride)
-			.where(eq(userScreenOverride.userId, userId));
+			.select({
+				permission: userPermissionOverride.permission,
+				allowed: userPermissionOverride.allowed,
+			})
+			.from(userPermissionOverride)
+			.where(eq(userPermissionOverride.userId, userId));
 
-		// Permissão removida de `SCREEN_PERMISSIONS` pode ter sobrado no banco: ignore.
+		// Permissão removida de `PERMISSIONS` pode ter sobrado no banco: ignore.
 		return rows
-			.filter((row): row is ScreenOverride => isScreenPermission(row.screen))
-			.map((row) => ({ screen: row.screen, allowed: row.allowed }));
+			.filter((row): row is PermissionOverride => isPermission(row.permission))
+			.map((row) => ({ permission: row.permission, allowed: row.allowed }));
 	}
 
 	private async findUserOrFail(userId: string): Promise<{ role: string | null }> {
@@ -206,7 +213,9 @@ export class RolesService {
 				id: randomUUID(),
 				name: data.name,
 				description: data.description ?? null,
-				screens: data.screens.join(','),
+				permissions: data.permissions.join(','),
+				color: data.color,
+				icon: data.icon,
 			})
 			.returning();
 
@@ -222,8 +231,8 @@ export class RolesService {
 
 		/*
 		 * Quem tem `user.role = 'admin'` recebe todas as permissões em
-		 * `findScreensForUser`, sem consultar cargo nem exceção. Editar este cargo
-		 * não mudaria nada — bloquear é mais honesto que aceitar em silêncio.
+		 * `findPermissionsForUser`, sem consultar cargo nem exceção. Editar este
+		 * cargo não mudaria nada — bloquear é mais honesto que aceitar em silêncio.
 		 */
 		if (current.name === ADMIN_ROLE) {
 			throw new ForbiddenException('O cargo de administrador tem acesso total e não é editável.');
@@ -243,7 +252,9 @@ export class RolesService {
 			.set({
 				...(data.name ? { name: data.name } : {}),
 				...(data.description === undefined ? {} : { description: data.description }),
-				...(data.screens ? { screens: data.screens.join(',') } : {}),
+				...(data.permissions ? { permissions: data.permissions.join(',') } : {}),
+				...(data.color ? { color: data.color } : {}),
+				...(data.icon ? { icon: data.icon } : {}),
 			})
 			.where(eq(role.id, id))
 			.returning();

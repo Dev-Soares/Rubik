@@ -9,7 +9,7 @@ export function GuidePanel() {
 	const { active, selectSection } = useActiveGuideSection(sections);
 
 	/*
-	 * `useMyScreens` não suspende: sem o skeleton, o índice apareceria curto e
+	 * `useMyPermissions` não suspende: sem o skeleton, o índice apareceria curto e
 	 * cresceria sozinho quando as telas liberadas chegassem.
 	 */
 	if (isPending) {

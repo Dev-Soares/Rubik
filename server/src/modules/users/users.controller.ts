@@ -13,9 +13,9 @@ import {
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import type { Paginated } from 'src/common/types/pagination.types';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { RequireScreen } from 'src/common/decorators/screen.decorator';
+import { RequireAccess } from 'src/common/decorators/access.decorator';
 import { OwnershipGuard } from 'src/common/guards/ownership.guard';
-import { ScreensGuard } from 'src/common/guards/screens.guard';
+import { AccessGuard } from 'src/common/guards/access.guard';
 import { UpdateUserDto } from 'src/modules/users/dto/update-user.dto';
 import type { PublicUser } from 'src/modules/users/types/user.types';
 import { UsersService } from 'src/modules/users/users.service';
@@ -24,10 +24,10 @@ import { UsersService } from 'src/modules/users/users.service';
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
 
-	/** Lista usuários paginados. Requer leitura da tela de usuários. */
+	/** Lista usuários paginados. Requer ver o módulo de usuários. */
 	@Get()
-	@RequireScreen('admin.users', 'read')
-	@UseGuards(ScreensGuard)
+	@RequireAccess('usuarios', 'ver')
+	@UseGuards(AccessGuard)
 	findAll(@Query() pagination: PaginationDto): Promise<Paginated<PublicUser>> {
 		return this.usersService.findAll(pagination);
 	}
@@ -41,7 +41,7 @@ export class UsersController {
 
 	/**
 	 * Atualiza um usuário. Só o próprio usuário ou um admin — e o campo `role`
-	 * ainda exige `admin.users:write`, resolvido no service.
+	 * ainda exige `usuarios:editar`, resolvido no service.
 	 */
 	@Patch(':id')
 	@UseGuards(OwnershipGuard)
@@ -54,10 +54,10 @@ export class UsersController {
 		return this.usersService.update(id, body, { id: editorId, role: editorRole });
 	}
 
-	/** Remove um usuário. Requer edição da tela de usuários. */
+	/** Remove um usuário. Requer a ação de apagar no módulo de usuários. */
 	@Delete(':id')
-	@RequireScreen('admin.users', 'write')
-	@UseGuards(ScreensGuard)
+	@RequireAccess('usuarios', 'apagar')
+	@UseGuards(AccessGuard)
 	@HttpCode(HttpStatus.NO_CONTENT)
 	remove(@Param('id') id: string): Promise<void> {
 		return this.usersService.remove(id);

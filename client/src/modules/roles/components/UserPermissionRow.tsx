@@ -3,18 +3,22 @@ import {
 	ACTION_ACCESS,
 	ACTION_ACCESS_LABELS,
 	ACTION_LABELS,
-	MODULE_LABELS,
 	type AccessByPermission,
 	type ActionAccess,
-	type Module,
 	type Permission,
 } from '@/modules/roles/types/role';
-import { actionsOf, toPermission } from '@/modules/roles/utils';
+import {
+	hasAction,
+	STANDARD_ACTIONS,
+	type CatalogModule,
+	type StandardAction,
+} from '@/modules/roles/types/catalog';
+import { toPermission } from '@/modules/roles/utils';
 import { ToggleGroup, ToggleGroupItem } from '@/shared/components/ui/toggle-group';
 
 /**
- * `herda` fica neutro: é o estado padrão, e o que precisa saltar à vista é a
- * exceção que alguém criou. Bloquear usa `destructive` — tira acesso do cargo.
+ * `herda` fica neutro: é o padrão, e o que precisa saltar à vista é a exceção
+ * que alguém criou. Bloquear usa `destructive` — tira acesso que o cargo dá.
  */
 const ACCESS_CLASS: Record<ActionAccess, string> = {
 	herda: '',
@@ -22,8 +26,8 @@ const ACCESS_CLASS: Record<ActionAccess, string> = {
 	bloqueia: 'data-[state=on]:bg-destructive/15 data-[state=on]:text-destructive',
 };
 
-type UserPermissionAccessCardProps = {
-	module: Module;
+type UserPermissionRowProps = {
+	item: CatalogModule;
 	access: AccessByPermission;
 	/** O que o cargo do usuário dá, para a escolha não ser às cegas. */
 	inherited: readonly Permission[];
@@ -31,36 +35,42 @@ type UserPermissionAccessCardProps = {
 	disabled?: boolean;
 };
 
-/** Um módulo com uma linha por ação: herda do cargo, libera ou bloqueia. */
-export function UserPermissionAccessCard({
-	module,
+/** Uma linha da tabela: o módulo e, por ação, herda / libera / bloqueia. */
+export function UserPermissionRow({
+	item,
 	access,
 	inherited,
 	onChange,
 	disabled,
-}: UserPermissionAccessCardProps) {
-	const temExcecao = actionsOf(module).some(
-		(action) => access[toPermission(module, action)] !== 'herda',
-	);
+}: UserPermissionRowProps) {
+	const temExcecao = STANDARD_ACTIONS.some((action) => {
+		if (!hasAction(item.module, action)) {
+			return false;
+		}
+		return access[toPermission(item.module, action)] !== 'herda';
+	});
 
 	return (
 		<div
 			className={cn(
-				'flex flex-col gap-2 rounded-md border p-3 transition-colors',
-				temExcecao ? 'border-primary/30 bg-primary/5' : 'border-border',
+				'flex flex-col gap-2 border-b px-3 py-3 last:border-b-0',
+				temExcecao && 'bg-primary/5',
 			)}
 		>
-			<span className="truncate text-sm font-medium">{MODULE_LABELS[module]}</span>
+			<div className="flex min-w-0 flex-col gap-0.5">
+				<span className="text-sm font-medium">{item.title}</span>
+				<span className="text-muted-foreground text-xs leading-snug">{item.description}</span>
+			</div>
 
 			<div className="flex flex-col gap-1.5">
-				{actionsOf(module).map((action) => {
-					const permission = toPermission(module, action);
+				{STANDARD_ACTIONS.filter((action) => hasAction(item.module, action)).map((action) => {
+					const permission = toPermission(item.module, action);
 					const doCargo = inherited.includes(permission);
 
 					return (
 						<div key={action} className="flex items-center justify-between gap-2">
 							<span className="text-muted-foreground shrink-0 text-xs">
-								{ACTION_LABELS[action]}
+								{ACTION_LABELS[action as StandardAction]}
 							</span>
 
 							<ToggleGroup
@@ -68,7 +78,7 @@ export function UserPermissionAccessCard({
 								value={access[permission]}
 								onValueChange={(next) => next && onChange(permission, next as ActionAccess)}
 								disabled={disabled}
-								aria-label={`${MODULE_LABELS[module]}: ${ACTION_LABELS[action]}`}
+								aria-label={`${item.title}: ${ACTION_LABELS[action as StandardAction]}`}
 								className="bg-muted/40 gap-0 rounded-sm p-0.5"
 							>
 								{ACTION_ACCESS.map((option) => (

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useSetUserPermissions } from '@/modules/roles/hooks/useSetUserPermissions';
-import { UserPermissionAccessCard } from '@/modules/roles/components/UserPermissionAccessCard';
-import { MODULES, type AccessByPermission, type UserPermissions } from '@/modules/roles/types/role';
+import { UserPermissionRow } from '@/modules/roles/components/UserPermissionRow';
+import { PERMISSION_CATALOG, SECTORS } from '@/modules/roles/types/catalog';
+import { type AccessByPermission, type UserPermissions } from '@/modules/roles/types/role';
 import { toAccessByPermission, toPermissionOverrides } from '@/modules/roles/utils';
 import { FormError } from '@/shared/components/FormError';
 import { Button } from '@/shared/components/ui/button';
@@ -26,20 +27,28 @@ export function UserPermissionsForm({ userId, permissions, onDone }: UserPermiss
 	return (
 		<form onSubmit={handleSubmit} className="flex flex-col gap-6">
 			<fieldset disabled={isPending} className="contents">
-				{/* Mesma grade do formulário de cargo: a lista cresce com o produto. */}
-				<div className="max-h-72 overflow-y-auto">
-					<div className="flex flex-col gap-2">
-						{MODULES.map((module) => (
-							<UserPermissionAccessCard
-								key={module}
-								module={module}
-								access={access}
-								inherited={permissions.inherited}
-								disabled={isPending}
-								onChange={(permission, value) =>
-									setAccess((current) => ({ ...current, [permission]: value }))
-								}
-							/>
+				{/* Mesma tabela do formulário de cargo, agrupada pelos mesmos setores. */}
+				<div className="max-h-80 overflow-y-auto">
+					<div className="flex flex-col gap-4">
+						{SECTORS.map((sector) => (
+							<div key={sector} className="overflow-hidden rounded-lg border">
+								<div className="bg-muted/40 text-muted-foreground border-b px-3 py-1.5 text-[11px] font-medium">
+									{sector}
+								</div>
+
+								{PERMISSION_CATALOG.filter((item) => item.sector === sector).map((item) => (
+									<UserPermissionRow
+										key={item.module}
+										item={item}
+										access={access}
+										inherited={permissions.inherited}
+										disabled={isPending}
+										onChange={(permission, value) =>
+											setAccess((current) => ({ ...current, [permission]: value }))
+										}
+									/>
+								))}
+							</div>
 						))}
 					</div>
 				</div>

@@ -56,14 +56,14 @@ export function RoleCard({ role }: RoleCardProps) {
 
 				<div className="flex items-end justify-between gap-2 border-t pt-4">
 					{/*
-					 * O que o cargo libera é a informação que distingue um card do
-					 * outro: ganha o maior peso tipográfico do card.
+					 * Abaixo do nome na hierarquia: o título do card é o cargo, e a
+					 * contagem é o que ele libera.
 					 */}
 					{isAdminRole ? (
-						<span className="text-primary text-lg leading-none font-semibold">Acesso total</span>
+						<span className="text-primary text-base leading-none font-semibold">Acesso total</span>
 					) : (
 						<span className="flex items-baseline gap-1.5">
-							<span className="text-primary text-2xl leading-none font-semibold tabular-nums">
+							<span className="text-primary text-xl leading-none font-semibold tabular-nums">
 								{role.permissions.length}
 							</span>
 							<span className="text-muted-foreground text-sm">

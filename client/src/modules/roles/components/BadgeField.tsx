@@ -37,7 +37,13 @@ export function BadgeField({
 					Crachá
 				</Label>
 
-				<RoleBadge name={name.trim() || 'Cargo'} color={color} icon={icon} />
+				{/* Menor que no card: aqui é prévia ao lado de um rótulo, não título. */}
+				<RoleBadge
+					name={name.trim() || 'Cargo'}
+					color={color}
+					icon={icon}
+					className="gap-1.5 text-sm"
+				/>
 			</div>
 
 			<div className="flex flex-wrap gap-1.5">

@@ -1,5 +1,5 @@
 import type { GuideGroup, GuideRestricted, GuideSection } from '@/modules/guide/types/guide';
-import type { Screen, ScreenLevel } from '@/modules/roles/types/role';
+import type { Action, Module } from '@/modules/roles/types/role';
 
 /**
  * Regra única de visibilidade do guia, aplicada a seções e a passos. Espelha a
@@ -8,14 +8,14 @@ import type { Screen, ScreenLevel } from '@/modules/roles/types/role';
  */
 export function isGuideItemVisible(
 	item: GuideRestricted,
-	can: (screen: Screen, level?: ScreenLevel) => boolean,
+	can: (module: Module, action?: Action) => boolean,
 	isAdmin: boolean,
 ): boolean {
 	if (item.adminOnly && !isAdmin) {
 		return false;
 	}
 
-	return !item.screen || can(item.screen);
+	return !item.module || can(item.module);
 }
 
 /** Agrupa preservando a ordem em que cada categoria aparece nas seções. */

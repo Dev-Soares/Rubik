@@ -25,7 +25,7 @@ import { isProduction } from 'src/config/env';
 import { db, queryClient } from 'src/db/db.provider';
 import { user } from 'src/db/schema/auth';
 import { role } from 'src/db/schema/role';
-import { SCREEN_PERMISSIONS } from 'src/modules/roles/types/role.types';
+import { PERMISSIONS } from 'src/modules/roles/types/role.types';
 
 const SEED_NAME = 'Desenvolvedor';
 const SEED_EMAIL = 'desenvolvedor@letsup.team';
@@ -45,23 +45,34 @@ async function seedSystemRoles(): Promise<void> {
 		{
 			name: 'admin',
 			description: 'Acesso total ao sistema.',
-			screens: SCREEN_PERMISSIONS.join(','),
+			permissions: PERMISSIONS.join(','),
+			color: 'primary',
+			icon: 'escudo',
 		},
-		{ name: 'user', description: 'Acesso às áreas comuns.', screens: '' },
+		{
+			name: 'user',
+			description: 'Acesso às áreas comuns.',
+			permissions: '',
+			color: 'neutral',
+			icon: 'pessoa',
+		},
 	];
 
 	for (const item of systemRoles) {
 		const [existing] = await db
-			.select({ id: role.id, screens: role.screens })
+			.select({ id: role.id, permissions: role.permissions })
 			.from(role)
 			.where(eq(role.name, item.name))
 			.limit(1);
 
 		if (existing) {
-			// Permissão nova em `SCREEN_PERMISSIONS` precisa chegar ao admin sem SQL manual.
-			if (item.name === 'admin' && existing.screens !== item.screens) {
-				await db.update(role).set({ screens: item.screens }).where(eq(role.id, existing.id));
-				log('telas do cargo admin atualizadas');
+			// Permissão nova em `PERMISSIONS` precisa chegar ao admin sem SQL manual.
+			if (item.name === 'admin' && existing.permissions !== item.permissions) {
+				await db
+					.update(role)
+					.set({ permissions: item.permissions })
+					.where(eq(role.id, existing.id));
+				log('permissões do cargo admin atualizadas');
 			}
 			continue;
 		}

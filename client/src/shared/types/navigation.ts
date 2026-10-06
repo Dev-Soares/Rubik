@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import type { FileRouteTypes } from '@/routeTree.gen';
-import type { Screen } from '@/modules/roles/types/role';
+import type { Module } from '@/modules/roles/types/role';
 
 export type NavItem = {
 	label: string;
@@ -16,6 +16,6 @@ export type NavChildItem = {
 	label: string;
 	to: FileRouteTypes['to'];
 	icon: LucideIcon;
-	/** Chave da tela em `SCREENS`: só aparece se o cargo liberar. */
-	screen?: Screen;
+	/** Chave do módulo em `MODULES`: só aparece se o cargo liberar `ver`. */
+	module?: Module;
 };

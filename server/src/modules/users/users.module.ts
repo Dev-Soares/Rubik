@@ -4,7 +4,7 @@ import { UsersController } from 'src/modules/users/users.controller';
 import { UsersService } from 'src/modules/users/users.service';
 
 @Module({
-	// O `ScreensGuard` das rotas resolve as permissões pelo `RolesService`.
+	// O `AccessGuard` das rotas resolve as permissões pelo `RolesService`.
 	imports: [RolesModule],
 	controllers: [UsersController],
 	providers: [UsersService],

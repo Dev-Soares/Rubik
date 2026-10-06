@@ -15,61 +15,64 @@ import {
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import type { Paginated } from 'src/common/types/pagination.types';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { AnyScreen, RequireScreen } from 'src/common/decorators/screen.decorator';
-import { ScreensGuard } from 'src/common/guards/screens.guard';
+import { AnyAccess, RequireAccess } from 'src/common/decorators/access.decorator';
+import { AccessGuard } from 'src/common/guards/access.guard';
 import { CreateRoleDto } from 'src/modules/roles/dto/create-role.dto';
-import { SetUserScreensDto } from 'src/modules/roles/dto/set-user-screens.dto';
+import { SetUserPermissionsDto } from 'src/modules/roles/dto/set-user-permissions.dto';
 import { UpdateRoleDto } from 'src/modules/roles/dto/update-role.dto';
-import { SCREEN_PERMISSIONS } from 'src/modules/roles/types/role.types';
-import type { PublicRole, ScreenPermission, UserScreens } from 'src/modules/roles/types/role.types';
+import { ACCESS_DECLARATION } from 'src/modules/roles/types/role.types';
+import type { Permission, PublicRole, UserPermissions } from 'src/modules/roles/types/role.types';
 import { RolesService } from 'src/modules/roles/roles.service';
 
 @Controller('roles')
-@RequireScreen('admin.roles', 'read')
-@UseGuards(ScreensGuard)
+@RequireAccess('cargos', 'ver')
+@UseGuards(AccessGuard)
 export class RolesController {
 	constructor(private readonly rolesService: RolesService) {}
 
-	/** Permissões que podem ser atribuídas a um cargo. */
-	@Get('screens')
-	findScreens(): readonly ScreenPermission[] {
-		return SCREEN_PERMISSIONS;
+	/**
+	 * Os módulos do sistema e as ações de cada um — o que a tela de cargos
+	 * desenha como tabela.
+	 */
+	@Get('modules')
+	findModules(): typeof ACCESS_DECLARATION {
+		return ACCESS_DECLARATION;
 	}
 
 	/**
-	 * Permissões do próprio usuário. Sem `@RequireScreen` de propósito: todo
-	 * usuário precisa saber o que pode acessar, inclusive quem não tem tela
-	 * nenhuma — é o que monta a sidebar.
+	 * Permissões do próprio usuário. Sem `@RequireAccess` de propósito: todo
+	 * usuário precisa saber o que pode acessar, inclusive quem não tem módulo
+	 * nenhum — é o que monta a sidebar.
 	 */
-	@Get('me/screens')
-	@AnyScreen()
-	findMyScreens(
+	@Get('me/permissions')
+	@AnyAccess()
+	findMyPermissions(
 		@CurrentUser('id') id: string,
 		@CurrentUser('role') role: string | null,
-	): Promise<ScreenPermission[]> {
-		return this.rolesService.findScreensForUser(id, role);
+	): Promise<Permission[]> {
+		return this.rolesService.findPermissionsForUser(id, role);
 	}
 
 	/**
 	 * Visualização de um usuário: o que o cargo dá, as exceções pessoais e o
 	 * efetivo. Antes de `:id` de propósito — senão `users` cairia no `findOne`.
 	 *
-	 * Mora em `admin.users`: quem administra usuários mexe nas exceções deles.
+	 * Mora em `usuarios`: quem administra usuários mexe nas exceções deles.
 	 */
-	@Get('users/:userId/screens')
-	@RequireScreen('admin.users', 'read')
-	findUserScreens(@Param('userId') userId: string): Promise<UserScreens> {
-		return this.rolesService.findUserScreens(userId);
+	@Get('users/:userId/permissions')
+	@RequireAccess('usuarios', 'ver')
+	findUserPermissions(@Param('userId') userId: string): Promise<UserPermissions> {
+		return this.rolesService.findUserPermissions(userId);
 	}
 
 	/** Substitui as exceções de permissão do usuário. */
-	@Put('users/:userId/screens')
-	@RequireScreen('admin.users', 'write')
-	setUserScreens(
+	@Put('users/:userId/permissions')
+	@RequireAccess('usuarios', 'editar')
+	setUserPermissions(
 		@Param('userId') userId: string,
-		@Body() body: SetUserScreensDto,
-	): Promise<UserScreens> {
-		return this.rolesService.setUserScreens(userId, body);
+		@Body() body: SetUserPermissionsDto,
+	): Promise<UserPermissions> {
+		return this.rolesService.setUserPermissions(userId, body);
 	}
 
 	/** Lista cargos paginados. */
@@ -86,21 +89,21 @@ export class RolesController {
 
 	/** Cria um cargo. */
 	@Post()
-	@RequireScreen('admin.roles', 'write')
+	@RequireAccess('cargos', 'criar')
 	create(@Body() body: CreateRoleDto): Promise<PublicRole> {
 		return this.rolesService.create(body);
 	}
 
 	/** Atualiza um cargo. */
 	@Patch(':id')
-	@RequireScreen('admin.roles', 'write')
+	@RequireAccess('cargos', 'editar')
 	update(@Param('id') id: string, @Body() body: UpdateRoleDto): Promise<PublicRole> {
 		return this.rolesService.update(id, body);
 	}
 
 	/** Remove um cargo. */
 	@Delete(':id')
-	@RequireScreen('admin.roles', 'write')
+	@RequireAccess('cargos', 'apagar')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	remove(@Param('id') id: string): Promise<void> {
 		return this.rolesService.remove(id);

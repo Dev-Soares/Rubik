@@ -1,4 +1,4 @@
-import { useMyScreens } from '@/modules/roles/hooks/useMyScreens';
+import { useMyPermissions } from '@/modules/roles/hooks/useMyPermissions';
 import { RoleBadge } from '@/modules/users/components/RoleBadge';
 import { UserAvatar } from '@/modules/users/components/UserAvatar';
 import { UserRowActions } from '@/modules/users/components/UserRowActions';
@@ -20,9 +20,10 @@ type UsersTableProps = {
 const dateFormatter = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' });
 
 export function UsersTable({ users, currentUserId }: UsersTableProps) {
-	const { can } = useMyScreens();
+	const { can } = useMyPermissions();
 
-	const canWrite = can('admin.users', 'write');
+	const canEdit = can('usuarios', 'editar');
+	const canDelete = can('usuarios', 'apagar');
 
 	if (users.length === 0) {
 		return <p className="text-muted-foreground py-8 text-center text-sm">Nenhum usuário.</p>;
@@ -68,7 +69,7 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
 							</TableCell>
 							<TableCell>
 								<span className="flex justify-end">
-									{canWrite ? (
+									{canEdit || canDelete ? (
 										<UserRowActions user={user} isSelf={user.id === currentUserId} />
 									) : null}
 								</span>

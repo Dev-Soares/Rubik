@@ -1,6 +1,6 @@
 import { KeyRoundIcon, MoreVerticalIcon, PencilIcon, ShieldIcon, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
-import { UserScreensDialog } from '@/modules/roles/components/UserScreensDialog';
+import { UserPermissionsDialog } from '@/modules/roles/components/UserPermissionsDialog';
 import { DeleteUserDialog } from '@/modules/users/components/DeleteUserDialog';
 import { EditUserDialog } from '@/modules/users/components/EditUserDialog';
 import { SetUserPasswordDialog } from '@/modules/users/components/SetUserPasswordDialog';
@@ -101,7 +101,7 @@ export function UserRowActions({ user, isSelf }: UserRowActionsProps) {
 			) : null}
 
 			{canCustomizeScreens ? (
-				<UserScreensDialog
+				<UserPermissionsDialog
 					userId={user.id}
 					userName={user.name}
 					open={dialog === 'screens'}

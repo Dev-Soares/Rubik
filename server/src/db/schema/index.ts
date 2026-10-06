@@ -3,4 +3,4 @@ export * from 'src/db/schema/auth';
 export * from 'src/db/schema/notification';
 export * from 'src/db/schema/role';
 export * from 'src/db/schema/ticket';
-export * from 'src/db/schema/userScreenOverride';
+export * from 'src/db/schema/userPermissionOverride';

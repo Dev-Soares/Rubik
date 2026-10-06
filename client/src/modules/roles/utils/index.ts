@@ -1,8 +1,9 @@
 export {
-	toAccessByScreen,
-	toGrant,
-	toGrantByScreen,
+	actionsOf,
+	countGranted,
+	toAccessByPermission,
+	toggleModule,
+	togglePermission,
 	toPermission,
-	toPermissions,
-	toScreenOverrides,
-} from '@/modules/roles/utils/screens';
+	toPermissionOverrides,
+} from '@/modules/roles/utils/permissions';

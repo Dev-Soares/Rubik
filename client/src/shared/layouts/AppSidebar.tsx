@@ -1,4 +1,4 @@
-import { useMyScreens } from '@/modules/roles/hooks/useMyScreens';
+import { useMyPermissions } from '@/modules/roles/hooks/useMyPermissions';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { UserMenu } from '@/modules/users/components/UserMenu';
 import { AppVersion } from '@/shared/components/AppVersion';
@@ -20,7 +20,7 @@ import { SidebarToggle } from '@/shared/layouts/SidebarToggle';
 import { NAV_FOOTER_ITEMS, NAV_ITEMS } from '@/shared/navigation';
 
 export function AppSidebar() {
-	const { can } = useMyScreens();
+	const { can } = useMyPermissions();
 	const { isAdmin } = useAuth();
 	const { isMobile, setOpenMobile } = useSidebar();
 	// A rota exige admin: sem isto o refetch periódico viraria um 403 a cada
@@ -39,7 +39,7 @@ export function AppSidebar() {
 			return [item];
 		}
 
-		const children = item.children.filter((child) => !child.screen || can(child.screen));
+		const children = item.children.filter((child) => !child.module || can(child.module));
 
 		return children.length > 0 ? [{ ...item, children }] : [];
 	});

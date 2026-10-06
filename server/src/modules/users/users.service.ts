@@ -87,9 +87,9 @@ export class UsersService {
 		roleNames: string,
 		editor: Editor,
 	): Promise<void> {
-		const screens = await this.rolesService.findScreensForUser(editor.id, editor.role);
+		const permissions = await this.rolesService.findPermissionsForUser(editor.id, editor.role);
 
-		if (!screens.includes('admin.users:write')) {
+		if (!permissions.includes('usuarios:editar')) {
 			throw new ForbiddenException('Você não pode alterar o cargo de um usuário.');
 		}
 

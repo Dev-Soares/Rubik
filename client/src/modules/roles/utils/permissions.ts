@@ -50,24 +50,6 @@ export function togglePermission(
 	return [...current];
 }
 
-/** Liga ou desliga o módulo inteiro — o atalho do cabeçalho da linha. */
-export function toggleModule(permissions: readonly Permission[], module: Module): Permission[] {
-	const current = new Set(permissions);
-	const actions = actionsOf(module);
-	const todas = actions.every((action) => current.has(toPermission(module, action)));
-
-	for (const action of actions) {
-		const permission = toPermission(module, action);
-		if (todas) {
-			current.delete(permission);
-		} else {
-			current.add(permission);
-		}
-	}
-
-	return [...current];
-}
-
 /** Quantas ações do módulo o cargo tem — o resumo da linha. */
 export function countGranted(permissions: readonly Permission[], module: Module): number {
 	return actionsOf(module).filter((action) => permissions.includes(toPermission(module, action)))

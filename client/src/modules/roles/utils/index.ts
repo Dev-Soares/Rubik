@@ -2,7 +2,6 @@ export {
 	actionsOf,
 	countGranted,
 	toAccessByPermission,
-	toggleModule,
 	togglePermission,
 	toPermission,
 	toPermissionOverrides,

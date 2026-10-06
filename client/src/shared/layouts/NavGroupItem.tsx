@@ -15,7 +15,7 @@ import {
 	SidebarMenuSubItem,
 	useSidebar,
 } from '@/shared/components/ui/sidebar';
-import { NAV_ACTIVE_CLASS, NAV_ITEM_CLASS } from '@/shared/navigation';
+import { NAV_ACTIVE_CLASS, NAV_ACTIVE_PARENT_CLASS, NAV_ITEM_CLASS } from '@/shared/navigation';
 import type { NavChildItem, NavItem } from '@/shared/types/navigation';
 
 type NavGroupItemProps = {
@@ -111,7 +111,7 @@ export function NavGroupItem({ item, onNavigate }: NavGroupItemProps) {
 							 */
 							onClick={() => setFlyoutOpen(true)}
 							className={`text-foreground/70 h-9 ${NAV_ITEM_CLASS} ${
-								hasActiveChild ? NAV_ACTIVE_CLASS : ''
+								hasActiveChild ? NAV_ACTIVE_PARENT_CLASS : ''
 							}`}
 						>
 							<item.icon className="size-4 shrink-0" strokeWidth={hasActiveChild ? 2.5 : 2} />

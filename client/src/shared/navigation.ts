@@ -48,7 +48,7 @@ export const NAV_FOOTER_ITEMS: NavItem[] = [
  * Os `!` sobrescrevem o fundo neutro que o SidebarMenuButton aplica.
  */
 export const NAV_ACTIVE_CLASS =
-	'bg-primary/15! text-primary font-bold hover:bg-primary/20! hover:text-primary!';
+	'bg-primary/20! text-primary font-bold hover:bg-primary/25! hover:text-primary!';
 
 /**
  * Fundo do item sob o cursor. Vale para tudo que é clicável na sidebar —

@@ -59,8 +59,10 @@ nunca uma seção aqui.
   camada de i18n "por precaução" cobra chave em vez de frase em cada componente
   e nunca ganha o segundo idioma que a justificaria. Se um projeto derivado
   precisar mesmo de dois idiomas, i18n entra lá inteira — não meia, e não aqui.
-- Versão em `client/package.json`, congelada no build. Bump na própria PR —
-  `.claude/rules/versionamento.md`.
+- **Template não versiona.** `client/package.json` fica em `1.0.0`, e o rodapé da
+  sidebar mostra esse número. Versão é assunto do projeto derivado: quem nasce
+  daqui decide o próprio esquema de bump e release. Não há portão de CI cobrando
+  bump, e não adicione um aqui.
 
 ## 3. Prioridades
 
@@ -140,7 +142,6 @@ Nada carrega "por precaução". Pela tarefa:
 | Tailwind, token, shadcn, responsivo, a11y | `.claude/rules/client/styling.md` |
 | Feature nova visível ao usuário | `.claude/rules/client/guide.md` |
 | Log, erro, correlação, observabilidade | `.claude/rules/observabilidade.md` |
-| Abrir PR, bumpar versão, taggear release | `.claude/rules/versionamento.md` |
 | Decidir/mudar arquitetura | §2 deste arquivo — decisão fixa, não reabrir |
 
 Escopo amplo (ex: feature full-stack) → carregue as rules dos dois lados,

@@ -47,7 +47,12 @@ services:
       # Estas duas são vistas pelo BROWSER, então seguem a porta do HOST, não a
       # interna: o cookie de sessão e a checagem de CORS comparam com a origem
       # que o navegador realmente usou.
-      BETTER_AUTH_URL: http://localhost:${SERVER_PORT:-3000}
+      #
+      # Em dev o navegador fala com a API através do proxy do Vite, então a
+      # origem que ele usa é a do CLIENT — não a da API. Apontar para a porta do
+      # server faria o Better Auth comparar com uma origem que o navegador nunca
+      # viu.
+      BETTER_AUTH_URL: http://localhost:${CLIENT_PORT:-3001}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-local-com-mais-de-32-caracteres}
       CORS_ORIGIN: http://localhost:${CLIENT_PORT:-3001}
       LOG_LEVEL: debug
@@ -94,8 +99,12 @@ services:
     depends_on:
       - server
     environment:
-      # O bundle roda no browser do host, então a API é o localhost DELE.
-      VITE_API_URL: http://localhost:${SERVER_PORT:-3000}
+      # Vazio de propósito: o bundle chama a API em caminho relativo e quem
+      # encaminha é o proxy do Vite (ver `client/vite.config.ts`). Assim o
+      # navegador vê uma origem só e o cookie de sessão continua same-site —
+      # apontar para `localhost:SERVER_PORT` aqui faria toda chamada XHR sair
+      # entre origens e chegar sem sessão.
+      VITE_API_URL: ''
       DOCKER: 'true'
     volumes:
       # `client` inteiro num único mount: o gerador de rotas do TanStack escreve

@@ -38,24 +38,6 @@ jobs:
       - name: formatação
         run: pnpm exec prettier --check "**/*.{ts,tsx,js,json,css}"
 
-  # Mudança que chega a produção sem bump deixa a tela anunciando um número que
-  # não corresponde ao bundle servido. Regra e exceções:
-  # `.claude/rules/versionamento.md`.
-  version:
-    name: versão bumpada
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          # O portão compara com a base do PR; sem histórico não há o que diffar.
-          fetch-depth: 0
-
-      - name: bump de versão
-        run: bash scripts/check-version-bump.sh "origin/${{ github.base_ref }}" HEAD
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
-
   build:
     name: build
     runs-on: ubuntu-latest

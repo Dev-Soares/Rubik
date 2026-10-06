@@ -6,7 +6,7 @@ import { type AccessByPermission, type UserPermissions } from '@/modules/roles/t
 import { toAccessByPermission, toPermissionOverrides } from '@/modules/roles/utils';
 import { FormError } from '@/shared/components/FormError';
 import { Button } from '@/shared/components/ui/button';
-import { DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
+import { DialogBody, DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
 
 type UserPermissionsFormProps = {
 	userId: string;
@@ -25,35 +25,40 @@ export function UserPermissionsForm({ userId, permissions, onDone }: UserPermiss
 	};
 
 	return (
-		<form onSubmit={handleSubmit} className="flex flex-col gap-6">
+		<form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
 			<fieldset disabled={isPending} className="contents">
-				{/* Mesma tabela do formulário de cargo, agrupada pelos mesmos setores. */}
-				<div className="max-h-80 overflow-y-auto">
-					<div className="flex flex-col gap-4">
-						{SECTORS.map((sector) => (
-							<div key={sector} className="overflow-hidden rounded-lg border">
-								<div className="bg-muted/40 text-muted-foreground border-b px-3 py-1.5 text-[11px] font-medium">
-									{sector}
+				<DialogBody className="gap-6">
+					{/*
+					 * Mesma tabela do formulário de cargo, agrupada pelos mesmos setores.
+					 * Sem scroll próprio: quem rola é o modal (`DialogContent`).
+					 */}
+					<div>
+						<div className="flex flex-col gap-4">
+							{SECTORS.map((sector) => (
+								<div key={sector} className="overflow-hidden rounded-lg border">
+									<div className="bg-muted/40 text-muted-foreground border-b px-3 py-1.5 text-[11px] font-medium">
+										{sector}
+									</div>
+
+									{PERMISSION_CATALOG.filter((item) => item.sector === sector).map((item) => (
+										<UserPermissionRow
+											key={item.module}
+											item={item}
+											access={access}
+											inherited={permissions.inherited}
+											disabled={isPending}
+											onChange={(permission, value) =>
+												setAccess((current) => ({ ...current, [permission]: value }))
+											}
+										/>
+									))}
 								</div>
-
-								{PERMISSION_CATALOG.filter((item) => item.sector === sector).map((item) => (
-									<UserPermissionRow
-										key={item.module}
-										item={item}
-										access={access}
-										inherited={permissions.inherited}
-										disabled={isPending}
-										onChange={(permission, value) =>
-											setAccess((current) => ({ ...current, [permission]: value }))
-										}
-									/>
-								))}
-							</div>
-						))}
+							))}
+						</div>
 					</div>
-				</div>
 
-				<FormError message={error?.message} />
+					<FormError message={error?.message} />
+				</DialogBody>
 
 				<DialogFooter>
 					<DialogClose asChild>

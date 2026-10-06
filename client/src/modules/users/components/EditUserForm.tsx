@@ -8,7 +8,7 @@ import { CheckboxGroupField } from '@/shared/components/CheckboxGroupField';
 import { FormError } from '@/shared/components/FormError';
 import { FormField } from '@/shared/components/FormField';
 import { Button } from '@/shared/components/ui/button';
-import { DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
+import { DialogBody, DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
 import { toRoleNames } from '@/shared/utils/roles';
 
 const ROLES_PAGE_SIZE = 100;
@@ -42,41 +42,43 @@ export function EditUserForm({ user, isSelf, onDone }: EditUserFormProps) {
 	}));
 
 	return (
-		<form onSubmit={handleSubmit((data) => mutate(data))} className="flex flex-col gap-6">
+		<form onSubmit={handleSubmit((data) => mutate(data))} className="flex min-h-0 flex-1 flex-col">
 			<fieldset disabled={isPending} className="contents">
-				<FormField
-					label="Nome"
-					icon={IdCardIcon}
-					placeholder="Nome completo"
-					autoFocus
-					error={errors.name?.message}
-					{...register('name')}
-				/>
+				<DialogBody className="gap-6">
+					<FormField
+						label="Nome"
+						icon={IdCardIcon}
+						placeholder="Nome completo"
+						autoFocus
+						error={errors.name?.message}
+						{...register('name')}
+					/>
 
-				{/* Checkbox do Radix não é input nativo: precisa de Controller. */}
-				<Controller
-					control={control}
-					name="roles"
-					render={({ field }) => (
-						<CheckboxGroupField
-							label="Cargos"
-							options={roleOptions}
-							name={field.name}
-							value={field.value}
-							onChange={field.onChange}
-							onBlur={field.onBlur}
-							disabled={isPending || isSelf}
-							hint={
-								isSelf
-									? 'Você não pode alterar os seus próprios cargos.'
-									: 'As permissões somam: o usuário recebe as telas de todos os cargos marcados.'
-							}
-							error={errors.roles?.message}
-						/>
-					)}
-				/>
+					{/* Checkbox do Radix não é input nativo: precisa de Controller. */}
+					<Controller
+						control={control}
+						name="roles"
+						render={({ field }) => (
+							<CheckboxGroupField
+								label="Cargos"
+								options={roleOptions}
+								name={field.name}
+								value={field.value}
+								onChange={field.onChange}
+								onBlur={field.onBlur}
+								disabled={isPending || isSelf}
+								hint={
+									isSelf
+										? 'Você não pode alterar os seus próprios cargos.'
+										: 'As permissões somam: o usuário recebe as telas de todos os cargos marcados.'
+								}
+								error={errors.roles?.message}
+							/>
+						)}
+					/>
 
-				<FormError message={error?.message} />
+					<FormError message={error?.message} />
+				</DialogBody>
 
 				<DialogFooter>
 					<DialogClose asChild>

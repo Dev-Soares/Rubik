@@ -6,7 +6,7 @@ import { setUserPasswordSchema, type SetUserPasswordFormInput } from '@/modules/
 import { FormError } from '@/shared/components/FormError';
 import { FormField } from '@/shared/components/FormField';
 import { Button } from '@/shared/components/ui/button';
-import { DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
+import { DialogBody, DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
 
 type SetUserPasswordFormProps = {
 	userId: string;
@@ -25,29 +25,31 @@ export function SetUserPasswordForm({ userId, onDone }: SetUserPasswordFormProps
 	return (
 		<form
 			onSubmit={handleSubmit((data) => mutate(data.newPassword))}
-			className="flex flex-col gap-6"
+			className="flex min-h-0 flex-1 flex-col"
 		>
 			<fieldset disabled={isPending} className="contents">
-				<FormField
-					label="Nova senha"
-					type="password"
-					icon={LockIcon}
-					placeholder="Mínimo 8 caracteres"
-					autoFocus
-					hint="O usuário pode trocar depois no perfil."
-					error={errors.newPassword?.message}
-					{...register('newPassword')}
-				/>
-				<FormField
-					label="Confirme a nova senha"
-					type="password"
-					icon={LockIcon}
-					placeholder="Repita a senha"
-					error={errors.confirmPassword?.message}
-					{...register('confirmPassword')}
-				/>
+				<DialogBody className="gap-6">
+					<FormField
+						label="Nova senha"
+						type="password"
+						icon={LockIcon}
+						placeholder="Mínimo 8 caracteres"
+						autoFocus
+						hint="O usuário pode trocar depois no perfil."
+						error={errors.newPassword?.message}
+						{...register('newPassword')}
+					/>
+					<FormField
+						label="Confirme a nova senha"
+						type="password"
+						icon={LockIcon}
+						placeholder="Repita a senha"
+						error={errors.confirmPassword?.message}
+						{...register('confirmPassword')}
+					/>
 
-				<FormError message={error?.message} />
+					<FormError message={error?.message} />
+				</DialogBody>
 
 				<DialogFooter>
 					<DialogClose asChild>

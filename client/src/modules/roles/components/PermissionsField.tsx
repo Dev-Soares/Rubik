@@ -54,8 +54,12 @@ export function PermissionsField({ value, onChange, disabled, error }: Permissio
 				</div>
 			</div>
 
-			{/* `max-h` com scroll próprio mantém o rodapé do formulário sempre visível. */}
-			<div className="max-h-80 overflow-y-auto">
+			{/*
+			 * Sem scroll próprio: quem rola é o modal (`DialogContent`). Dois
+			 * scrolls aninhados fazem a roda do mouse parar na borda da tabela e
+			 * parecer que a página travou.
+			 */}
+			<div>
 				<div className="flex flex-col gap-4">
 					{SECTORS.map((sector) => (
 						<div key={sector} className="overflow-hidden rounded-lg border">

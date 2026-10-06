@@ -1,4 +1,4 @@
-import { SendIcon } from 'lucide-react';
+import { CircleQuestionMarkIcon, SendIcon } from 'lucide-react';
 import { useState } from 'react';
 import { CreateTicketForm } from '@/modules/tickets/components/CreateTicketForm';
 import { Button } from '@/shared/components/ui/button';
@@ -23,8 +23,8 @@ export function CreateTicketDialog() {
 				</Button>
 			</DialogTrigger>
 
-			<DialogContent className="gap-6 p-6 shadow-2xl sm:max-w-md">
-				<DialogHeader>
+			<DialogContent className="shadow-2xl sm:max-w-md">
+				<DialogHeader icon={CircleQuestionMarkIcon}>
 					<DialogTitle className="text-primary text-lg font-black tracking-tight">
 						Abrir chamado
 					</DialogTitle>

@@ -25,6 +25,11 @@ Instalados em `src/shared/components/ui/`: `alert-dialog`, `avatar`, `badge`,
 Esta lista sai de `ls client/src/shared/components/ui/` — em dúvida, confira lá.
 
 - **NÃO** edite arquivos em `ui/` à mão — são gerados e sobrescritos por `pnpm ui:add --overwrite`.
+  - Exceção: `ui/dialog.tsx` foi alterado de propósito (cabeçalho e rodapé
+    parados, `DialogBody` rolando, `icon` no cabeçalho —
+    `.claude/rules/client/layout.md`). **Não** rode `pnpm ui:add dialog
+    --overwrite`: o comando devolveria o shadcn cru e quebraria todo
+    formulário em modal do sistema.
 - Precisa de variação? Componha por cima em `shared/components/` (ex: `FormField` = `Label` + `Input` + erro).
 - Botão que navega: `<Button asChild><Link to="/x">…</Link></Button>`.
 

@@ -1,5 +1,5 @@
 import { cn } from 'cn';
-import { PencilIcon } from 'lucide-react';
+import { IdCardIcon, PencilIcon } from 'lucide-react';
 import { useState } from 'react';
 import { RoleForm } from '@/modules/roles/components/RoleForm';
 import type { Role } from '@/modules/roles/types/role';
@@ -34,8 +34,8 @@ export function EditRoleDialog({ role, className }: EditRoleDialogProps) {
 				</Button>
 			</DialogTrigger>
 
-			<DialogContent className="gap-6 p-6 shadow-2xl sm:max-w-lg">
-				<DialogHeader>
+			<DialogContent className="shadow-2xl sm:max-w-lg">
+				<DialogHeader icon={IdCardIcon}>
 					<DialogTitle className="text-primary text-lg font-black tracking-tight">
 						Editar cargo
 					</DialogTitle>

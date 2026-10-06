@@ -3,7 +3,7 @@ import { cn } from 'cn';
 import { Dialog as DialogPrimitive } from 'radix-ui';
 
 import { Button } from '@/shared/components/ui/button';
-import { XIcon } from 'lucide-react';
+import { XIcon, type LucideIcon } from 'lucide-react';
 
 function Dialog({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
 	return <DialogPrimitive.Root data-slot="dialog" {...props} />;
@@ -51,7 +51,13 @@ function DialogContent({
 			<DialogPrimitive.Content
 				data-slot="dialog-content"
 				className={cn(
-					'fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
+					// Coluna com teto de altura, `overflow-hidden` e sem padding: quem
+					// rola é só o `DialogBody` (`min-h-0 flex-1 overflow-y-auto`).
+					// Cabeçalho e rodapé ficam `shrink-0` fora da área rolante, e por
+					// isso não precisam de `sticky` — eles não rolam porque não estão
+					// dentro do que rola. O padding mora em cada peça, senão as faixas
+					// de cabeçalho e rodapé não encostam na borda do modal.
+					'fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl bg-popover text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
 					className,
 				)}
 				{...props}
@@ -59,9 +65,18 @@ function DialogContent({
 				{children}
 				{showCloseButton && (
 					<DialogPrimitive.Close data-slot="dialog-close" asChild>
-						<Button variant="ghost" className="absolute top-2 right-2" size="icon-sm">
-							<XIcon />
-							<span className="sr-only">Close</span>
+						{/*
+						 * `absolute` sobre a faixa do cabeçalho: o container não rola
+						 * (quem rola é o `DialogBody`), então o botão fica parado sem
+						 * truque. O `pr-14` do cabeçalho reserva o espaço dele.
+						 */}
+						<Button
+							variant="ghost"
+							className="text-destructive hover:text-destructive hover:bg-destructive/10 absolute top-4 right-4 z-10"
+							size="icon"
+							aria-label="Fechar"
+						>
+							<XIcon className="size-5" />
 						</Button>
 					</DialogPrimitive.Close>
 				)}
@@ -70,9 +85,51 @@ function DialogContent({
 	);
 }
 
-function DialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
+function DialogHeader({
+	className,
+	icon: Icon,
+	children,
+	...props
+}: React.ComponentProps<'div'> & {
+	/** Ícone do assunto do modal, num quadro à esquerda do título. */
+	icon?: LucideIcon;
+}) {
 	return (
-		<div data-slot="dialog-header" className={cn('flex flex-col gap-2', className)} {...props} />
+		// `shrink-0`: fora da área rolante, fica parado sem precisar de `sticky`.
+		// `pr-14` reserva o lugar do botão de fechar, que flutua sobre esta faixa.
+		<div
+			data-slot="dialog-header"
+			// `items-center`, não `items-start`: em metade dos modais a descrição é
+			// `sr-only` e sobra uma linha só, que alinhada ao topo fica acima do
+			// centro do quadro do ícone.
+			className={cn('flex shrink-0 items-center gap-3 px-6 pt-6 pb-3 pr-14', className)}
+			{...props}
+		>
+			{Icon ? (
+				<span className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
+					<Icon className="size-4.5" strokeWidth={2.5} />
+				</span>
+			) : null}
+
+			<div className="flex min-w-0 flex-1 flex-col gap-1">{children}</div>
+		</div>
+	);
+}
+
+/**
+ * O miolo que rola; o cabeçalho e o rodapé ficam parados.
+ *
+ * `min-h-0` é obrigatório: um filho de flex não encolhe abaixo do conteúdo por
+ * padrão, então sem ele o corpo empurra o modal para além do `max-h` e quem
+ * rola passa a ser a página.
+ */
+function DialogBody({ className, ...props }: React.ComponentProps<'div'>) {
+	return (
+		<div
+			data-slot="dialog-body"
+			className={cn('flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 py-4', className)}
+			{...props}
+		/>
 	);
 }
 
@@ -88,7 +145,10 @@ function DialogFooter({
 		<div
 			data-slot="dialog-footer"
 			className={cn(
-				'-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end',
+				// `shrink-0`: fora da área rolante, fica parado sem precisar de
+				// `sticky`. Sem fundo nem borda próprios — a faixa cinza destoava do
+				// resto do modal; o respiro do `pt` já separa dos campos.
+				'flex shrink-0 flex-col-reverse gap-2 px-6 pt-4 pb-6 sm:flex-row sm:justify-end',
 				className,
 			)}
 			{...props}
@@ -131,6 +191,7 @@ function DialogDescription({
 
 export {
 	Dialog,
+	DialogBody,
 	DialogClose,
 	DialogContent,
 	DialogDescription,

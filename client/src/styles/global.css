@@ -198,6 +198,45 @@
 	summary {
 		@apply cursor-pointer;
 	}
+
+	/*
+	 * Barra de rolagem discreta, nos tons do tema.
+	 *
+	 * A nativa do Windows é larga, cinza-claro e de trilho chapado: dentro de um
+	 * modal de canto arredondado ela encosta na borda e vira a coisa mais pesada
+	 * da tela. Firefox lê `scrollbar-*`; Chrome e Safari, o `::-webkit-`. Os dois
+	 * blocos existem porque nenhum dos dois cobre todos os navegadores.
+	 *
+	 * Trilho transparente de propósito: a faixa some sobre o fundo do elemento,
+	 * seja o popover do modal ou o `background` da página.
+	 */
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--color-border) transparent;
+	}
+
+	::-webkit-scrollbar {
+		width: 0.5rem;
+		height: 0.5rem;
+	}
+
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	::-webkit-scrollbar-thumb {
+		border-radius: 9999px;
+		background-color: var(--color-border);
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		background-color: var(--color-muted-foreground);
+	}
+
+	/* O canto onde as duas barras se encontram, que fica branco por padrão. */
+	::-webkit-scrollbar-corner {
+		background: transparent;
+	}
 }
 
 /*

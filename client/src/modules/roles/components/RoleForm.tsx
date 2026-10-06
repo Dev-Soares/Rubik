@@ -9,7 +9,7 @@ import { roleFormSchema, type Role, type RoleFormInput } from '@/modules/roles/t
 import { FormError } from '@/shared/components/FormError';
 import { FormField } from '@/shared/components/FormField';
 import { Button } from '@/shared/components/ui/button';
-import { DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
+import { DialogBody, DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
 
 const EMPTY: RoleFormInput = {
 	name: '',
@@ -57,62 +57,64 @@ export function RoleForm({ role, onDone }: RoleFormProps) {
 	const name = useWatch({ control, name: 'name' });
 
 	return (
-		<form onSubmit={handleSubmit((data) => mutate(data))} className="flex flex-col gap-6">
+		<form onSubmit={handleSubmit((data) => mutate(data))} className="flex min-h-0 flex-1 flex-col">
 			<fieldset disabled={isPending} className="contents">
-				<FormField
-					label="Nome"
-					icon={IdCardIcon}
-					placeholder="Ex: Financeiro"
-					autoFocus
-					// Renomear cargo de sistema é recusado pelo backend.
-					disabled={role?.isSystem}
-					hint={role?.isSystem ? 'Cargo de sistema: o nome não pode mudar.' : undefined}
-					error={errors.name?.message}
-					{...register('name')}
-				/>
-				<FormField
-					label="Descrição"
-					icon={TextIcon}
-					placeholder="Para que serve este cargo"
-					error={errors.description?.message}
-					{...register('description')}
-				/>
+				<DialogBody className="gap-6">
+					<FormField
+						label="Nome"
+						icon={IdCardIcon}
+						placeholder="Ex: Financeiro"
+						autoFocus
+						// Renomear cargo de sistema é recusado pelo backend.
+						disabled={role?.isSystem}
+						hint={role?.isSystem ? 'Cargo de sistema: o nome não pode mudar.' : undefined}
+						error={errors.name?.message}
+						{...register('name')}
+					/>
+					<FormField
+						label="Descrição"
+						icon={TextIcon}
+						placeholder="Para que serve este cargo"
+						error={errors.description?.message}
+						{...register('description')}
+					/>
 
-				<Controller
-					control={control}
-					name="color"
-					render={({ field: colorField }) => (
-						<Controller
-							control={control}
-							name="icon"
-							render={({ field: iconField }) => (
-								<BadgeField
-									name={name}
-									color={colorField.value}
-									icon={iconField.value}
-									onColorChange={colorField.onChange}
-									onIconChange={iconField.onChange}
-									disabled={isPending}
-								/>
-							)}
-						/>
-					)}
-				/>
+					<Controller
+						control={control}
+						name="color"
+						render={({ field: colorField }) => (
+							<Controller
+								control={control}
+								name="icon"
+								render={({ field: iconField }) => (
+									<BadgeField
+										name={name}
+										color={colorField.value}
+										icon={iconField.value}
+										onColorChange={colorField.onChange}
+										onIconChange={iconField.onChange}
+										disabled={isPending}
+									/>
+								)}
+							/>
+						)}
+					/>
 
-				<Controller
-					control={control}
-					name="permissions"
-					render={({ field }) => (
-						<PermissionsField
-							value={field.value}
-							onChange={field.onChange}
-							disabled={isPending}
-							error={errors.permissions?.message}
-						/>
-					)}
-				/>
+					<Controller
+						control={control}
+						name="permissions"
+						render={({ field }) => (
+							<PermissionsField
+								value={field.value}
+								onChange={field.onChange}
+								disabled={isPending}
+								error={errors.permissions?.message}
+							/>
+						)}
+					/>
 
-				<FormError message={error?.message} />
+					<FormError message={error?.message} />
+				</DialogBody>
 
 				<DialogFooter>
 					<DialogClose asChild>

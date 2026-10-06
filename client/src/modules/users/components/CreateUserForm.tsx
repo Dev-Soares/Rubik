@@ -8,7 +8,7 @@ import { CheckboxGroupField } from '@/shared/components/CheckboxGroupField';
 import { FormError } from '@/shared/components/FormError';
 import { FormField } from '@/shared/components/FormField';
 import { Button } from '@/shared/components/ui/button';
-import { DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
+import { DialogBody, DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
 
 const ROLES_PAGE_SIZE = 100;
 
@@ -49,54 +49,59 @@ export function CreateUserForm({ onCreated }: CreateUserFormProps) {
 	});
 
 	return (
-		<form onSubmit={handleSubmit((data) => createUser(data))} className="flex flex-col gap-6">
+		<form
+			onSubmit={handleSubmit((data) => createUser(data))}
+			className="flex min-h-0 flex-1 flex-col"
+		>
 			<fieldset disabled={isPending} className="contents">
-				<FormField
-					label="Nome"
-					icon={IdCardIcon}
-					placeholder="Nome completo"
-					autoFocus
-					error={errors.name?.message}
-					{...register('name')}
-				/>
-				<FormField
-					label="E-mail"
-					type="email"
-					icon={MailIcon}
-					placeholder="usuario@empresa.com"
-					error={errors.email?.message}
-					{...register('email')}
-				/>
-				<FormField
-					label="Senha provisória"
-					type="password"
-					icon={LockIcon}
-					placeholder="Mínimo 8 caracteres"
-					hint="O usuário pode alterar depois no perfil."
-					error={errors.password?.message}
-					{...register('password')}
-				/>
+				<DialogBody className="gap-6">
+					<FormField
+						label="Nome"
+						icon={IdCardIcon}
+						placeholder="Nome completo"
+						autoFocus
+						error={errors.name?.message}
+						{...register('name')}
+					/>
+					<FormField
+						label="E-mail"
+						type="email"
+						icon={MailIcon}
+						placeholder="usuario@empresa.com"
+						error={errors.email?.message}
+						{...register('email')}
+					/>
+					<FormField
+						label="Senha provisória"
+						type="password"
+						icon={LockIcon}
+						placeholder="Mínimo 8 caracteres"
+						hint="O usuário pode alterar depois no perfil."
+						error={errors.password?.message}
+						{...register('password')}
+					/>
 
-				{/* Checkbox do Radix não é input nativo: precisa de Controller. */}
-				<Controller
-					control={control}
-					name="roles"
-					render={({ field }) => (
-						<CheckboxGroupField
-							label="Cargos"
-							options={roleOptions}
-							name={field.name}
-							value={field.value}
-							onChange={field.onChange}
-							onBlur={field.onBlur}
-							disabled={isPending}
-							hint="As permissões somam: o usuário recebe as telas de todos os cargos marcados."
-							error={errors.roles?.message}
-						/>
-					)}
-				/>
+					{/* Checkbox do Radix não é input nativo: precisa de Controller. */}
+					<Controller
+						control={control}
+						name="roles"
+						render={({ field }) => (
+							<CheckboxGroupField
+								label="Cargos"
+								options={roleOptions}
+								name={field.name}
+								value={field.value}
+								onChange={field.onChange}
+								onBlur={field.onBlur}
+								disabled={isPending}
+								hint="As permissões somam: o usuário recebe as telas de todos os cargos marcados."
+								error={errors.roles?.message}
+							/>
+						)}
+					/>
 
-				<FormError message={error?.message} />
+					<FormError message={error?.message} />
+				</DialogBody>
 
 				<DialogFooter>
 					<DialogClose asChild>

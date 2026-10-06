@@ -1,8 +1,10 @@
+import { ShieldIcon } from 'lucide-react';
 import { Suspense } from 'react';
 import { UserPermissionsPanel } from '@/modules/roles/components/UserPermissionsPanel';
 import { UserPermissionsSkeleton } from '@/modules/roles/skeletons/UserPermissionsSkeleton';
 import {
 	Dialog,
+	DialogBody,
 	DialogContent,
 	DialogDescription,
 	DialogHeader,
@@ -24,8 +26,8 @@ export function UserPermissionsDialog({
 }: UserPermissionsDialogProps) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="gap-6 p-6 shadow-2xl sm:max-w-md">
-				<DialogHeader>
+			<DialogContent className="shadow-2xl sm:max-w-md">
+				<DialogHeader icon={ShieldIcon}>
 					<DialogTitle className="text-primary text-lg font-black tracking-tight">
 						Permissões personalizadas
 					</DialogTitle>
@@ -34,7 +36,15 @@ export function UserPermissionsDialog({
 
 				{/* Só busca ao abrir: a tabela de usuários não espera por isso. */}
 				{open ? (
-					<Suspense fallback={<UserPermissionsSkeleton />}>
+					// O `DialogBody` é só do skeleton: o formulário traz o próprio
+					// padding, porque o rodapé dele precisa encostar na borda do modal.
+					<Suspense
+						fallback={
+							<DialogBody>
+								<UserPermissionsSkeleton />
+							</DialogBody>
+						}
+					>
 						<UserPermissionsPanel userId={userId} onDone={() => onOpenChange(false)} />
 					</Suspense>
 				) : null}

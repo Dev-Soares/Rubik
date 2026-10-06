@@ -1,4 +1,4 @@
-import { PlusIcon } from 'lucide-react';
+import { PlusIcon, UserPlusIcon } from 'lucide-react';
 import { Suspense, useState } from 'react';
 import { CreateUserForm } from '@/modules/users/components/CreateUserForm';
 import { Button } from '@/shared/components/ui/button';
@@ -24,8 +24,8 @@ export function CreateUserDialog() {
 				</Button>
 			</DialogTrigger>
 
-			<DialogContent className="gap-6 p-6 shadow-2xl sm:max-w-md">
-				<DialogHeader>
+			<DialogContent className="shadow-2xl sm:max-w-md">
+				<DialogHeader icon={UserPlusIcon}>
 					<DialogTitle className="text-primary text-lg font-black tracking-tight">
 						Criar usuário
 					</DialogTitle>

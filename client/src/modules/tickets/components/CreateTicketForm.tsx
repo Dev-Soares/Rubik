@@ -7,7 +7,7 @@ import { ticketFormSchema, type TicketFormInput } from '@/modules/tickets/types/
 import { FormError } from '@/shared/components/FormError';
 import { FormField } from '@/shared/components/FormField';
 import { Button } from '@/shared/components/ui/button';
-import { DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
+import { DialogBody, DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
 
 type CreateTicketFormProps = {
 	onCreated?: () => void;
@@ -35,32 +35,37 @@ export function CreateTicketForm({ onCreated }: CreateTicketFormProps) {
 	});
 
 	return (
-		<form onSubmit={handleSubmit((data) => createTicket(data))} className="flex flex-col gap-6">
+		<form
+			onSubmit={handleSubmit((data) => createTicket(data))}
+			className="flex min-h-0 flex-1 flex-col"
+		>
 			<fieldset disabled={isPending} className="contents">
-				<FormField
-					label="Título"
-					icon={TicketIcon}
-					placeholder="Descreva o problema em uma frase"
-					autoFocus
-					error={errors.title?.message}
-					{...register('title')}
-				/>
+				<DialogBody className="gap-6">
+					<FormField
+						label="Título"
+						icon={TicketIcon}
+						placeholder="Descreva o problema em uma frase"
+						autoFocus
+						error={errors.title?.message}
+						{...register('title')}
+					/>
 
-				{/* Input de arquivo não é campo nativo controlável: precisa de Controller. */}
-				<Controller
-					control={control}
-					name="photos"
-					render={({ field }) => (
-						<TicketPhotoPicker
-							photos={field.value}
-							disabled={isPending}
-							error={errors.photos?.message}
-							onChange={field.onChange}
-						/>
-					)}
-				/>
+					{/* Input de arquivo não é campo nativo controlável: precisa de Controller. */}
+					<Controller
+						control={control}
+						name="photos"
+						render={({ field }) => (
+							<TicketPhotoPicker
+								photos={field.value}
+								disabled={isPending}
+								error={errors.photos?.message}
+								onChange={field.onChange}
+							/>
+						)}
+					/>
 
-				<FormError message={error?.message} />
+					<FormError message={error?.message} />
+				</DialogBody>
 
 				<DialogFooter>
 					<DialogClose asChild>

@@ -175,12 +175,20 @@ syncAppEnv(
 	new Map([
 		['PORT', serverPort],
 		['DATABASE_URL', `postgresql://postgres:postgres@localhost:${postgresPort}/rubikdb`],
-		['BETTER_AUTH_URL', `http://localhost:${serverPort}`],
+		// A origem do CLIENT: o navegador chega à API pelo proxy do Vite, então é
+		// essa a origem que ele usa — a porta do server ele nunca vê.
+		['BETTER_AUTH_URL', `http://localhost:${clientPort}`],
 		['CORS_ORIGIN', `http://localhost:${clientPort}`],
 	]),
 );
 
-syncAppEnv('client/.env', new Map([['VITE_API_URL', `http://localhost:${serverPort}`]]));
+/**
+ * Vazio, e não a URL da API: o client chama em caminho relativo e o proxy do
+ * Vite encaminha (ver `client/vite.config.ts`). Apontar para a porta da API
+ * aqui faria o navegador enxergar duas origens, e o cookie de sessão
+ * (`sameSite: 'lax'` em dev) não viajaria nas chamadas XHR.
+ */
+syncAppEnv('client/.env', new Map([['VITE_API_URL', '']]));
 
 if (moved.length === 0) {
 	console.log(`${DIM}· portas padrão livres${RESET}`);

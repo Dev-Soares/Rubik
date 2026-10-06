@@ -21,13 +21,7 @@ passo() {
   fi
 }
 
-# A mesma base que o CI usaria. Sem `origin/main` (clone raso, remote com outro
-# nome), cai para `main` em vez de comparar com o nada.
-BASE="origin/main"
-git rev-parse --verify --quiet "$BASE" >/dev/null || BASE="main"
-
 passo "typecheck + lint" pnpm check
-passo "bump de versão" bash scripts/check-version-bump.sh "$BASE" HEAD
 
 if [ "$falhou" -ne 0 ]; then
   cat <<'MSG'

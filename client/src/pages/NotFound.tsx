@@ -3,11 +3,21 @@ import { FileQuestionIcon } from 'lucide-react';
 import { StatusPage } from '@/shared/components/StatusPage';
 import { Button } from '@/shared/components/ui/button';
 
-export function NotFound() {
+type NotFoundProps = {
+	/**
+	 * `false` quando a tela já está dentro da casca autenticada. Ver `StatusPage`.
+	 */
+	fillViewport?: boolean;
+	/** O router passa `data` no `notFoundComponent`; aqui não é usado. */
+	data?: unknown;
+};
+
+export function NotFound({ fillViewport = true }: NotFoundProps) {
 	const router = useRouter();
 
 	return (
 		<StatusPage
+			fillViewport={fillViewport}
 			code="404"
 			icon={FileQuestionIcon}
 			title="Página não encontrada"

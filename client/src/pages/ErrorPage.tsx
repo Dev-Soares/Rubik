@@ -8,9 +8,13 @@ type ErrorPageProps = {
 	/** O router entrega `unknown` — pode ser qualquer throw, não só Error. */
 	error: unknown;
 	reset?: () => void;
+	/**
+	 * `false` quando a tela já está dentro da casca autenticada. Ver `StatusPage`.
+	 */
+	fillViewport?: boolean;
 };
 
-export function ErrorPage({ error, reset }: ErrorPageProps) {
+export function ErrorPage({ error, reset, fillViewport = true }: ErrorPageProps) {
 	const router = useRouter();
 	const requestId = getRequestId(error);
 
@@ -24,6 +28,7 @@ export function ErrorPage({ error, reset }: ErrorPageProps) {
 
 	return (
 		<StatusPage
+			fillViewport={fillViewport}
 			icon={TriangleAlertIcon}
 			title="Algo deu errado"
 			description="Não foi possível carregar esta página. Tente novamente em instantes."

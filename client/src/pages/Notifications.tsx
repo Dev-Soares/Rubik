@@ -1,10 +1,10 @@
 import { NotificationPanel } from '@/modules/notifications/components/NotificationPanel';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { AppLayout } from '@/shared/layouts/AppLayout';
+import { PageWidth } from '@/shared/components/PageWidth';
 
 export function Notifications() {
 	return (
-		<AppLayout>
+		<PageWidth>
 			<div className="flex flex-col gap-8">
 				<PageHeader
 					title="Notificações"
@@ -13,6 +13,6 @@ export function Notifications() {
 
 				<NotificationPanel />
 			</div>
-		</AppLayout>
+		</PageWidth>
 	);
 }

@@ -4,13 +4,13 @@ import { useMyPermissions } from '@/modules/roles/hooks/useMyPermissions';
 import { RolesPanel } from '@/modules/roles/components/RolesPanel';
 import { RolesGridSkeleton } from '@/modules/roles/skeletons/RolesGridSkeleton';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { AppLayout } from '@/shared/layouts/AppLayout';
+import { PageWidth } from '@/shared/components/PageWidth';
 
 export function AdminRoles() {
 	const { can } = useMyPermissions();
 
 	return (
-		<AppLayout>
+		<PageWidth>
 			<div className="flex flex-col gap-8">
 				<div className="flex flex-wrap items-end justify-between gap-4">
 					<PageHeader
@@ -24,6 +24,6 @@ export function AdminRoles() {
 					<RolesPanel />
 				</Suspense>
 			</div>
-		</AppLayout>
+		</PageWidth>
 	);
 }

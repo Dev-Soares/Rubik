@@ -6,19 +6,35 @@ globs: client/**
 
 ## Container
 
-Toda página autenticada usa `AppLayout`, que já limita a largura de leitura
-(`max-w-3xl`). **Não** crie outro container de largura por cima.
+A casca autenticada (`AppLayout`: sidebar, cabeçalho, sino) é montada **uma vez**
+na rota `_auth`, não pela página. A página começa no `PageWidth`, que é o
+`<main>` e já limita a largura de leitura (`max-w-3xl`). **Não** crie outro
+container de largura por cima.
 
 Estrutura padrão:
 
 ```tsx
-<AppLayout>
+<PageWidth>
   <div className="flex flex-col gap-8">
     <PageHeader title="..." description="..." />
     {/* conteúdo */}
   </div>
-</AppLayout>
+</PageWidth>
 ```
+
+**Nunca** monte `AppLayout` dentro de uma página. O React só preserva estado
+quando o componente na mesma posição é do mesmo tipo: com cada página
+renderizando a própria casca, navegar troca o tipo naquela posição e o React
+desmonta a subárvore inteira — `SidebarProvider` junto. Era o que fazia a
+sidebar recolhida reabrir sozinha a cada navegação, o grupo expandido fechar na
+mão do usuário e o `refetchInterval` do sino reiniciar antes de completar.
+
+Tela de duas colunas sobrescreve a largura no próprio `PageWidth`
+(`<PageWidth className="max-w-5xl">`), que é quem conhece a tela.
+
+Tela terminal dentro da casca (403, 404, erro de rota filha) passa
+`fillViewport={false}` ao `StatusPage`: `min-h-dvh` somaria a altura do
+cabeçalho à da viewport e criaria rolagem vertical.
 
 ## Regras
 
@@ -121,9 +137,9 @@ além do `max-h` — quem passa a rolar é a página inteira.
 
 ## Primitivos disponíveis
 
-Em `shared/components/`: `PageHeader`, `FormSection`, `FormField`, `FormError`,
-`SelectField`, `PageSkeleton`, `StatusPage`, `ErrorMessage`, `AppLogo`,
-`AppVersion`, `ToggleTheme`.
+Em `shared/components/`: `PageWidth`, `PageHeader`, `FormSection`, `FormField`,
+`FormError`, `SelectField`, `PageSkeleton`, `StatusPage`, `ErrorMessage`,
+`AppLogo`, `AppVersion`, `ToggleTheme`.
 
 Em `shared/components/ui/dialog`: `DialogContent`, `DialogHeader`, `DialogBody`,
 `DialogFooter` — as quatro peças da estrutura acima.

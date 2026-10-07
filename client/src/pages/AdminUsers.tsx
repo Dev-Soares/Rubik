@@ -5,14 +5,14 @@ import { UsersPanel } from '@/modules/users/components/UsersPanel';
 import { UsersTableSkeleton } from '@/modules/users/skeletons/UsersTableSkeleton';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { AppLayout } from '@/shared/layouts/AppLayout';
+import { PageWidth } from '@/shared/components/PageWidth';
 
 export function AdminUsers() {
 	const { user } = useAuth();
 	const { can } = useMyPermissions();
 
 	return (
-		<AppLayout>
+		<PageWidth>
 			<div className="flex flex-col gap-8">
 				<div className="flex flex-wrap items-end justify-between gap-4">
 					<PageHeader
@@ -26,6 +26,6 @@ export function AdminUsers() {
 					<UsersPanel currentUserId={user?.id ?? ''} />
 				</Suspense>
 			</div>
-		</AppLayout>
+		</PageWidth>
 	);
 }

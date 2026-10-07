@@ -45,7 +45,17 @@ export class AuditInterceptor implements NestInterceptor {
 		}
 
 		const entity = request.path.split('/').filter(Boolean)[0] ?? 'desconhecido';
-		const entityId = typeof request.params.id === 'string' ? request.params.id : null;
+
+		/*
+		 * `userId` entra junto porque não toda rota chama o parâmetro de `id`:
+		 * `PUT /roles/users/:userId/permissions` — a mutação de maior
+		 * consequência do sistema, que concede exceção de permissão — registrava
+		 * `entityId: null`, ou seja "alguém mexeu em cargos" sem dizer sobre
+		 * quem. Rota nova com parâmetro de outro nome precisa ser acrescentada
+		 * aqui.
+		 */
+		const target = request.params.id ?? request.params.userId;
+		const entityId = typeof target === 'string' ? target : null;
 
 		return next.handle().pipe(
 			tap(() => {

@@ -25,9 +25,27 @@ Só dentro de Services (ou de um controller trivial de health).
 
 ## Migrations
 
-- **NUNCA** edite `src/db/migrations/` à mão.
-- Alterou schema → `pnpm db:generate`.
-- Aplicar → `pnpm db:migrate`.
+- Alterou schema → `pnpm db:generate`. Aplicar → `pnpm db:migrate`.
+- **Nunca edite uma migration já aplicada.** O histórico é imutável: corrigir
+  algo que já rodou é uma migration NOVA.
+- **Migration de schema é gerada**, nunca escrita à mão: o `db:generate` mantém
+  o snapshot em `meta/` em sincronia, e é o snapshot que o próximo
+  `db:generate` usa para calcular o diff.
+- **Migration de DADOS é escrita à mão** — backfill, rename preservando o que
+  já existe, correção de linha. O gerador não sabe transformar dado: para um
+  rename ele emite DROP + CREATE e leva embora o que o usuário configurou.
+  Nesse caso: escreva o `.sql`, explique no cabeçalho por que não é gerado, e
+  **registre a entrada no `meta/_journal.json`** (`idx`, `version`, `when`,
+  `tag`, `breakpoints`) — sem ela o arquivo não roda.
+  - `0011_cargos_modulo_acao.sql` é o exemplo no repo: RENAME com `unnest` para
+    remapear as permissões antigas, porque DROP/CREATE apagaria toda exceção
+    configurada.
+  - Migration de dados escrita à mão não gera snapshot. Se o `db:generate`
+    seguinte abrir prompt interativo pedindo para resolver rename, é esse o
+    motivo — o diff está sendo calculado contra o último snapshot, que é
+    anterior à sua migration.
+- `IF NOT EXISTS` em `CREATE INDEX` escrito à mão: quem rodou `db:push` em dev
+  pode já ter o objeto fora do versionamento.
 
 ## Injeção
 

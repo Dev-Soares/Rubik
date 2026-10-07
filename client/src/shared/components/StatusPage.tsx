@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { cn } from '@/shared/lib/utils';
 
 type StatusPageProps = {
 	/** Código ou rótulo curto exibido acima do título (ex: "404"). */
@@ -9,6 +10,12 @@ type StatusPageProps = {
 	description: string;
 	/** Detalhe técnico, exibido só em desenvolvimento. */
 	detail?: string;
+	/**
+	 * `false` quando a tela já está dentro da casca autenticada (`AppLayout`),
+	 * que traz o cabeçalho acima. `min-h-dvh` ali somaria a altura do cabeçalho
+	 * à da viewport e criaria rolagem vertical na página.
+	 */
+	fillViewport?: boolean;
 	children?: ReactNode;
 };
 
@@ -19,10 +26,16 @@ export function StatusPage({
 	title,
 	description,
 	detail,
+	fillViewport = true,
 	children,
 }: StatusPageProps) {
 	return (
-		<div className="bg-muted/40 flex min-h-dvh items-center justify-center p-6">
+		<div
+			className={cn(
+				'bg-muted/40 flex items-center justify-center p-6',
+				fillViewport ? 'min-h-dvh' : 'min-h-full flex-1',
+			)}
+		>
 			<div className="bg-card flex w-full max-w-md flex-col items-center gap-6 rounded-2xl p-8 text-center ring-1 ring-foreground/10">
 				{Icon ? (
 					<span className="bg-muted text-muted-foreground flex size-14 items-center justify-center rounded-2xl">

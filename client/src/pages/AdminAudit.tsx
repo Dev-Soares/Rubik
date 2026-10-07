@@ -1,10 +1,10 @@
 import { AuditPanel } from '@/modules/audit/components/AuditPanel';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { AppLayout } from '@/shared/layouts/AppLayout';
+import { PageWidth } from '@/shared/components/PageWidth';
 
 export function AdminAudit() {
 	return (
-		<AppLayout>
+		<PageWidth>
 			<div className="flex flex-col gap-8">
 				<PageHeader
 					title="Registro de uso"
@@ -13,6 +13,6 @@ export function AdminAudit() {
 
 				<AuditPanel />
 			</div>
-		</AppLayout>
+		</PageWidth>
 	);
 }

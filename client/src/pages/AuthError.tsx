@@ -2,19 +2,22 @@ import { Link, useRouter } from '@tanstack/react-router';
 import { TriangleAlertIcon } from 'lucide-react';
 import { getErrorMessage } from '@/api/axios';
 import { Button } from '@/shared/components/ui/button';
-import { AppLayout } from '@/shared/layouts/AppLayout';
+import { PageWidth } from '@/shared/components/PageWidth';
 
 type AuthErrorProps = {
 	error: unknown;
 	reset?: () => void;
 };
 
-/** Erro dentro de uma rota protegida: mantém a sidebar para o usuário navegar. */
+/**
+ * Erro dentro de uma rota protegida: a casca em volta já vem da rota `_auth`,
+ * então o usuário segue com a sidebar para navegar para fora daqui.
+ */
 export function AuthError({ error, reset }: AuthErrorProps) {
 	const router = useRouter();
 
 	return (
-		<AppLayout>
+		<PageWidth>
 			<div className="bg-card ring-foreground/10 mx-auto flex max-w-md flex-col items-center gap-6 rounded-2xl p-8 text-center ring-1">
 				<span className="bg-muted text-muted-foreground flex size-14 items-center justify-center rounded-2xl">
 					<TriangleAlertIcon className="size-6" />
@@ -48,6 +51,6 @@ export function AuthError({ error, reset }: AuthErrorProps) {
 					</pre>
 				) : null}
 			</div>
-		</AppLayout>
+		</PageWidth>
 	);
 }

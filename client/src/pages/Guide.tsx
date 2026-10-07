@@ -2,7 +2,7 @@ import { BookOpenIcon } from 'lucide-react';
 import { GuidePanel } from '@/modules/guide/components/GuidePanel';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Separator } from '@/shared/components/ui/separator';
-import { AppLayout } from '@/shared/layouts/AppLayout';
+import { PageWidth } from '@/shared/components/PageWidth';
 
 export function Guide() {
 	/*
@@ -10,7 +10,7 @@ export function Guide() {
 	 * sobra um vão à esquerda do índice em tela larga.
 	 */
 	return (
-		<AppLayout className="mr-auto ml-0 max-w-6xl">
+		<PageWidth className="mr-auto ml-0 max-w-6xl">
 			<div className="flex flex-col gap-8">
 				<div className="flex gap-3">
 					<BookOpenIcon className="text-primary mt-1.5 size-8 shrink-0" />
@@ -25,6 +25,6 @@ export function Guide() {
 
 				<GuidePanel />
 			</div>
-		</AppLayout>
+		</PageWidth>
 	);
 }

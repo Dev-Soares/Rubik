@@ -73,6 +73,22 @@ export const ROLE_COLOR_SWATCHES: Record<RoleColor, string> = {
 	neutral: 'bg-foreground/40',
 };
 
+/**
+ * A moldura e o fundo tênue do cargo escolhido no seletor de cargos.
+ *
+ * Mesmo motivo do `ROLE_COLOR_CLASSES` para o `dark:` explícito: estas cores
+ * não têm token de tema, e sem o par claro/escuro o cargo marcado sumiria.
+ */
+export const ROLE_COLOR_SELECTED: Record<RoleColor, string> = {
+	primary: 'border-primary bg-primary/5',
+	blue: 'border-blue-500 bg-blue-500/5 dark:border-blue-400',
+	green: 'border-green-500 bg-green-500/5 dark:border-green-400',
+	amber: 'border-amber-500 bg-amber-500/5 dark:border-amber-400',
+	red: 'border-red-500 bg-red-500/5 dark:border-red-400',
+	purple: 'border-purple-500 bg-purple-500/5 dark:border-purple-400',
+	neutral: 'border-foreground/40 bg-foreground/5',
+};
+
 export const ROLE_COLOR_LABELS: Record<RoleColor, string> = {
 	primary: 'Padrão',
 	blue: 'Azul',

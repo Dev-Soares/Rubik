@@ -26,7 +26,7 @@ export function UserPermissionsDialog({
 }: UserPermissionsDialogProps) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="shadow-2xl sm:max-w-md">
+			<DialogContent className="shadow-2xl sm:max-w-lg">
 				<DialogHeader icon={ShieldIcon}>
 					<DialogTitle className="text-primary text-lg font-black tracking-tight">
 						Permissões personalizadas

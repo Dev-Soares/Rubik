@@ -17,13 +17,14 @@ import { toPermission } from '@/modules/roles/utils';
 import { ToggleGroup, ToggleGroupItem } from '@/shared/components/ui/toggle-group';
 
 /**
- * `herda` fica neutro: é o padrão, e o que precisa saltar à vista é a exceção
- * que alguém criou. Bloquear usa `destructive` — tira acesso que o cargo dá.
+ * A opção ativa sempre ganha fundo sólido — num grupo de três, fundo tênue não
+ * dizia qual estava escolhida. `herda` usa a cor neutra por ser o padrão;
+ * bloquear usa `destructive`, porque tira acesso que o cargo dá.
  */
 const ACCESS_CLASS: Record<ActionAccess, string> = {
-	herda: '',
-	libera: 'data-[state=on]:bg-primary/20 data-[state=on]:text-primary',
-	bloqueia: 'data-[state=on]:bg-destructive/15 data-[state=on]:text-destructive',
+	herda: 'data-[state=on]:bg-background data-[state=on]:text-foreground',
+	libera: 'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
+	bloqueia: 'data-[state=on]:bg-destructive data-[state=on]:text-white',
 };
 
 type UserPermissionRowProps = {
@@ -51,25 +52,30 @@ export function UserPermissionRow({
 	});
 
 	return (
-		<div
-			className={cn(
-				'flex flex-col gap-2 border-b px-3 py-3 last:border-b-0',
-				temExcecao && 'bg-primary/5',
-			)}
-		>
-			<div className="flex min-w-0 flex-col gap-0.5">
-				<span className="text-sm font-medium">{item.title}</span>
-				<span className="text-muted-foreground text-xs leading-snug">{item.description}</span>
+		<div className="flex flex-col gap-2.5 border-b px-4 py-3.5 last:border-b-0">
+			<div className="flex min-w-0 items-start gap-2">
+				<div className="flex min-w-0 flex-1 flex-col gap-0.5">
+					<span className="text-sm leading-snug font-semibold">{item.title}</span>
+					<span className="text-muted-foreground text-xs leading-snug">{item.description}</span>
+				</div>
+
+				{/* Marca a linha que tem exceção sem tingir o fundo, que competia
+				    com a cor do próprio chip de bloqueio. */}
+				{temExcecao ? (
+					<span className="bg-primary/10 text-primary shrink-0 rounded-full px-2 py-0.5 text-[0.6875rem] font-semibold">
+						Personalizado
+					</span>
+				) : null}
 			</div>
 
-			<div className="flex flex-col gap-1.5">
+			<div className="flex flex-col gap-1">
 				{STANDARD_ACTIONS.filter((action) => hasAction(item.module, action)).map((action) => {
 					const permission = toPermission(item.module, action);
 					const doCargo = inherited.includes(permission);
 
 					return (
-						<div key={action} className="flex items-center justify-between gap-2">
-							<span className="text-muted-foreground shrink-0 text-xs">
+						<div key={action} className="flex items-center gap-3">
+							<span className="text-muted-foreground w-12 shrink-0 text-xs">
 								{ACTION_LABELS[action as StandardAction]}
 							</span>
 
@@ -79,7 +85,10 @@ export function UserPermissionRow({
 								onValueChange={(next) => next && onChange(permission, next as ActionAccess)}
 								disabled={disabled}
 								aria-label={`${item.title}: ${ACTION_LABELS[action as StandardAction]}`}
-								className="bg-muted/40 gap-0 rounded-sm p-0.5"
+								// `grid-cols-3` com colunas iguais: as três opções têm
+								// larguras de texto diferentes, e sem isso cada linha do
+								// catálogo alinhava os chips num lugar diferente.
+								className="bg-muted/50 grid flex-1 grid-cols-3 gap-0.5 rounded-md p-0.5"
 							>
 								{ACTION_ACCESS.map((option) => (
 									<ToggleGroupItem
@@ -92,7 +101,7 @@ export function UserPermissionRow({
 										}
 										aria-label={ACTION_ACCESS_LABELS[option]}
 										className={cn(
-											'h-6 rounded-sm border-0 px-2 text-xs font-medium transition-colors data-[state=on]:font-semibold',
+											'h-7 min-w-0 rounded-sm border-0 px-1 text-xs font-medium transition-colors data-[state=on]:shadow-sm',
 											ACCESS_CLASS[option],
 										)}
 									>

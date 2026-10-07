@@ -99,14 +99,16 @@ function DialogHeader({
 		// `pr-14` reserva o lugar do botão de fechar, que flutua sobre esta faixa.
 		<div
 			data-slot="dialog-header"
-			// `items-center`, não `items-start`: em metade dos modais a descrição é
-			// `sr-only` e sobra uma linha só, que alinhada ao topo fica acima do
-			// centro do quadro do ícone.
-			className={cn('flex shrink-0 items-center gap-3 px-6 pt-6 pb-3 pr-14', className)}
+			// `items-start` + `mt-0.5` no quadro do ícone: alinha o ícone pela
+			// primeira linha do título, não pelo centro do bloco. Centrar quebrava
+			// com descrição de duas linhas (o ícone descia para o meio do texto);
+			// alinhar pelo topo com o nudge atende também o caso de linha única,
+			// em que metade dos modais tem a descrição `sr-only`.
+			className={cn('flex shrink-0 items-start gap-3 px-6 pt-6 pr-14 pb-3', className)}
 			{...props}
 		>
 			{Icon ? (
-				<span className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
+				<span className="bg-primary/10 text-primary mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg">
 					<Icon className="size-4.5" strokeWidth={2.5} />
 				</span>
 			) : null}

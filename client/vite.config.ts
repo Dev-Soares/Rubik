@@ -128,6 +128,31 @@ export default defineConfig({
 		port: clientPort,
 		host: true,
 		watch: isDocker ? { usePolling: true, interval: 1000, ignored: WATCH_IGNORED } : undefined,
+		/*
+		 * Em dev o Vite só transforma um módulo quando o navegador o pede, e com
+		 * `autoCodeSplitting` cada rota é um chunk à parte: a PRIMEIRA abertura de
+		 * cada aba pagava a compilação da árvore inteira dela. Medido neste
+		 * container: `Guide.tsx` 788ms na estreia contra 4.7ms depois, e o custo
+		 * não é o arquivo da página — é tudo que ele importa junto.
+		 *
+		 * Em container o efeito dobra, porque cada leitura atravessa a tradução de
+		 * fs do Docker Desktop (o mesmo motivo do `usePolling` acima).
+		 *
+		 * O warmup faz esse trabalho em background assim que o servidor sobe, em
+		 * vez de cobrá-lo do primeiro clique. Só dev: `vite build` já compila
+		 * tudo, então produção nunca teve esse custo.
+		 *
+		 * As páginas puxam a árvore de cada rota (componente, hook, service), o
+		 * que cobre o grosso. A sidebar entra à parte por ser a casca que o
+		 * `_auth` monta antes de qualquer página.
+		 */
+		warmup: {
+			clientFiles: [
+				'./src/pages/*.tsx',
+				'./src/shared/layouts/*.tsx',
+				'./src/routes/**/*.tsx',
+			],
+		},
 		proxy: Object.fromEntries(
 			API_ROUTES.map((route) => [route, { target: apiTarget, changeOrigin: false }]),
 		),

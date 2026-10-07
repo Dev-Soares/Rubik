@@ -29,11 +29,26 @@ export function TicketStatusTabs({ value, counts, onChange, children }: TicketSt
 		 *
 		 * `activationMode` fica no padrão (`automatic`): a seta já troca de aba,
 		 * que é o esperado quando o conteúdo é só uma lista filtrada.
+		 *
+		 * `block` desfaz o `flex` do primitivo. O root do shadcn é
+		 * `flex data-horizontal:flex-col`, e `gap-0` sozinho zerava só o
+		 * espaçamento: a direção continuava valendo, então lista e painel ficavam
+		 * lado a lado numa linha. O painel, como item de flex, encolhia à sobra da
+		 * largura — e o vazio da lista, que é `text-center`, centralizava dentro
+		 * daquela faixa estreita, encostado na direita da tela.
 		 */
-		<Tabs value={value} onValueChange={(next) => onChange(next as TicketStatus)} className="gap-0">
+		<Tabs
+			value={value}
+			onValueChange={(next) => onChange(next as TicketStatus)}
+			className="block gap-0"
+		>
 			{/* `variant="line"` é a sublinha; o fundo cheio do padrão não combina
-			    com a borda inferior que separa a lista. */}
-			<TabsList variant="line" className="h-auto w-full justify-start gap-0 border-b p-0">
+			    com a borda inferior que separa a lista.
+
+			    `flex w-full` sobrescreve o `inline-flex w-fit` do primitivo: sem
+			    isso a faixa das abas encolhe ao conteúdo e a borda inferior morre
+			    no fim do texto, em vez de atravessar a largura da lista. */}
+			<TabsList variant="line" className="flex h-auto w-full justify-start gap-0 border-b p-0">
 				{TICKET_STATUSES.map((status) => {
 					const selected = status === value;
 
@@ -44,18 +59,35 @@ export function TicketStatusTabs({ value, counts, onChange, children }: TicketSt
 							className={cn(
 								// `-mb-px` sobrepõe a borda inferior do contêiner, senão a
 								// linha da aba ativa fica flutuando acima dela.
-								'-mb-px h-auto flex-1 gap-2 rounded-none border-b-2 border-transparent px-4 py-3 text-sm font-semibold sm:flex-none sm:px-8',
+								'-mb-px h-auto flex-1 gap-2 rounded-none px-4 py-3 text-sm font-semibold sm:flex-none sm:px-8',
+								/*
+								 * Só a borda de baixo. O primitivo traz `border` nos quatro
+								 * lados (transparente) e `data-active:bg-background`: na
+								 * variante `line` isso desenhava uma caixa em volta da aba
+								 * selecionada, com fundo próprio, enquanto a outra ficava
+								 * chapada. Zerar as laterais e o fundo deixa a sublinha ser
+								 * o único sinal de seleção.
+								 */
+								'border-x-0 border-t-0 border-b-2 border-transparent',
+								'data-active:bg-transparent dark:data-active:border-x-0 dark:data-active:border-t-0 dark:data-active:bg-transparent',
 								// A sublinha do primitivo é um `::after`; aqui a borda já faz
 								// esse papel, então ela sai de cena.
-								'after:hidden data-active:border-primary data-active:text-primary',
+								'after:hidden data-active:border-b-primary data-active:text-primary',
 							)}
 						>
 							{TAB_LABELS[status]}
 
+							{/*
+							 * `min-w-5` + `justify-center`: sem largura mínima o pill de um
+							 * dígito encolhe ao glifo e sai oval; com `inline-flex` os dois
+							 * contadores ficam do mesmo tamanho, mude o número ou não.
+							 */}
 							<span
 								className={cn(
-									'rounded-full px-2 py-0.5 text-xs font-bold tabular-nums',
-									selected ? 'bg-primary text-primary-foreground' : 'bg-muted',
+									'inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-bold tabular-nums',
+									selected
+										? 'bg-primary text-primary-foreground'
+										: 'bg-muted text-muted-foreground',
 								)}
 							>
 								{counts[status]}

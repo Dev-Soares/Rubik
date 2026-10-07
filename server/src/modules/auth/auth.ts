@@ -63,6 +63,17 @@ export const auth = betterAuth({
 
 	advanced: {
 		cookiePrefix: 'app',
+		/*
+		 * `sameSite: 'none'` em produção porque client e API ficam em domínios
+		 * distintos no deploy (Railway), e `lax` não manda o cookie numa chamada
+		 * entre origens — a tela carregaria deslogada. Exige `secure: true`, que
+		 * está logo abaixo.
+		 *
+		 * O preço é que o navegador deixa de barrar CSRF por conta própria: quem
+		 * barra passa a ser `trustedOrigins` (acima) junto do CORS. Projeto
+		 * derivado que sirva client e API no MESMO domínio deve trocar para
+		 * `'lax'` e recuperar essa proteção de graça.
+		 */
 		defaultCookieAttributes: {
 			httpOnly: true,
 			secure: isProduction,

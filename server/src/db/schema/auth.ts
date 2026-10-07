@@ -74,14 +74,25 @@ export const account = pgTable(
 	(table) => [index('account_user_id_idx').on(table.userId)],
 );
 
-export const verification = pgTable('verification', {
-	id: text('id').primaryKey(),
-	identifier: text('identifier').notNull(),
-	value: text('value').notNull(),
-	expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-	updatedAt: timestamp('updated_at', { withTimezone: true })
-		.defaultNow()
-		.$onUpdate(() => new Date())
-		.notNull(),
-});
+export const verification = pgTable(
+	'verification',
+	{
+		id: text('id').primaryKey(),
+		identifier: text('identifier').notNull(),
+		value: text('value').notNull(),
+		expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+		createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+		updatedAt: timestamp('updated_at', { withTimezone: true })
+			.defaultNow()
+			.$onUpdate(() => new Date())
+			.notNull(),
+	},
+	/*
+	 * `identifier` é por onde o Better Auth busca o token nos fluxos de
+	 * verificação de e-mail e redefinição de senha. Hoje não há e-mail
+	 * configurado e a tabela fica vazia, então o índice não muda nada — ele
+	 * existe para o projeto derivado que ligar esses fluxos não herdar um seq
+	 * scan no caminho de login.
+	 */
+	(table) => [index('verification_identifier_idx').on(table.identifier)],
+);

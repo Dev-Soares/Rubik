@@ -12,8 +12,14 @@ const MAX_LIMIT = 100;
  *
  * yagni: 100 mil cobre 5000 páginas de 20, muito além de onde alguém chega
  * clicando "próxima". Se alguma tela precisar varrer o histórico inteiro, o
- * caminho é keyset (`WHERE (created_at, id) < (:cursor)`) — a ordenação por
- * `createdAt, id` que as listagens já usam existe exatamente para isso.
+ * caminho é keyset (`WHERE (created_at, id) < (:cursor)`).
+ *
+ * Toda listagem paginada DEVE ordenar por `createdAt, id` — nessa ordem, com o
+ * `id` desempatando. Não é preferência de apresentação: sem ORDER BY o Postgres
+ * não garante ordem nenhuma, e com LIMIT/OFFSET sobre uma tabela que recebe
+ * UPDATE a linha muda de posição física entre duas requisições, fazendo um
+ * registro repetir numa página e outro nunca aparecer. É também o que o keyset
+ * exige para funcionar.
  */
 const MAX_OFFSET = 100_000;
 

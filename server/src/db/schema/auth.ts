@@ -1,4 +1,4 @@
-import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
@@ -17,43 +17,62 @@ export const user = pgTable('user', {
 		.notNull(),
 });
 
-export const session = pgTable('session', {
-	id: text('id').primaryKey(),
-	token: text('token').notNull().unique(),
-	expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-	ipAddress: text('ip_address'),
-	userAgent: text('user_agent'),
-	userId: text('user_id')
-		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
-	impersonatedBy: text('impersonated_by'),
-	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-	updatedAt: timestamp('updated_at', { withTimezone: true })
-		.defaultNow()
-		.$onUpdate(() => new Date())
-		.notNull(),
-});
+export const session = pgTable(
+	'session',
+	{
+		id: text('id').primaryKey(),
+		token: text('token').notNull().unique(),
+		expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+		ipAddress: text('ip_address'),
+		userAgent: text('user_agent'),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		impersonatedBy: text('impersonated_by'),
+		createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+		updatedAt: timestamp('updated_at', { withTimezone: true })
+			.defaultNow()
+			.$onUpdate(() => new Date())
+			.notNull(),
+	},
+	/*
+	 * A FK é `ON DELETE cascade`, e sem índice o Postgres varre a tabela inteira
+	 * para achar as filhas a cada remoção em `user`. É também por aqui que o
+	 * Better Auth revoga as sessões de uma pessoa (inativar conta encerra tudo).
+	 * Com sessão de 7 dias esta tabela cresce, e a varredura piora com ela.
+	 *
+	 * `token` já tem índice pelo `unique` — o caminho de leitura da sessão, que é
+	 * o quente, já estava coberto.
+	 */
+	(table) => [index('session_user_id_idx').on(table.userId)],
+);
 
-export const account = pgTable('account', {
-	id: text('id').primaryKey(),
-	accountId: text('account_id').notNull(),
-	providerId: text('provider_id').notNull(),
-	userId: text('user_id')
-		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
-	accessToken: text('access_token'),
-	refreshToken: text('refresh_token'),
-	idToken: text('id_token'),
-	accessTokenExpiresAt: timestamp('access_token_expires_at', { withTimezone: true }),
-	refreshTokenExpiresAt: timestamp('refresh_token_expires_at', { withTimezone: true }),
-	scope: text('scope'),
-	password: text('password'),
-	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-	updatedAt: timestamp('updated_at', { withTimezone: true })
-		.defaultNow()
-		.$onUpdate(() => new Date())
-		.notNull(),
-});
+export const account = pgTable(
+	'account',
+	{
+		id: text('id').primaryKey(),
+		accountId: text('account_id').notNull(),
+		providerId: text('provider_id').notNull(),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		accessToken: text('access_token'),
+		refreshToken: text('refresh_token'),
+		idToken: text('id_token'),
+		accessTokenExpiresAt: timestamp('access_token_expires_at', { withTimezone: true }),
+		refreshTokenExpiresAt: timestamp('refresh_token_expires_at', { withTimezone: true }),
+		scope: text('scope'),
+		password: text('password'),
+		createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+		updatedAt: timestamp('updated_at', { withTimezone: true })
+			.defaultNow()
+			.$onUpdate(() => new Date())
+			.notNull(),
+	},
+	// Mesma razão da `session`: FK em cascade, e o Better Auth busca a conta pelo
+	// usuário ao validar credencial e ao trocar senha.
+	(table) => [index('account_user_id_idx').on(table.userId)],
+);
 
 export const verification = pgTable('verification', {
 	id: text('id').primaryKey(),

@@ -6,7 +6,7 @@ import {
 	NotFoundException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { and, count, eq, inArray, ne } from 'drizzle-orm';
+import { and, count, eq, inArray, isNotNull, ne } from 'drizzle-orm';
 import { DB } from 'src/db/db.provider';
 import type { Database } from 'src/db/types/db.types';
 import { user } from 'src/db/schema/auth';
@@ -247,17 +247,30 @@ export class RolesService {
 			await this.assertNameIsFree(data.name, id);
 		}
 
-		const [updated] = await this.db
-			.update(role)
-			.set({
-				...(data.name ? { name: data.name } : {}),
-				...(data.description === undefined ? {} : { description: data.description }),
-				...(data.permissions ? { permissions: data.permissions.join(',') } : {}),
-				...(data.color ? { color: data.color } : {}),
-				...(data.icon ? { icon: data.icon } : {}),
-			})
-			.where(eq(role.id, id))
-			.returning();
+		/*
+		 * `!== undefined` em todos os campos, e não `data.campo ?`: o que decide é
+		 * o campo ter sido enviado, não o valor ser truthy. `permissions: []` é
+		 * uma lista vazia válida — "este cargo não libera nada" — e com `?` o
+		 * caso funcionava por acidente, já que `[]` é truthy. Hoje os validadores
+		 * do DTO barram `''` em `name`, `color` e `icon`, mas a regra não pode
+		 * depender disso: afrouxar um `@MinLength` passaria a descartar o campo
+		 * em silêncio.
+		 */
+		const values = {
+			...(data.name !== undefined ? { name: data.name } : {}),
+			...(data.description !== undefined ? { description: data.description } : {}),
+			...(data.permissions !== undefined ? { permissions: data.permissions.join(',') } : {}),
+			...(data.color !== undefined ? { color: data.color } : {}),
+			...(data.icon !== undefined ? { icon: data.icon } : {}),
+		};
+
+		// PATCH sem nenhum campo é requisição sem mudança. O Drizzle recusaria
+		// `.set({})` com um `Error` cru, que o filtro global viraria 500.
+		if (Object.keys(values).length === 0) {
+			return current;
+		}
+
+		const [updated] = await this.db.update(role).set(values).where(eq(role.id, id)).returning();
 
 		if (!updated) {
 			throw new NotFoundException('Cargo não encontrado.');
@@ -273,12 +286,21 @@ export class RolesService {
 			throw new ForbiddenException('Cargo de sistema não pode ser removido.');
 		}
 
-		const [inUse] = await this.db
-			.select({ value: count() })
+		/*
+		 * `role` é CSV, então `eq(user.role, name)` só encontra quem tem esse
+		 * cargo e mais nenhum: quem tinha `editor,viewer` passava pela checagem e
+		 * ficava apontando para um cargo inexistente — perdendo permissões em
+		 * silêncio, porque `findInheritedPermissions` simplesmente não acha a
+		 * linha. Filtrar em memória é o mesmo caminho de `findAdminIds`, e por
+		 * isso: em SQL exigiria `like` com os quatro casos de borda do CSV
+		 * (sozinho, primeiro, meio, último).
+		 */
+		const holders = await this.db
+			.select({ role: user.role })
 			.from(user)
-			.where(eq(user.role, current.name));
+			.where(isNotNull(user.role));
 
-		if ((inUse?.value ?? 0) > 0) {
+		if (holders.some((row) => toRoleNames(row.role).includes(current.name))) {
 			throw new ConflictException('Cargo em uso por um ou mais usuários.');
 		}
 

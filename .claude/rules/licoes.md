@@ -48,9 +48,32 @@ sequência (`L1`, `L2`, …). No mesmo commit do fix.
 
 ## Entradas
 
-<!--
-Vazio de propósito. Este projeto ainda não acumulou incidente registrado.
+## L1. Variante de atributo no Tailwind leva o valor: `data-[active=true]:`, nunca `data-active:`
 
+**Erro real:** o hover da sidebar não pintava. Trocar a cor não resolvia, em
+sessão nenhuma — e não era a cor: `NAV_ITEM_CLASS` tinha
+`data-active:bg-transparent!`, que zerava o fundo de **todo** item da sidebar,
+permanentemente. Qualquer `bg-*` aplicado depois perdia a disputa; um
+`bg-red-500` adicionado no DOM para teste também não pintava. O
+`ui/sidebar.tsx` do shadcn tinha o mesmo defeito em `data-active:bg-sidebar-accent`.
+
+- **Causa raiz:** `data-active:` compila para `[data-active]`, que casa com a
+  **presença** do atributo, não com o valor. O `SidebarMenuButton` recebe
+  `data-active={isActive}` e o React serializa o booleano, então todo item
+  carrega `data-active="false"` — e o seletor casava com todos. Com `!important`
+  junto, virou uma regra invisível que vencia tudo.
+- **Regra:** antes de usar `data-foo:`, confira **como o atributo é renderizado
+  no estado falso**. Some do DOM (o padrão do Radix, que usa
+  `data-state="checked"` ou nada) → `data-foo:` está correto. Vira a string
+  `"false"` (`data-foo={bool}` em JSX) → use `data-[foo=true]:`, porque a
+  variante curta casaria sempre. O erro não é a sintaxe curta; é usá-la com um
+  atributo que persiste.
+- **Verificação:** para cada `data-x:` novo, inspecione o elemento renderizado e
+  confirme que o atributo não existe quando o estado é falso. Para o sintoma:
+  medir o pixel do item sob hover, não o CSS — a regra existia, tinha
+  `!important`, e mesmo assim não pintava. Ler o fonte não revela isso.
+
+<!--
 Não preencha com bug hipotético nem com regra que já está em `.claude/rules/**`
 — entrada sem incidente real vira ruído e faz o próximo leitor parar de ler o
 arquivo.

@@ -76,6 +76,9 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
+	--color-sidebar-item-hover: var(--sidebar-item-hover);
+	--color-sidebar-item-active: var(--sidebar-item-active);
+	--color-sidebar-item-active-foreground: var(--sidebar-item-active-foreground);
 
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
@@ -133,6 +136,25 @@
 	--sidebar-accent-foreground: oklch(0.5 0.17 29);
 	--sidebar-border: oklch(0.89 0.003 345);
 	--sidebar-ring: oklch(0.562 0.23 29.2);
+
+	/*
+	 * Fundos dos itens da sidebar. São cor cheia, e não `primary` com opacidade
+	 * aplicada na classe, porque a opacidade que funciona depende do tema: o
+	 * mesmo `primary/12` que separa bem sobre a sidebar clara quase não aparece
+	 * sobre a escura — vermelho escuro sobre fundo quase preto não muda a
+	 * luminância. Medido: 0.096 de delta no claro contra 0.027 no escuro, para a
+	 * mesma classe. Por isso o valor é resolvido aqui, uma vez por tema.
+	 *
+	 * Os dois foram calibrados para que o hover alcance a separação que o hover
+	 * cinza antigo entregava, e o ativo fique ~2x acima dele.
+	 */
+	--sidebar-item-hover: oklch(0.952 0.013 12.8);
+	--sidebar-item-active: oklch(0.917 0.025 15.5);
+	/*
+	 * `primary` puro dá 4.01:1 sobre o fundo do ativo — abaixo do mínimo AA.
+	 * Escurecido, chega a 5.86:1 sem sair da cor da marca.
+	 */
+	--sidebar-item-active-foreground: oklch(0.47 0.2 29.2);
 }
 
 .dark {
@@ -177,6 +199,26 @@
 	--sidebar-accent-foreground: oklch(0.86 0.12 29);
 	--sidebar-border: oklch(1 0 0 / 12%);
 	--sidebar-ring: oklch(0.64 0.215 29.2);
+
+	/*
+	 * Mais saturados que os do tema claro, pelo mesmo motivo explicado lá: sobre
+	 * fundo escuro a cor precisa de mais presença para se separar. Equivalem a
+	 * `primary` a 16% e 30%, contra 12% e 24% no claro.
+	 *
+	 * Não vão até a luminância do par claro de propósito: lá o vermelho só se
+	 * distingue por ser mais escuro que o fundo, aqui ele também destoa em
+	 * matiz, e igualar a diferença de brilho produziria um vermelho cheio em vez
+	 * do fundo discreto que o resto da sidebar pede.
+	 */
+	--sidebar-item-hover: oklch(0.36 0.111 27.5);
+	--sidebar-item-active: oklch(0.435 0.14 28.4);
+	/*
+	 * Rosado, não o `--foreground` branco: este token também colore o texto no
+	 * hover, e branco é exatamente a cor do item em repouso — o texto não mudaria
+	 * ao passar o cursor. Contraste 7.24:1 sobre o fundo do hover e 5.39:1 sobre
+	 * o do ativo.
+	 */
+	--sidebar-item-active-foreground: oklch(0.86 0.09 27);
 }
 
 @layer base {

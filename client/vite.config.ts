@@ -68,6 +68,57 @@ export default defineConfig({
 		__APP_VERSION__: JSON.stringify(pkg.version),
 	},
 	plugins: [tanstackRouter({ target: 'react', autoCodeSplitting: true }), react(), tailwindcss()],
+	build: {
+		rollupOptions: {
+			output: {
+				/*
+				 * As rotas já se separam sozinhas (`autoCodeSplitting`), mas a
+				 * dependência não: sem isto todo vendor cai no chunk de entrada e o
+				 * usuário baixa react-dom, axios, sonner, radix e zod ANTES do
+				 * primeiro pixel. Medido: 706 kB de entrada contra 50 kB com a
+				 * separação abaixo.
+				 *
+				 * O ganho secundário é cache: deploy que não mexe em dependência não
+				 * invalida o chunk dela, só o da aplicação.
+				 *
+				 * Precisa ser FUNÇÃO, não objeto. Na forma de objeto
+				 * (`{ react: ['react', 'react-dom'] }`) o id que chega aqui é o
+				 * caminho resolvido dentro do pnpm store, não o nome do pacote — o
+				 * chunk sai com 44 bytes e o react-dom real continua na entrada, sem
+				 * erro nenhum no build.
+				 */
+				manualChunks(id) {
+					if (!id.includes('node_modules')) {
+						return;
+					}
+
+					// Separador de caminho nas duas pontas: evita casar `react` dentro
+					// de `react-hook-form` ou `@tanstack/react-router`.
+					if (/[\\/](react|react-dom|scheduler)[\\/]/.test(id)) {
+						return 'react';
+					}
+
+					if (id.includes('@tanstack')) {
+						return 'tanstack';
+					}
+
+					if (/[\\/](zod|react-hook-form|@hookform)[\\/]/.test(id)) {
+						return 'validation';
+					}
+
+					if (id.includes('better-auth')) {
+						return 'auth';
+					}
+
+					if (id.includes('radix')) {
+						return 'radix';
+					}
+
+					return 'vendor';
+				},
+			},
+		},
+	},
 	resolve: {
 		alias: {
 			'@': path.resolve(import.meta.dirname, './src'),

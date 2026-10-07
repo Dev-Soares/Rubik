@@ -1,6 +1,6 @@
 import { TICKET_STATUSES } from '@/modules/tickets/types/ticket';
 import type { TicketCounts, TicketStatus } from '@/modules/tickets/types/ticket';
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 
 /** Plural do rótulo: a aba fala do conjunto, o selo do card fala de um item. */
 const TAB_LABELS: Record<TicketStatus, string> = {

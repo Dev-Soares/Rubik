@@ -1,4 +1,4 @@
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 import { RoleBadge } from '@/modules/roles/components/RoleBadge';
 import { ROLE_COLORS, ROLE_ICONS, type RoleColor, type RoleIcon } from '@/modules/roles/types/role';
 import {

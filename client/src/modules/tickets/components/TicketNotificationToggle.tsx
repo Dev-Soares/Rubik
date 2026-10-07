@@ -4,7 +4,7 @@ import {
 	useSetTicketNotification,
 	useTicketNotification,
 } from '@/modules/tickets/hooks/useTicketNotification';
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 
 /**
  * Liga e desliga os avisos de chamado deste usuário. Preferência individual:

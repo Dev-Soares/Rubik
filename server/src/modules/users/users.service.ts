@@ -73,6 +73,17 @@ export class UsersService {
 			await this.assertCanSetRole(id, data.role, editor);
 		}
 
+		/*
+		 * Todo campo do DTO é opcional, então `{}` passa pela validação e chega
+		 * aqui. O Drizzle recusa `.set({})` com um `Error` cru ("No values to
+		 * set"), que não é `HttpException` — o filtro global devolvia 500 e
+		 * disparava alerta de erro para um PATCH sem efeito. PATCH sem campo é
+		 * requisição sem mudança: devolve o estado atual.
+		 */
+		if (Object.keys(data).length === 0) {
+			return this.findOne(id);
+		}
+
 		const [updated] = await this.db
 			.update(user)
 			.set(data)
@@ -116,14 +127,6 @@ export class UsersService {
 
 		if (existing.length !== names.length) {
 			throw new BadRequestException('Cargo inexistente.');
-		}
-	}
-
-	async remove(id: string): Promise<void> {
-		const [deleted] = await this.db.delete(user).where(eq(user.id, id)).returning({ id: user.id });
-
-		if (!deleted) {
-			throw new NotFoundException('Usuário não encontrado.');
 		}
 	}
 }

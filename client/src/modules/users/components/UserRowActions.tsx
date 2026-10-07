@@ -3,13 +3,11 @@ import {
 	MoreVerticalIcon,
 	PencilIcon,
 	ShieldIcon,
-	Trash2Icon,
 	UserCheckIcon,
 	UserXIcon,
 } from 'lucide-react';
 import { useState } from 'react';
 import { UserPermissionsDialog } from '@/modules/roles/components/UserPermissionsDialog';
-import { DeleteUserDialog } from '@/modules/users/components/DeleteUserDialog';
 import { EditUserDialog } from '@/modules/users/components/EditUserDialog';
 import { SetUserPasswordDialog } from '@/modules/users/components/SetUserPasswordDialog';
 import { ToggleUserActiveDialog } from '@/modules/users/components/ToggleUserActiveDialog';
@@ -25,7 +23,7 @@ import {
 import { isAdminRole } from '@/shared/utils/roles';
 
 /** Qual diálogo a linha abriu; `null` é o estado fechado. */
-type OpenDialog = 'edit' | 'password' | 'screens' | 'active' | 'delete' | null;
+type OpenDialog = 'edit' | 'password' | 'screens' | 'active' | null;
 
 type UserRowActionsProps = {
 	user: User;
@@ -101,14 +99,6 @@ export function UserRowActions({ user, isSelf }: UserRowActionsProps) {
 							{isBanned ? 'Reativar' : 'Inativar'}
 						</DropdownMenuItem>
 					) : null}
-
-					{/* Excluir a própria conta deixaria a sessão órfã. */}
-					{isSelf ? null : (
-						<DropdownMenuItem variant="destructive" onSelect={() => setDialog('delete')}>
-							<Trash2Icon />
-							Excluir
-						</DropdownMenuItem>
-					)}
 				</DropdownMenuContent>
 			</DropdownMenu>
 
@@ -141,13 +131,6 @@ export function UserRowActions({ user, isSelf }: UserRowActionsProps) {
 					onOpenChange={close}
 				/>
 			) : null}
-
-			<DeleteUserDialog
-				userId={user.id}
-				userName={user.name}
-				open={dialog === 'delete'}
-				onOpenChange={close}
-			/>
 		</>
 	);
 }

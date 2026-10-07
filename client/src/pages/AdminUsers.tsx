@@ -1,5 +1,4 @@
 import { Suspense } from 'react';
-import { useMyPermissions } from '@/modules/roles/hooks/useMyPermissions';
 import { CreateUserDialog } from '@/modules/users/components/CreateUserDialog';
 import { UsersPanel } from '@/modules/users/components/UsersPanel';
 import { UsersTableSkeleton } from '@/modules/users/skeletons/UsersTableSkeleton';
@@ -8,8 +7,7 @@ import { useAuth } from '@/shared/hooks/useAuth';
 import { PageWidth } from '@/shared/components/PageWidth';
 
 export function AdminUsers() {
-	const { user } = useAuth();
-	const { can } = useMyPermissions();
+	const { user, isAdmin } = useAuth();
 
 	return (
 		<PageWidth>
@@ -19,7 +17,13 @@ export function AdminUsers() {
 						title="Usuários"
 						description="Crie contas e gerencie quem tem acesso ao sistema."
 					/>
-					{can('usuarios', 'criar') ? <CreateUserDialog /> : null}
+					{/*
+					 * `isAdmin`, e não permissão de tela: criar conta é
+					 * `authClient.admin.createUser`, do plugin admin do Better Auth, que
+					 * exige a role `admin`. Com a permissão o botão apareceria para quem
+					 * o servidor vai recusar.
+					 */}
+					{isAdmin ? <CreateUserDialog /> : null}
 				</div>
 
 				<Suspense fallback={<UsersTableSkeleton />}>

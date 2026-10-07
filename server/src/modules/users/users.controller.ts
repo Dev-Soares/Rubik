@@ -1,15 +1,4 @@
-import {
-	Body,
-	Controller,
-	Delete,
-	Get,
-	HttpCode,
-	HttpStatus,
-	Param,
-	Patch,
-	Query,
-	UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
 import type { Paginated } from 'src/common/types/pagination.types';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { RequireAccess } from 'src/common/decorators/access.decorator';
@@ -54,12 +43,23 @@ export class UsersController {
 		return this.usersService.update(id, body, { id: editorId, role: editorRole });
 	}
 
-	/** Remove um usuário. Requer a ação de apagar no módulo de usuários. */
-	@Delete(':id')
-	@RequireAccess('usuarios', 'apagar')
-	@UseGuards(AccessGuard)
-	@HttpCode(HttpStatus.NO_CONTENT)
-	remove(@Param('id') id: string): Promise<void> {
-		return this.usersService.remove(id);
-	}
+	/*
+	 * NÃO existe rota de exclusão de usuário, e não é esquecimento.
+	 *
+	 * Conta se INATIVA (`banned`), nunca se apaga: a exclusão levava a perda
+	 * permanente de controle do sistema. Bastava um cargo com `usuarios:apagar`
+	 * — concedível pela tela de cargos a qualquer cargo — para apagar todos os
+	 * administradores. A sessão deles morria no `ON DELETE cascade`, o cadastro
+	 * público está desligado (`disableSignUp`), e não há rota de criação de
+	 * usuário: o sistema ficava sem administrador, sem caminho de volta pela API.
+	 *
+	 * Inativar entrega o que a exclusão entregava de útil — encerra a sessão na
+	 * hora e bloqueia novos logins — sem destruir o histórico: o `audit_log`
+	 * continua apontando para um usuário que existe, e a conta pode ser
+	 * reativada.
+	 *
+	 * Quem faz isso é o plugin admin do Better Auth, em `/auth/admin/ban-user` e
+	 * `/auth/admin/unban-user`, que exige a role `admin` — não a permissão de
+	 * tela. Daí não haver rota nossa para isso.
+	 */
 }

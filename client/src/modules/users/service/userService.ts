@@ -77,10 +77,6 @@ export async function updateUserService(
 	return data;
 }
 
-export async function deleteUserService(id: string): Promise<void> {
-	await api.delete(`/users/${id}`);
-}
-
 /**
  * Inativa a conta: o Better Auth marca `banned`, recusa o login e encerra as
  * sessões abertas da pessoa. Como `setUserPassword`, exige a role `admin`.

@@ -6,7 +6,10 @@ import { z } from 'zod';
  * (`server/src/modules/roles/types/role.types.ts`): mudou lá, muda aqui.
  */
 export const ACCESS_DECLARATION = {
-	usuarios: ['ver', 'criar', 'editar', 'apagar'],
+	// `usuarios` não tem `criar` nem `apagar`: as duas ações são do plugin admin
+	// do Better Auth, que exige a role `admin` em vez de permissão de tela. O
+	// porquê está no backend, em `users.controller.ts`.
+	usuarios: ['ver', 'editar'],
 	cargos: ['ver', 'criar', 'editar', 'apagar'],
 	auditoria: ['ver'],
 } as const;

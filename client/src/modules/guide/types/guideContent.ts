@@ -240,15 +240,15 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 					'Ainda no menu, "Permissões" abre uma escolha por ação de cada módulo: "Pelo cargo", "Liberado" ou "Bloqueado" — o que você marcar aqui vale acima do que o cargo define.',
 			},
 			{
-				title: 'Recupere, suspenda ou encerre um acesso',
+				title: 'Recupere ou encerre um acesso',
 				description:
-					'"Alterar senha" define uma senha nova sem pedir a atual, para quando alguém perde o acesso — a pessoa pode trocá-la depois no perfil. "Inativar" desconecta a pessoa na hora e bloqueia novos logins, mantendo conta e cargos guardados: a linha ganha a marca "Inativo" e "Reativar" devolve o acesso como era antes. "Excluir" pede confirmação e encerra o acesso de vez.',
+					'"Alterar senha" define uma senha nova sem pedir a atual, para quando alguém perde o acesso — a pessoa pode trocá-la depois no perfil. "Inativar" desconecta a pessoa na hora e bloqueia novos logins, mantendo conta e cargos guardados: a linha ganha a marca "Inativo" e "Reativar" devolve o acesso como era antes.',
 			},
 		],
 		note: {
-			title: 'A permissão da pessoa vence o cargo',
+			title: 'Conta não se exclui, se inativa',
 			description:
-				'Aba deixada em "Pelo cargo" continua acompanhando o cargo; qualquer outra escolha ignora o cargo e não muda mais se o cargo mudar. Use como exceção pontual — para acesso que vale para várias pessoas, o lugar é o cargo. Administradores não têm a opção "Permissões": eles têm acesso total.',
+				'Não existe excluir usuário: inativar já encerra a sessão na hora e bloqueia novos logins, e preserva o histórico de quem fez o quê no registro de uso. Sobre permissões: aba deixada em "Pelo cargo" continua acompanhando o cargo; qualquer outra escolha ignora o cargo e não muda mais se o cargo mudar. Use como exceção pontual — para acesso que vale para várias pessoas, o lugar é o cargo. Administradores não têm a opção "Permissões": eles têm acesso total.',
 		},
 	},
 	{

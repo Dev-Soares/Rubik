@@ -24,7 +24,6 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
 	const { can } = useMyPermissions();
 
 	const canEdit = can('usuarios', 'editar');
-	const canDelete = can('usuarios', 'apagar');
 
 	if (users.length === 0) {
 		return <p className="text-muted-foreground py-8 text-center text-sm">Nenhum usuário.</p>;
@@ -76,7 +75,7 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
 							</TableCell>
 							<TableCell>
 								<span className="flex justify-end">
-									{canEdit || canDelete ? (
+									{canEdit ? (
 										<UserRowActions user={user} isSelf={user.id === currentUserId} />
 									) : null}
 								</span>

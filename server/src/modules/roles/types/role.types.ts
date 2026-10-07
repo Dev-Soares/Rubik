@@ -12,7 +12,17 @@
  * uma é acrescentar também a porta que a confere (`@RequireAccess`).
  */
 export const ACCESS_DECLARATION = {
-	usuarios: ['ver', 'criar', 'editar', 'apagar'],
+	/*
+	 * Sem `apagar`: conta não se exclui, se inativa — e inativar é do plugin
+	 * admin do Better Auth, que exige a role `admin`, não permissão de tela
+	 * (ver `users.controller.ts`).
+	 *
+	 * Sem `criar`: criar usuário também é do plugin admin
+	 * (`authClient.admin.createUser`), pela mesma razão. Declarar as duas aqui
+	 * dava ao administrador de cargos a ilusão de conceder algo — não havia
+	 * `@RequireAccess` conferindo nenhuma delas.
+	 */
+	usuarios: ['ver', 'editar'],
 	cargos: ['ver', 'criar', 'editar', 'apagar'],
 	auditoria: ['ver'],
 } as const;

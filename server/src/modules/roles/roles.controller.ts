@@ -71,8 +71,15 @@ export class RolesController {
 	setUserPermissions(
 		@Param('userId') userId: string,
 		@Body() body: SetUserPermissionsDto,
+		// Quem edita precisa chegar ao service: a exceção pessoal vence o cargo,
+		// então sem saber o autor não há como impedir que ele se promova.
+		@CurrentUser('id') editorId: string,
+		@CurrentUser('role') editorRole: string | null,
 	): Promise<UserPermissions> {
-		return this.rolesService.setUserPermissions(userId, body);
+		return this.rolesService.setUserPermissions(userId, body, {
+			id: editorId,
+			role: editorRole,
+		});
 	}
 
 	/** Lista cargos paginados. */

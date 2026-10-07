@@ -9,7 +9,8 @@ import { FormError } from '@/shared/components/FormError';
 import { FormField } from '@/shared/components/FormField';
 import { Button } from '@/shared/components/ui/button';
 import { DialogBody, DialogClose, DialogFooter } from '@/shared/components/ui/dialog';
-import { toRoleNames } from '@/shared/utils/roles';
+import { isAdminRole, toRoleNames } from '@/shared/utils/roles';
+import { useAuth } from '@/shared/hooks/useAuth';
 
 const ROLES_PAGE_SIZE = 100;
 
@@ -22,6 +23,24 @@ type EditUserFormProps = {
 
 export function EditUserForm({ user, isSelf, onDone }: EditUserFormProps) {
 	const { data: roles } = useRoles(0, ROLES_PAGE_SIZE);
+	const { isAdmin } = useAuth();
+
+	/*
+	 * Cargo de sistema (`admin`) só aparece para quem já é administrador: o
+	 * backend recusa a concessão com 403 (`assertCanSetRole`), e oferecer a
+	 * opção seria convidar o usuário a um erro. É UX — quem autoriza é o
+	 * servidor.
+	 */
+	const assignableRoles = isAdmin
+		? roles.items
+		: roles.items.filter((candidate) => !candidate.isSystem);
+
+	/*
+	 * Alterar o cargo de um administrador também é privilégio de administrador.
+	 * Sem isto o formulário abria editável e só o submit revelava a recusa.
+	 */
+	const targetIsAdmin = isAdminRole(user.role);
+	const canEditRoles = !isSelf && (isAdmin || !targetIsAdmin);
 
 	const {
 		register,
@@ -55,18 +74,20 @@ export function EditUserForm({ user, isSelf, onDone }: EditUserFormProps) {
 						render={({ field }) => (
 							<RolePickerField
 								label="Cargos"
-								roles={roles.items}
+								roles={assignableRoles}
 								name={field.name}
 								value={field.value}
 								onChange={field.onChange}
 								onBlur={field.onBlur}
-								disabled={isPending || isSelf}
+								disabled={isPending || !canEditRoles}
 								hint={
 									isSelf
 										? 'Você não pode alterar os seus próprios cargos.'
-										: 'As permissões somam: o usuário recebe as telas de todos os cargos marcados.'
+										: !canEditRoles
+											? 'Só um administrador altera o cargo de outro administrador.'
+											: 'As permissões somam: o usuário recebe as telas de todos os cargos marcados.'
 								}
-								hintIsRestriction={isSelf}
+								hintIsRestriction={!canEditRoles}
 								error={errors.roles?.message}
 							/>
 						)}

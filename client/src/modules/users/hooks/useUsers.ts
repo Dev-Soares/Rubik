@@ -4,11 +4,7 @@ import type { UserStatus } from '@/modules/users/types/user';
 
 const DEFAULT_LIMIT = 20;
 
-export function usersQueryOptions(
-	page = 0,
-	limit = DEFAULT_LIMIT,
-	status?: UserStatus,
-) {
+export function usersQueryOptions(page = 0, limit = DEFAULT_LIMIT, status?: UserStatus) {
 	return queryOptions({
 		queryKey: ['users', { page, limit, status }],
 		queryFn: () => listUsersService({ limit, offset: page * limit, status }),

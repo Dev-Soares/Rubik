@@ -30,11 +30,7 @@ export function TicketStatusTabs({ value, counts, onChange, children }: TicketSt
 		 * `activationMode` fica no padrão (`automatic`): a seta já troca de aba,
 		 * que é o esperado quando o conteúdo é só uma lista filtrada.
 		 */
-		<Tabs
-			value={value}
-			onValueChange={(next) => onChange(next as TicketStatus)}
-			className="gap-0"
-		>
+		<Tabs value={value} onValueChange={(next) => onChange(next as TicketStatus)} className="gap-0">
 			{/* `variant="line"` é a sublinha; o fundo cheio do padrão não combina
 			    com a borda inferior que separa a lista. */}
 			<TabsList variant="line" className="h-auto w-full justify-start gap-0 border-b p-0">

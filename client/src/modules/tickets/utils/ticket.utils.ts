@@ -5,7 +5,6 @@ import {
 	type TicketStatus,
 } from '@/modules/tickets/types/ticket';
 
-
 /** Monta o corpo `multipart/form-data` que a rota de criação espera. */
 export function toTicketFormData(input: TicketFormInput): FormData {
 	const body = new FormData();

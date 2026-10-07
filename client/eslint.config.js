@@ -69,11 +69,7 @@ export default tseslint.config(
 			 * `checksVoidReturn: false` desliga só esse caso — a checagem de
 			 * promise em condicional e em `forEach` continua valendo.
 			 */
-			'@typescript-eslint/no-misused-promises': [
-				'error',
-				{ checksVoidReturn: false },
-			],
-
+			'@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: false }],
 		},
 	},
 	{

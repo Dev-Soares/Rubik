@@ -26,4 +26,3 @@ export function groupByDay(entries: AuditLogEntry[]): AuditDayGroup[] {
 
 	return groups;
 }
-

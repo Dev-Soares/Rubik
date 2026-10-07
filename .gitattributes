@@ -1,0 +1,35 @@
+# Fim de linha normalizado no repositório.
+#
+# Sem este arquivo o fim de linha depende do `core.autocrlf` de cada clone: no
+# Windows (`autocrlf=true`) os arquivos chegam ao disco em CRLF, e o Prettier,
+# cujo `endOfLine` padrão é `lf`, acusa TODO arquivo do projeto como mal
+# formatado — 182 de 182 aqui, sem nenhuma diferença de conteúdo. O portão de
+# formatação do CI roda em Linux e passava, então a divergência só aparecia
+# para quem desenvolve no Windows, e aparecia como ruído que esconde o aviso
+# real.
+#
+# `text=auto eol=lf`: o repositório guarda LF sempre, e o checkout entrega LF em
+# qualquer sistema operacional. Editor moderno lida com LF no Windows sem
+# configuração.
+* text=auto eol=lf
+
+# Binário não passa por normalização — converter byte 0x0D num woff2 corrompe a
+# fonte. `-text` desliga a conversão; `-diff` evita despejar o binário no diff.
+*.woff2 -text -diff
+*.png   -text -diff
+*.ico   -text -diff
+*.jpg   -text -diff
+*.jpeg  -text -diff
+*.webp  -text -diff
+
+# O lockfile é gerado: tratar como texto (para merge) mas sem poluir o diff de
+# revisão, que ninguém lê linha a linha.
+pnpm-lock.yaml -diff linguist-generated
+
+# Rotas geradas pelo plugin do TanStack Router — mesmo motivo.
+client/src/routeTree.gen.ts -diff linguist-generated
+
+# Hook de git é executado por `sh`: com CRLF o shell falha com
+# "bad interpreter: /usr/bin/env bash^M". A regra geral acima já garante LF,
+# mas este é o arquivo em que o erro é mais obscuro de diagnosticar.
+.githooks/* text eol=lf

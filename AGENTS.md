@@ -72,6 +72,17 @@ nunca uma seção aqui.
   sidebar mostra esse número. Versão é assunto do projeto derivado: quem nasce
   daqui decide o próprio esquema de bump e release. Não há portão de CI cobrando
   bump, e não adicione um aqui.
+- **Template não tem teste automatizado, e isso é decisão.** Sem `jest`, sem
+  `supertest`, sem `@nestjs/testing`, sem script `test` — foram removidos de
+  propósito. Não os reinstale "para começar certo": o que valia era o dilema
+  anterior, em que o aparato estava instalado, zero teste existia e nenhuma
+  regra dizia o que testar. Aparato sem política é pior que ausência, porque
+  sugere um portão que não existe.
+  Os portões aqui são `pnpm check` (typecheck + lint) e o CI, que ainda roda
+  build e aplica as migrations contra base limpa. Projeto derivado que queira
+  testar decide o próprio escopo e instala lá — e aí escreve a regra junto.
+  Onde as rules dizem "testável sozinha" (`architecture.md`, `components.md`),
+  é critério de ONDE o código mora, não obrigação de escrever teste.
 
 ## 3. Prioridades
 

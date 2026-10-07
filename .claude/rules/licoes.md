@@ -98,6 +98,95 @@ casava com nada e a aba ativa ficaria sem estilo.
   `git diff client/package.json` limpo; e para a variante, inspecionar o
   elemento e confirmar o atributo (`data-state="active"` na aba selecionada).
 
+## L3. Casca que precisa sobreviver à navegação mora na rota, não na página
+
+**Erro real:** a sidebar recolhida reabria sozinha a cada navegação, o grupo de
+menu expandido fechava na mão do usuário e o `refetchInterval` de 30s do sino
+reiniciava antes de completar — o contador de não lidas podia ficar velho
+indefinidamente. As dez páginas autenticadas renderizavam o próprio
+`<AppLayout>`, e `routes/_auth.tsx` era um `Outlet` pelado.
+
+- **Causa raiz:** React só preserva estado quando o componente na mesma posição
+  é do **mesmo tipo**. Com a casca dentro da página, ir de `Home` para
+  `AdminUsers` troca o tipo naquela posição, e o React desmonta a subárvore
+  inteira — `SidebarProvider` junto, cujo `open` é `useState`. Nenhum teste
+  pegaria: a montagem é correta, o que quebra é a identidade entre duas
+  montagens.
+- **Regra:** estado que precisa sobreviver à troca de rota mora **acima** do
+  ponto de troca — no `component` da rota de layout, com `<Outlet />` dentro.
+  Antes de montar provider, assinatura ou timer, pergunte em que posição da
+  árvore ele fica e se o tipo naquela posição é constante entre rotas. Ler o
+  arquivo do componente não revela isso; é preciso olhar quem o monta.
+- **Verificação:** recolher a sidebar, navegar entre duas abas e conferir que
+  continua recolhida. No bundle, a casca aparece em **um** chunk compartilhado
+  (`grep -l SidebarProvider dist/assets/*.js` devolve um arquivo só), não
+  duplicada por página.
+
+## L4. Rota que recebe `:id` de pessoa compara com o autor da requisição
+
+**Erro real:** duas escaladas de privilégio, as duas alcançáveis por usuário
+comum com `usuarios:editar`. (1) `PUT /roles/users/:userId/permissions` não
+comparava `:userId` com quem chamava: apontando para o próprio id, o usuário
+gravava `allowed: true` em toda permissão do sistema, e a exceção pessoal vence
+o cargo por design. (2) `assertCanSetRole` validava que o cargo **existe**, não
+**qual** cargo é — e `admin` é uma linha da tabela `role`, então `PATCH
+/users/:id` com `{"role":"admin"}` promovia um terceiro a administrador.
+
+- **Causa raiz:** o bug é a **ausência** de uma comparação, não código errado.
+  Toda linha presente estava correta, e revisão por leitura não acusa o que não
+  está escrito. A invariante existia no vizinho (`assertCanSetRole` recusa
+  trocar o próprio cargo) e não foi replicada no caminho mais poderoso — e a
+  mensagem de commit do fix anterior chegou a citar essa função como referência
+  de blindagem, sem notar que ela não cobria o caso do terceiro.
+- **Regra:** em toda rota que recebe id de pessoa (`:id`, `:userId`) e muda
+  acesso, responda três perguntas antes de considerar pronto: **(a)** o alvo
+  pode ser o próprio autor? **(b)** o autor pode conceder algo que ele mesmo não
+  tem? **(c)** o alvo pode ser mais privilegiado que o autor? Cada "sim" sem
+  guard é escalada. Permissão de tela (`usuarios:editar`) nunca autoriza mexer
+  em cargo de sistema nem em administrador — isso é da role `admin`.
+- **Verificação:** para cada rota de mudança de acesso, procure a comparação com
+  o autor (`=== editor.id`) e a checagem de privilégio do alvo. Ausência das
+  duas é o bug; `grep -n "editor" <service>` mostra se o autor sequer chega ao
+  service.
+
+## L5. Listagem paginada ordena por `createdAt, id` — sempre, com desempate
+
+**Erro real:** `/roles` e `/users` paginavam sem `orderBy` nenhum, e
+`/audit` ordenava por `createdAt` sem desempate. Com `LIMIT/OFFSET` isso faz um
+registro repetir numa página e outro nunca aparecer — e a tela de cargos lia
+essa listagem para montar o seletor do formulário de usuário, onde um cargo
+podia simplesmente não estar.
+
+- **Causa raiz:** Postgres não garante ordem sem `ORDER BY`; a ordem observada é
+  a física, que muda a cada `UPDATE`. E `user` recebe `UPDATE` em todo PATCH e
+  em todo login (via `updatedAt`), então a instabilidade não é teórica. Faltava
+  também o desempate: `createdAt` sozinho empata, e em `audit_log` — uma linha
+  por mutação — empata muito.
+- **Regra:** toda listagem paginada ordena por `createdAt` **e** `id`, nessa
+  ordem, decrescente. Não é preferência de apresentação: é o que torna a
+  paginação correta, e é o que o keyset exigiria se o offset virar gargalo.
+- **Verificação:** `grep -n "orderBy" server/src/modules/*/*.service.ts` — toda
+  listagem com `.limit(` tem a linha, com dois argumentos.
+
+## L6. Skeleton espelha a forma do conteúdo; o fallback não pode trocar a altura
+
+**Erro real:** `UsersTableSkeleton` eram cinco barras `h-12` chapadas, contra uma
+tabela com cabeçalho de 48px, `py-4` e avatar `size-9`.
+`RolesGridSkeleton` usava um `h-44` fixo contra um card cuja altura vem do
+conteúdo. Nos dois a página saltava ao resolver, na tela de administração mais
+usada.
+
+- **Causa raiz:** a regra escrita era só "skeleton em estado de carregamento
+  visível" (`AGENTS.md` §2). Ela cobra a existência do skeleton e não diz nada
+  sobre fidelidade, então um retângulo satisfazia a letra da regra e falhava no
+  propósito — que é justamente o conteúdo não saltar.
+- **Regra:** `.claude/rules/client/carregamento.md`, criada por causa deste bug.
+  Skeleton copia moldura, cabeçalho, altura de linha e os breakpoints que
+  escondem coluna. Card de altura variável monta-se das peças do card real,
+  nunca de um `h-*` chutado.
+- **Verificação:** alternar entre o skeleton e o conteúdo real na mesma tela e
+  conferir que nada abaixo se move. `TicketListSkeleton` é o modelo correto.
+
 <!--
 Não preencha com bug hipotético nem com regra que já está em `.claude/rules/**`
 — entrada sem incidente real vira ruído e faz o próximo leitor parar de ler o

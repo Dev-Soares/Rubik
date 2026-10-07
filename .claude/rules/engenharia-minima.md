@@ -97,7 +97,9 @@ Em nome de menos código, jamais:
 - Error handling que previne perda de dado (transação, rollback).
 - Segurança: guard, `httpOnly`, segredo fora de log e de response.
 - Acessibilidade: `label`, `aria-*`, alvo de toque.
-- Skeleton em estado de carregamento visível.
+- Skeleton em estado de carregamento visível — e espelhando a forma do
+  conteúdo (`.claude/rules/client/carregamento.md`); retângulo genérico salta
+  a página ao resolver.
 - Qualquer coisa pedida explicitamente.
 - Seção no guia quando a feature é visível ao usuário
   (`.claude/rules/client/guide.md`).

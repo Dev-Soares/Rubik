@@ -18,10 +18,16 @@ nunca uma seção aqui.
   - server: `Controller → Service → Drizzle`. **Nunca** Controller→db.
   - client: `api → service → hook → component`. **Nunca** component→axios.
 - [ ] Todo `export type` em `types/`. Nenhum tipo exportado solto em service/controller/componente.
+      Exceção: tipo que descreve a **interface do próprio arquivo** e não viaja
+      como dado — opção de um campo genérico (`SelectOption`), payload de um
+      decorator (`AccessRequirement`). Tipo de domínio sai sempre.
 - [ ] Toda função pura em `utils/`. No arquivo do service/componente só o mapper
       de row e formatação de apresentação não exportada.
 - [ ] Domínio com um único consumidor mora no módulo dele — não em `common/`/`shared/`.
 - [ ] Um componente por arquivo `.tsx`. Uma classe exportada por arquivo `.ts`.
+      Exceção: DTO aninhado exigido por `@ValidateNested` acompanha o DTO pai
+      (`PermissionOverrideDto` em `set-user-permissions.dto.ts`) — separar quebra
+      a validação, que resolve a classe pelo `@Type(() => ...)`.
 - [ ] Componentes recebem dados por props; não buscam dados.
 - [ ] Sem `any`; `unknown` + narrow ou Zod na fronteira.
 - [ ] Input externo validado por schema/DTO antes da lógica.
@@ -41,15 +47,18 @@ nunca uma seção aqui.
   Revisar só se Service passar de ~400 linhas **depois** de já ter sido quebrado
   por sub-domínio, ou se a mesma regra aparecer em três services. Não improvise
   uma camada de domínio parcial em um módulo só.
-- Types **sempre** em `types/`, nunca no arquivo que os usa.
+- Types **sempre** em `types/`, nunca no arquivo que os usa. Exceção única: tipo
+  que descreve a interface do próprio arquivo e não viaja como dado (ver §1).
 - Função pura **sempre** em `utils/`, nunca solta no arquivo do service/componente.
   Exceções: mapper de row da feature (`toPublicRole`) e formatação de apresentação
   não exportada (`getInitials`). Transformação de dado sai sempre.
 - `common/` (server) e `shared/` (client) = código de domínio com 2+ consumidores.
   Um só → fica no módulo. Infra transversal (guard, pipe, filter, interceptor,
   layout, `ui/`) fica em `common/`/`shared/` mesmo com um consumidor.
-- Um componente por arquivo, sem exceção.
-- Skeleton para todo estado de carregamento visível.
+- Um componente por arquivo `.tsx`, sem exceção. Para classe `.ts`, a única
+  exceção é o DTO aninhado do `@ValidateNested` (ver §1).
+- Skeleton para todo estado de carregamento visível, espelhando a forma do
+  conteúdo real (`.claude/rules/client/carregamento.md`).
 - Cookie httpOnly para auth; nunca localStorage.
 - Tailwind v4 + shadcn/ui com token semântico. Sem CSS por componente.
 - Docker com paridade dev/prod; Postgres sempre em container.
@@ -138,6 +147,7 @@ Nada carrega "por precaução". Pela tarefa:
 | Chamada HTTP, hook, query, mutation | `.claude/rules/client/data-flow.md` |
 | Componente React, props, container | `.claude/rules/client/components.md` |
 | Página, formulário, `PageHeader`, `FormSection` | `.claude/rules/client/layout.md` |
+| Skeleton, `Suspense`, paginação, `loader` de pré-carga | `.claude/rules/client/carregamento.md` |
 | Arquivo de rota, `beforeLoad`, `loader` | `.claude/rules/client/routes.md` |
 | Tailwind, token, shadcn, responsivo, a11y | `.claude/rules/client/styling.md` |
 | Feature nova visível ao usuário | `.claude/rules/client/guide.md` |

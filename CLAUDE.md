@@ -45,3 +45,11 @@ Texto de UI e mensagem de erro do produto seguem em pt-BR normal — a compress�
   parte da entrega, não é escopo extra.
 - Comentário só para explicar **por que** não-óbvio, nunca **o que** o código faz.
 - Instruções do usuário sempre sobrescrevem este arquivo.
+
+## Commits
+
+**Nunca** adicione `Co-Authored-By: Claude` — nem qualquer trailer de
+co-autoria, assinatura ou atribuição de ferramenta — em mensagem de commit ou
+descrição de PR. A autoria é de quem assina o commit.
+
+Vale também para o rodapé "Generated with Claude Code" em corpo de PR.

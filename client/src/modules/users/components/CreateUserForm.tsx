@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IdCardIcon, LockIcon, MailIcon } from 'lucide-react';
 import { Controller, useForm } from 'react-hook-form';
+import { RolePickerField } from '@/modules/roles/components/RolePickerField';
 import { useRoles } from '@/modules/roles/hooks/useRoles';
 import { useCreateUser } from '@/modules/users/hooks/useCreateUser';
 import { createUserSchema, type CreateUserInput } from '@/modules/users/types/user';
-import { CheckboxGroupField } from '@/shared/components/CheckboxGroupField';
 import { FormError } from '@/shared/components/FormError';
 import { FormField } from '@/shared/components/FormField';
 import { Button } from '@/shared/components/ui/button';
@@ -32,12 +32,6 @@ export function CreateUserForm({ onCreated }: CreateUserFormProps) {
 		resolver: zodResolver(createUserSchema),
 		defaultValues: { roles: DEFAULT_ROLES },
 	});
-
-	const roleOptions = roles.items.map((role) => ({
-		value: role.name,
-		label: role.name,
-		description: role.description ?? undefined,
-	}));
 
 	const {
 		mutate: createUser,
@@ -86,9 +80,9 @@ export function CreateUserForm({ onCreated }: CreateUserFormProps) {
 						control={control}
 						name="roles"
 						render={({ field }) => (
-							<CheckboxGroupField
+							<RolePickerField
 								label="Cargos"
-								options={roleOptions}
+								roles={roles.items}
 								name={field.name}
 								value={field.value}
 								onChange={field.onChange}

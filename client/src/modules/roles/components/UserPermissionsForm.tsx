@@ -32,29 +32,27 @@ export function UserPermissionsForm({ userId, permissions, onDone }: UserPermiss
 					 * Mesma tabela do formulário de cargo, agrupada pelos mesmos setores.
 					 * Sem scroll próprio: quem rola é o modal (`DialogContent`).
 					 */}
-					<div>
-						<div className="flex flex-col gap-4">
-							{SECTORS.map((sector) => (
-								<div key={sector} className="overflow-hidden rounded-lg border">
-									<div className="bg-muted/40 text-muted-foreground border-b px-3 py-1.5 text-[11px] font-medium">
-										{sector}
-									</div>
-
-									{PERMISSION_CATALOG.filter((item) => item.sector === sector).map((item) => (
-										<UserPermissionRow
-											key={item.module}
-											item={item}
-											access={access}
-											inherited={permissions.inherited}
-											disabled={isPending}
-											onChange={(permission, value) =>
-												setAccess((current) => ({ ...current, [permission]: value }))
-											}
-										/>
-									))}
+					<div className="flex flex-col gap-4">
+						{SECTORS.map((sector) => (
+							<div key={sector} className="overflow-hidden rounded-lg border">
+								<div className="bg-muted/60 text-muted-foreground border-b px-4 py-2 text-xs font-semibold tracking-wide uppercase">
+									{sector}
 								</div>
-							))}
-						</div>
+
+								{PERMISSION_CATALOG.filter((item) => item.sector === sector).map((item) => (
+									<UserPermissionRow
+										key={item.module}
+										item={item}
+										access={access}
+										inherited={permissions.inherited}
+										disabled={isPending}
+										onChange={(permission, value) =>
+											setAccess((current) => ({ ...current, [permission]: value }))
+										}
+									/>
+								))}
+							</div>
+						))}
 					</div>
 
 					<FormError message={error?.message} />

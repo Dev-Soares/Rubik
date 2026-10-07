@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IdCardIcon } from 'lucide-react';
 import { Controller, useForm } from 'react-hook-form';
+import { RolePickerField } from '@/modules/roles/components/RolePickerField';
 import { useRoles } from '@/modules/roles/hooks/useRoles';
 import { useEditUser } from '@/modules/users/hooks/useEditUser';
 import { editUserSchema, type EditUserInput, type User } from '@/modules/users/types/user';
-import { CheckboxGroupField } from '@/shared/components/CheckboxGroupField';
 import { FormError } from '@/shared/components/FormError';
 import { FormField } from '@/shared/components/FormField';
 import { Button } from '@/shared/components/ui/button';
@@ -35,12 +35,6 @@ export function EditUserForm({ user, isSelf, onDone }: EditUserFormProps) {
 
 	const { mutate, isPending, error } = useEditUser(user.id, onDone);
 
-	const roleOptions = roles.items.map((role) => ({
-		value: role.name,
-		label: role.name,
-		description: role.description ?? undefined,
-	}));
-
 	return (
 		<form onSubmit={handleSubmit((data) => mutate(data))} className="flex min-h-0 flex-1 flex-col">
 			<fieldset disabled={isPending} className="contents">
@@ -59,9 +53,9 @@ export function EditUserForm({ user, isSelf, onDone }: EditUserFormProps) {
 						control={control}
 						name="roles"
 						render={({ field }) => (
-							<CheckboxGroupField
+							<RolePickerField
 								label="Cargos"
-								options={roleOptions}
+								roles={roles.items}
 								name={field.name}
 								value={field.value}
 								onChange={field.onChange}
@@ -72,6 +66,7 @@ export function EditUserForm({ user, isSelf, onDone }: EditUserFormProps) {
 										? 'Você não pode alterar os seus próprios cargos.'
 										: 'As permissões somam: o usuário recebe as telas de todos os cargos marcados.'
 								}
+								hintIsRestriction={isSelf}
 								error={errors.roles?.message}
 							/>
 						)}

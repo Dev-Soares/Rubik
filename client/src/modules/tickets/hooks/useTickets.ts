@@ -1,7 +1,7 @@
 import { infiniteQueryOptions, useSuspenseInfiniteQuery } from '@tanstack/react-query';
 import { listTicketsService } from '@/modules/tickets/service/ticketService';
 import type { TicketStatus } from '@/modules/tickets/types/ticket';
-import { nextOffset } from '@/modules/tickets/utils';
+import { nextOffset } from '@/shared/utils/pagination';
 
 const PAGE_SIZE = 20;
 

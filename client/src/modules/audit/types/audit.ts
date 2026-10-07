@@ -1,3 +1,5 @@
+import type { Paginated } from '@/shared/types/pagination';
+
 /** Espelha `AUDIT_ACTIONS` do backend (`server/src/modules/audit/types/audit.types.ts`). */
 export const AUDIT_ACTIONS = ['create', 'update', 'delete'] as const;
 
@@ -54,9 +56,4 @@ export type AuditFilters = {
 	to?: string;
 };
 
-export type PaginatedAuditLog = {
-	items: AuditLogEntry[];
-	total: number;
-	limit: number;
-	offset: number;
-};
+export type PaginatedAuditLog = Paginated<AuditLogEntry>;

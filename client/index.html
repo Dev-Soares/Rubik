@@ -4,6 +4,31 @@
 		<meta charset="UTF-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<!--
+			As fontes são self-hospedadas e descobertas só quando o CSS é parseado,
+			já tarde: com `font-display: swap` o texto aparece na fonte do sistema e
+			troca depois (FOUT). O preload antecipa o download para o começo.
+
+			Só 400 e 700: são os pesos da primeira tela (corpo e títulos). 500 e 900
+			entram pelo CSS, quando precisarem — preload de peso que a tela inicial
+			não usa só rouba banda do que ela usa.
+		-->
+		<link
+			rel="preload"
+			href="/fonts/satoshi-400.woff2"
+			as="font"
+			type="font/woff2"
+			crossorigin
+		/>
+		<link
+			rel="preload"
+			href="/fonts/satoshi-700.woff2"
+			as="font"
+			type="font/woff2"
+			crossorigin
+		/>
+
 		<title>Rubik</title>
 	</head>
 	<body>

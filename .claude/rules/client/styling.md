@@ -20,7 +20,14 @@ pnpm ui:add <componente>     # ex: pnpm ui:add dialog
 Instalados em `src/shared/components/ui/`: `alert-dialog`, `avatar`, `badge`,
 `button`, `card`, `checkbox`, `collapsible`, `dialog`, `dropdown-menu`, `input`,
 `label`, `select`, `separator`, `sheet`, `sidebar`, `skeleton`, `sonner`,
-`switch`, `table`, `toggle`, `toggle-group`, `tooltip`.
+`switch`, `table`, `tabs`, `toggle`, `toggle-group`, `tooltip`.
+
+**Widget com papel ARIA tem contrato de teclado — use o primitivo.** `role="tab"`
+promete seta, Home e End com um ponto de parada só no Tab; `role="menu"`,
+`role="dialog"` e `role="combobox"` têm cada um o seu. Escrever o papel à mão e
+não implementar o teclado é pior que não ter papel nenhum, porque o leitor de
+tela passa a anunciar uma interação que não existe. O Radix (via `pnpm ui:add`)
+já traz esses contratos — foi o que `TicketStatusTabs` passou a usar.
 
 Esta lista sai de `ls client/src/shared/components/ui/` — em dúvida, confira lá.
 

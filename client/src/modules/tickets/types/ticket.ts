@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { Paginated } from '@/shared/types/pagination';
 
 /**
  * Teto de fotos por chamado. Espelha `MAX_TICKET_PHOTOS` do backend
@@ -97,9 +98,4 @@ export type TicketNotificationPreference = {
 	enabled: boolean;
 };
 
-export type PaginatedTickets = {
-	items: Ticket[];
-	total: number;
-	limit: number;
-	offset: number;
-};
+export type PaginatedTickets = Paginated<Ticket>;

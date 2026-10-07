@@ -11,6 +11,14 @@
 @custom-variant data-open (&[data-state='open']);
 @custom-variant data-closed (&[data-state='closed']);
 
+/*
+ * O `ui/tabs.tsx` do shadcn vem com `data-active:`, que o Tailwind compila para
+ * `[data-active]` — atributo que o Radix nunca emite (ele usa
+ * `data-state="active" | "inactive"`), então as classes do item selecionado não
+ * casavam com nada e a aba ativa ficava sem estilo.
+ */
+@custom-variant data-active (&[data-state='active']);
+
 /* Satoshi (Fontshare) — self-hospedada em /public/fonts, sem CDN em runtime. */
 @font-face {
 	font-family: 'Satoshi';
@@ -278,6 +286,28 @@
 	/* O canto onde as duas barras se encontram, que fica branco por padrão. */
 	::-webkit-scrollbar-corner {
 		background: transparent;
+	}
+
+	/*
+	 * Quem pede menos movimento no sistema recebe menos movimento aqui.
+	 *
+	 * Vale para tudo: as animações de entrada/saída do Radix (`animate-in`,
+	 * `animate-out`), o giro do carregamento e o pulso dos esqueletos. O
+	 * esqueleto perde o pulso mas continua visível — o conteúdo ainda está
+	 * carregando, e é o retângulo que comunica isso, não a animação.
+	 *
+	 * `!important` porque as utilities do Tailwind que definem a animação têm a
+	 * mesma especificidade desta regra e são emitidas depois.
+	 */
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
 	}
 }
 

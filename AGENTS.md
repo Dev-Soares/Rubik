@@ -11,6 +11,10 @@ nunca uma seção aqui.
 1. Identifique o escopo (`server/**`, `client/**`, ambos, neutro).
 2. Carregue as rules do escopo pela tabela de roteamento (§7).
 3. Inspecione 1-2 arquivos vizinhos antes de gerar código.
+4. Vai **rodar** a aplicação? Confira o ambiente primeiro (§6) — `pnpm dev`
+   não precisa de nada, `pnpm dev:local` exige `pnpm setup`. Erro de variável
+   de ambiente no boot quase sempre é setup que não rodou, não configuração
+   errada: não invente `.env` à mão.
 
 ## 1. Checklist de entrega [OBRIGATÓRIO]
 
@@ -138,11 +142,34 @@ client/   # React + Vite — src/{api,modules,pages,routes,shared,styles}
 ```
 
 ```bash
-pnpm dev            # Postgres + server + client
+pnpm dev            # Postgres + server + client, tudo em container
 pnpm check          # typecheck + lint
 pnpm db:generate    # após alterar schema Drizzle
 pnpm db:migrate
 ```
+
+### Primeira vez neste dispositivo
+
+Há dois caminhos para subir a aplicação, e só um precisa de preparo:
+
+| Caminho | Precisa de `pnpm setup`? |
+|---|---|
+| `pnpm dev` — tudo em container | **Não.** A config vem do compose, e o container aplica migrations e cria o admin antes de subir a API. |
+| `pnpm dev:local` — Postgres em container, app no host | **Sim.** Precisa de `server/.env` e das dependências instaladas na máquina. |
+
+```bash
+pnpm setup          # idempotente: cria os `.env` com segredos aleatórios,
+                    # instala deps, sobe o Postgres, migra e cria o admin.
+                    # Não sobrescreve `.env` existente.
+pnpm hooks:install  # liga o pre-push local (typecheck + lint). Uma vez por clone.
+```
+
+**Sintoma de setup que não rodou:** o boot morre com `[env] <VAR>: ...` e
+`exit 1` — o server lê `process.env` direto (`config/env.ts`), valida com Zod e
+aborta no primeiro campo faltando. A resposta é `pnpm setup`, não escrever
+`server/.env` à mão: o script gera `BETTER_AUTH_SECRET` e
+`INTEGRATION_API_KEY` com `randomBytes(32)`, e segredo inventado por engano
+vira segredo fraco em commit.
 
 ## 7. Roteamento — carregue só o que a tarefa pede
 

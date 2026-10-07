@@ -35,8 +35,15 @@ export function UserRowActions({ user, isSelf }: UserRowActionsProps) {
 	const [dialog, setDialog] = useState<OpenDialog>(null);
 	const { isAdmin } = useAuth();
 
-	// Admin recebe acesso total do backend: não há exceção para personalizar.
-	const canCustomizeScreens = !isAdminRole(user.role);
+	/*
+	 * Admin recebe acesso total do backend: não há exceção para personalizar.
+	 *
+	 * `!isSelf` porque mexer nas próprias exceções era escalada de privilégio —
+	 * a exceção pessoal vence o cargo, então era conceder a si mesmo o que o
+	 * cargo não dá. O backend recusa (`setUserPermissions`); aqui o item só não
+	 * aparece.
+	 */
+	const canCustomizeScreens = !isAdminRole(user.role) && !isSelf;
 
 	/*
 	 * Definir senha de outra pessoa é do plugin admin do Better Auth, que exige a

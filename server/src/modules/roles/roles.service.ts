@@ -6,12 +6,13 @@ import {
 	NotFoundException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { and, count, eq, inArray, isNotNull, ne } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, isNotNull, ne } from 'drizzle-orm';
 import { DB } from 'src/db/db.provider';
 import type { Database } from 'src/db/types/db.types';
 import { user } from 'src/db/schema/auth';
 import { role } from 'src/db/schema/role';
 import type { PaginationDto } from 'src/common/dto/pagination.dto';
+import type { Editor } from 'src/common/types/editor.types';
 import type { Paginated } from 'src/common/types/pagination.types';
 import { ADMIN_ROLE, isAdmin, toRoleNames } from 'src/common/utils';
 import { userPermissionOverride } from 'src/db/schema/userPermissionOverride';
@@ -99,11 +100,45 @@ export class RolesService {
 	 * (concorda com o cargo) é descartada: o override existe para divergir, e
 	 * guardá-la congelaria a tela se o cargo mudasse depois.
 	 */
-	async setUserPermissions(userId: string, data: SetUserPermissionsDto): Promise<UserPermissions> {
+	async setUserPermissions(
+		userId: string,
+		data: SetUserPermissionsDto,
+		editor: Editor,
+	): Promise<UserPermissions> {
 		const target = await this.findUserOrFail(userId);
+
+		/*
+		 * Mexer nas próprias exceções é escalada de privilégio direta: a exceção
+		 * pessoal vence o cargo (`applyPermissionOverrides`), então quem tem
+		 * `usuarios:editar` se concedia todas as permissões do sistema numa
+		 * requisição, apontando a rota para o próprio id. O filtro de
+		 * redundância logo abaixo ainda ajudava: descartava o que o cargo já dava
+		 * e gravava exatamente o que faltava.
+		 *
+		 * Mesma invariante que `assertCanSetRole` aplica ao cargo
+		 * (`users.service.ts`) — lá o motivo era não se trancar fora, aqui é não
+		 * se promover. Admin não precisa da rota: já recebe tudo.
+		 */
+		if (userId === editor.id) {
+			throw new ForbiddenException('Você não pode alterar as suas próprias permissões.');
+		}
 
 		if (isAdmin(target.role)) {
 			throw new ForbiddenException('Administrador tem acesso total ao sistema.');
+		}
+
+		/*
+		 * Não se delega o que não se tem: sem isto quem tinha `usuarios:editar`
+		 * concedia a terceiros (ou bloqueava deles) qualquer permissão do
+		 * sistema, inclusive as que ele próprio não possui.
+		 */
+		const ownPermissions = new Set(await this.findPermissionsForUser(editor.id, editor.role));
+		const beyondReach = data.overrides.find((override) => !ownPermissions.has(override.permission));
+
+		if (beyondReach) {
+			throw new ForbiddenException(
+				'Você não pode conceder nem bloquear uma permissão que não tem.',
+			);
 		}
 
 		const inherited = new Set(await this.findInheritedPermissions(target.role));
@@ -182,7 +217,15 @@ export class RolesService {
 
 	async findAll(pagination: PaginationDto): Promise<Paginated<PublicRole>> {
 		const [rows, [totals]] = await Promise.all([
-			this.db.select().from(role).limit(pagination.limit).offset(pagination.offset),
+			// `id` desempata linhas do mesmo instante: sem ordem estável o
+			// LIMIT/OFFSET pode repetir um cargo numa página e sumir com outro,
+			// porque o Postgres não garante ordem sem ORDER BY.
+			this.db
+				.select()
+				.from(role)
+				.orderBy(desc(role.createdAt), desc(role.id))
+				.limit(pagination.limit)
+				.offset(pagination.offset),
 			this.db.select({ value: count() }).from(role),
 		]);
 
@@ -294,6 +337,9 @@ export class RolesService {
 		 * linha. Filtrar em memória é o mesmo caminho de `findAdminIds`, e por
 		 * isso: em SQL exigiria `like` com os quatro casos de borda do CSV
 		 * (sozinho, primeiro, meio, último).
+		 *
+		 * yagni: mesmo teto de `findAdminIds` — varredura basta na escala de uma
+		 * empresa; acima disso, normalizar o cargo numa tabela `user_role`.
 		 */
 		const holders = await this.db
 			.select({ role: user.role })

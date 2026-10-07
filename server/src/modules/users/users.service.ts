@@ -5,17 +5,18 @@ import {
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
-import { count, eq, inArray } from 'drizzle-orm';
+import { count, desc, eq, inArray } from 'drizzle-orm';
 import { DB } from 'src/db/db.provider';
 import type { Database } from 'src/db/types/db.types';
 import { user } from 'src/db/schema/auth';
 import { role } from 'src/db/schema/role';
 import type { Paginated } from 'src/common/types/pagination.types';
-import { toRoleNames } from 'src/common/utils';
+import { isAdmin, toRoleNames } from 'src/common/utils';
 import { RolesService } from 'src/modules/roles/roles.service';
 import type { QueryUsersDto } from 'src/modules/users/dto/query-users.dto';
 import type { UpdateUserDto } from 'src/modules/users/dto/update-user.dto';
-import type { Editor, PublicUser } from 'src/modules/users/types/user.types';
+import type { Editor } from 'src/common/types/editor.types';
+import type { PublicUser } from 'src/modules/users/types/user.types';
 import { toBannedFilter } from 'src/modules/users/utils';
 
 const publicColumns = {
@@ -42,7 +43,16 @@ export class UsersService {
 		const where = query.status ? toBannedFilter(query.status) : undefined;
 
 		const [items, [totals]] = await Promise.all([
-			this.db.select(publicColumns).from(user).where(where).limit(query.limit).offset(query.offset),
+			// Ordem estável: sem ORDER BY o Postgres não garante ordem, e `user`
+			// recebe UPDATE em todo PATCH e em todo login (`updatedAt`) — a linha
+			// muda de posição física e a paginação repete/omite registros.
+			this.db
+				.select(publicColumns)
+				.from(user)
+				.where(where)
+				.orderBy(desc(user.createdAt), desc(user.id))
+				.limit(query.limit)
+				.offset(query.offset),
 			this.db.select({ value: count() }).from(user).where(where),
 		]);
 
@@ -121,12 +131,55 @@ export class UsersService {
 		}
 
 		const existing = await this.db
-			.select({ name: role.name })
+			.select({ name: role.name, isSystem: role.isSystem })
 			.from(role)
 			.where(inArray(role.name, names));
 
 		if (existing.length !== names.length) {
 			throw new BadRequestException('Cargo inexistente.');
 		}
+
+		/*
+		 * Conceder cargo de sistema exige ser administrador.
+		 *
+		 * `admin` é uma linha da tabela `role` como qualquer outra, então passava
+		 * na checagem de existência acima: quem tinha `usuarios:editar` promovia
+		 * um terceiro a administrador, e esse terceiro passa a receber TODAS as
+		 * permissões em `findPermissionsForUser`, mais as rotas `/auth/admin/*`
+		 * do Better Auth (criar usuário, definir senha de qualquer um, inativar).
+		 * Com uma segunda conta sob controle, era acesso total.
+		 *
+		 * As outras operações de administrador do sistema já exigem a role
+		 * `admin` e não a permissão de tela; esta é a mesma regra.
+		 */
+		if (!isAdmin(editor.role) && existing.some((found) => found.isSystem)) {
+			throw new ForbiddenException('Só um administrador concede cargo de sistema.');
+		}
+
+		/*
+		 * Revogar cargo de sistema de quem é administrador segue a mesma regra:
+		 * sem isto, `usuarios:editar` rebaixava todos os administradores — o
+		 * mesmo lockout que a remoção de conta abria, por outra porta.
+		 */
+		const target = await this.findUserRoleOrFail(targetId);
+
+		if (!isAdmin(editor.role) && isAdmin(target.role)) {
+			throw new ForbiddenException('Só um administrador altera o cargo de outro administrador.');
+		}
+	}
+
+	/** Cargo atual do alvo, para as regras que comparam editor e editado. */
+	private async findUserRoleOrFail(id: string): Promise<{ role: string | null }> {
+		const [found] = await this.db
+			.select({ role: user.role })
+			.from(user)
+			.where(eq(user.id, id))
+			.limit(1);
+
+		if (!found) {
+			throw new NotFoundException('Usuário não encontrado.');
+		}
+
+		return found;
 	}
 }

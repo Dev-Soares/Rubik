@@ -1,7 +1,7 @@
 import { infiniteQueryOptions, useSuspenseInfiniteQuery } from '@tanstack/react-query';
 import { listAuditLogService } from '@/modules/audit/service/auditService';
 import type { AuditFilters } from '@/modules/audit/types/audit';
-import { nextOffset } from '@/modules/audit/utils';
+import { nextOffset } from '@/shared/utils/pagination';
 
 const PAGE_SIZE = 20;
 

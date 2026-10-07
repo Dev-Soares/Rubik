@@ -73,6 +73,31 @@ permanentemente. Qualquer `bg-*` aplicado depois perdia a disputa; um
   medir o pixel do item sob hover, não o CSS — a regra existia, tinha
   `!important`, e mesmo assim não pintava. Ler o fonte não revela isso.
 
+## L2. Componente recém-gerado pelo `pnpm ui:add` passa por revisão antes de ser usado
+
+**Erro real:** `pnpm ui:add tabs` trouxe `ui/tabs.tsx` com três defeitos de uma
+vez: `import { cn } from "cn"` — pacote que este repo removeu em favor de
+`clsx` + `tailwind-merge` —, a dependência `cn` de volta no `package.json`, e
+quatro classes `data-active:*` para estilizar a aba selecionada. O Radix emite
+`data-state="active" | "inactive"`, nunca `data-active`, então o seletor não
+casava com nada e a aba ativa ficaria sem estilo.
+
+- **Causa raiz:** o gerador escreve o componente do registry público, que não
+  conhece as convenções locais: ele assume o alias `cn` do shadcn padrão e usa
+  as variantes do Tailwind na versão em que o registry foi publicado. Nada disso
+  aparece em erro de build — o import quebra o typecheck (ruidoso, fácil), mas a
+  variante morta é silenciosa.
+- **Regra:** depois de todo `pnpm ui:add`, confira três coisas no arquivo
+  gerado, antes de escrever a tela que o consome: (1) o import do `cn` aponta
+  para `@/shared/lib/utils`; (2) `git diff package.json` não ganhou dependência
+  nova indesejada; (3) cada `data-*:` usado existe como `@custom-variant` no
+  `global.css` **e** casa com o atributo que o Radix realmente emite naquele
+  primitivo. Variante nova → declare no `global.css` (é o caso de
+  `data-active`).
+- **Verificação:** `grep -rn "from 'cn'\|from \"cn\"" client/src` sai vazio;
+  `git diff client/package.json` limpo; e para a variante, inspecionar o
+  elemento e confirmar o atributo (`data-state="active"` na aba selecionada).
+
 <!--
 Não preencha com bug hipotético nem com regra que já está em `.claude/rules/**`
 — entrada sem incidente real vira ruído e faz o próximo leitor parar de ler o

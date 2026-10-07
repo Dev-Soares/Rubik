@@ -1,16 +1,10 @@
 import {
 	TICKET_STATUS_LABELS,
 	TICKET_STATUSES,
-	type PaginatedTickets,
 	type TicketFormInput,
 	type TicketStatus,
 } from '@/modules/tickets/types/ticket';
 
-/** `undefined` encerra a paginação infinita. */
-export function nextOffset(last: PaginatedTickets): number | undefined {
-	const loaded = last.offset + last.items.length;
-	return loaded < last.total ? loaded : undefined;
-}
 
 /** Monta o corpo `multipart/form-data` que a rota de criação espera. */
 export function toTicketFormData(input: TicketFormInput): FormData {

@@ -3,12 +3,17 @@
 /*
  * ALTERADO EM RELAÇÃO AO SHADCN — não rode `pnpm ui:add sidebar --overwrite`.
  *
- * As variantes `data-active:` do original viraram `data-[active=true]:`. O
- * `data-active:` do Tailwind compila para `[data-active]`, que casa com a
- * PRESENÇA do atributo, e `SidebarMenuButton` renderiza `data-active="false"`
- * em todo item — então `data-active:bg-sidebar-accent` pintava a sidebar
- * inteira com a cor do item selecionado, permanentemente, e qualquer `bg-*`
- * aplicado por cima perdia a disputa.
+ * 1. As variantes `data-active:` do original viraram `data-[active=true]:`. O
+ *    `data-active:` do Tailwind compila para `[data-active]`, que casa com a
+ *    PRESENÇA do atributo, e `SidebarMenuButton` renderiza `data-active="false"`
+ *    em todo item — então `data-active:bg-sidebar-accent` pintava a sidebar
+ *    inteira com a cor do item selecionado, permanentemente, e qualquer `bg-*`
+ *    aplicado por cima perdia a disputa.
+ *
+ * 2. `readSidebarCookie` + inicializador lazy do `useState`. O original só
+ *    escreve o cookie `sidebar_state`, porque espera um server component do
+ *    Next lendo-o para passar `defaultOpen`. Sem SSR, ninguém lia: a sidebar
+ *    recolhida reabria em todo reload.
  */
 
 import * as React from 'react';
@@ -37,6 +42,27 @@ const SIDEBAR_WIDTH = '16rem';
 const SIDEBAR_WIDTH_MOBILE = '18rem';
 const SIDEBAR_WIDTH_ICON = '3.5rem';
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
+
+/**
+ * Preferência salva de recolhimento, ou `null` quando ainda não houver.
+ *
+ * ADIÇÃO EM RELAÇÃO AO SHADCN. O original só ESCREVE este cookie: ele presume
+ * um server component do Next lendo-o e passando `defaultOpen` para o provider.
+ * Aqui não há SSR, ninguém lia, e a preferência era descartada a cada reload —
+ * o código parecia persistir e não persistia.
+ */
+function readSidebarCookie(): boolean | null {
+	if (typeof document === 'undefined') {
+		return null;
+	}
+
+	const match = document.cookie.match(new RegExp(`(?:^|; )${SIDEBAR_COOKIE_NAME}=(true|false)`));
+	if (!match) {
+		return null;
+	}
+
+	return match[1] === 'true';
+}
 
 type SidebarContextProps = {
 	state: 'expanded' | 'collapsed';
@@ -77,7 +103,9 @@ function SidebarProvider({
 
 	// This is the internal state of the sidebar.
 	// We use openProp and setOpenProp for control from outside the component.
-	const [_open, _setOpen] = React.useState(defaultOpen);
+	// Inicializador lazy: lê o cookie uma vez, na montagem. `defaultOpen` só
+	// vale no primeiro acesso, antes de existir preferência salva.
+	const [_open, _setOpen] = React.useState(() => readSidebarCookie() ?? defaultOpen);
 	const open = openProp ?? _open;
 	const setOpen = React.useCallback(
 		(value: boolean | ((value: boolean) => boolean)) => {

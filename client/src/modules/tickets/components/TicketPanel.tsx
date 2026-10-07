@@ -56,18 +56,16 @@ export function TicketPanel() {
 					<TicketNotificationToggle />
 				</div>
 
-				<TicketStatusTabs value={status} counts={counts} onChange={setStatus} />
-			</div>
-
-			{/*
-			 * A chave remonta a lista ao trocar de filtro: sem ela o
-			 * `useSuspenseInfiniteQuery` manteria as páginas já carregadas do
-			 * status anterior enquanto o novo resultado chega.
-			 */}
-			<div role="tabpanel" aria-labelledby={`ticket-tab-${status}`}>
-				<Suspense fallback={<TicketListSkeleton />}>
-					<TicketList key={status} status={status} highlightedId={highlightedId} />
-				</Suspense>
+				{/*
+				 * A chave remonta a lista ao trocar de filtro: sem ela o
+				 * `useSuspenseInfiniteQuery` manteria as páginas já carregadas do
+				 * status anterior enquanto o novo resultado chega.
+				 */}
+				<TicketStatusTabs value={status} counts={counts} onChange={setStatus}>
+					<Suspense fallback={<TicketListSkeleton />}>
+						<TicketList key={status} status={status} highlightedId={highlightedId} />
+					</Suspense>
+				</TicketStatusTabs>
 			</div>
 		</div>
 	);

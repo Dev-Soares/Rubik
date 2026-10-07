@@ -19,7 +19,8 @@ export function usersQueryOptions(
 		 * "Próxima" a lista piscava e o scroll ia para o topo.
 		 *
 		 * Com `keepPreviousData` a página anterior fica na tela enquanto a nova
-		 * carrega; quem sinaliza a troca é o `isPlaceholderData` no painel.
+		 * carrega; quem sinaliza a troca é o `isFetching` no painel — a variante
+		 * suspense não expõe `isPlaceholderData` (ver `UsersPanel`).
 		 */
 		placeholderData: keepPreviousData,
 	});

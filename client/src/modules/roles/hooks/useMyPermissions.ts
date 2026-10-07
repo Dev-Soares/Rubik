@@ -24,7 +24,7 @@ export function useMyPermissions() {
 	return {
 		permissions,
 		isPending,
-		can: <M extends Module>(module: M, action: Action<M> = 'ver' as Action<M>) =>
+		can: <M extends Module>(module: M, action: Action<M> = 'ver') =>
 			permissions.includes(toPermission(module, action)),
 	};
 }

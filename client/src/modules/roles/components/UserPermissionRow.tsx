@@ -7,12 +7,7 @@ import {
 	type ActionAccess,
 	type Permission,
 } from '@/modules/roles/types/role';
-import {
-	hasAction,
-	STANDARD_ACTIONS,
-	type CatalogModule,
-	type StandardAction,
-} from '@/modules/roles/types/catalog';
+import { hasAction, STANDARD_ACTIONS, type CatalogModule } from '@/modules/roles/types/catalog';
 import { toPermission } from '@/modules/roles/utils';
 import { ToggleGroup, ToggleGroupItem } from '@/shared/components/ui/toggle-group';
 
@@ -76,7 +71,7 @@ export function UserPermissionRow({
 					return (
 						<div key={action} className="flex items-center gap-3">
 							<span className="text-muted-foreground w-12 shrink-0 text-xs">
-								{ACTION_LABELS[action as StandardAction]}
+								{ACTION_LABELS[action]}
 							</span>
 
 							<ToggleGroup
@@ -84,7 +79,7 @@ export function UserPermissionRow({
 								value={access[permission]}
 								onValueChange={(next) => next && onChange(permission, next as ActionAccess)}
 								disabled={disabled}
-								aria-label={`${item.title}: ${ACTION_LABELS[action as StandardAction]}`}
+								aria-label={`${item.title}: ${ACTION_LABELS[action]}`}
 								// `grid-cols-3` com colunas iguais: as três opções têm
 								// larguras de texto diferentes, e sem isso cada linha do
 								// catálogo alinhava os chips num lugar diferente.

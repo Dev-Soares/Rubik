@@ -55,7 +55,33 @@ Use os tokens do shadcn, nunca cores cruas:
 
 Token novo → declare em `:root` **e** `.dark` no `global.css`, e mapeie em `@theme inline`.
 
-- Tema escuro é automático pelos tokens — não escreva `dark:` em cada classe.
+### Exceção: cor que é dado, não decisão de tema
+
+A tabela acima vale para a aparência do sistema. Não vale para **cor escolhida
+pelo usuário** nem para **paleta de categoria**, onde o valor é o dado em si:
+
+- `ROLE_COLOR_*` (`modules/roles/utils/badge.ts`) — o administrador escolhe a
+  cor do crachá numa lista fixa. Tokenizar significaria um token por cor
+  oferecida, e a cor não quer dizer nada sobre o tema: quer dizer "o usuário
+  escolheu azul".
+- `MARKER_CLASS_BY_TONE` (`NotificationItem.tsx`) — `info`, `success` e
+  `warning` são a categoria do aviso, não um papel do tema. `neutral` e `danger`
+  **usam** token (`bg-primary`, `bg-destructive`), porque esses dois existem no
+  tema.
+
+Nesses dois casos, duas obrigações:
+
+1. O mapa vive num `Record` nomeado, num `utils/` ou constante de módulo — nunca
+   uma classe crua solta no meio do JSX.
+2. O par claro/escuro é explícito (`dark:`), porque fora do token nada ajusta a
+   cor por tema. É a única situação em que `dark:` na classe é correto.
+
+Em dúvida: a cor responde a "que papel isso tem na interface?" → token. Responde
+a "qual valor o usuário escolheu / de que tipo é este item?" → paleta crua, com
+as duas regras acima.
+
+- Tema escuro é automático pelos tokens — não escreva `dark:` em cada classe,
+  fora da exceção acima.
 - Prefira borda a sombra para destacar.
 - Espaçamento com `gap-4` / `gap-6`.
 - Conflito de classe: use `cn()` de `@/shared/lib/utils`

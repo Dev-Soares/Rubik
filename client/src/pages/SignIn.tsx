@@ -3,7 +3,7 @@ import { AuthLayout } from '@/shared/layouts/AuthLayout';
 
 export function SignIn() {
 	return (
-		<AuthLayout title="Faça o seu login">
+		<AuthLayout title="Login">
 			<SignInForm />
 		</AuthLayout>
 	);

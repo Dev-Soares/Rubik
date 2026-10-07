@@ -15,7 +15,7 @@ export function SignInForm() {
 	} = useForm<SignInInput>({ resolver: zodResolver(signInSchema) });
 
 	return (
-		<form onSubmit={handleSubmit((data) => signIn(data))} className="flex flex-col gap-4">
+		<form onSubmit={handleSubmit((data) => signIn(data))} className="flex flex-col gap-3.5 lg:gap-4">
 			<FormField
 				label="E-mail"
 				type="email"
@@ -35,7 +35,11 @@ export function SignInForm() {
 				{...register('password')}
 			/>
 
-			<Button type="submit" className="h-11 w-full font-bold" disabled={isPending}>
+			<Button
+				type="submit"
+				className="mt-5 h-14 w-full text-lg font-bold lg:mt-0 lg:h-11 lg:text-sm"
+				disabled={isPending}
+			>
 				{isPending ? 'Entrando...' : 'Entrar'}
 			</Button>
 		</form>

@@ -2,6 +2,7 @@ import { EyeIcon, EyeOffIcon, type LucideIcon } from 'lucide-react';
 import { useState, type ComponentProps } from 'react';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
+import { cn } from '@/shared/lib/utils';
 
 type FormFieldProps = ComponentProps<typeof Input> & {
 	label: string;
@@ -22,7 +23,7 @@ export function FormField({ label, error, icon: Icon, hint, id, type, ...props }
 	const inputType = isPassword && revealed ? 'text' : type;
 
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="flex flex-col gap-1.5">
 			<Label
 				htmlFor={fieldId}
 				className="text-muted-foreground text-xs font-semibold tracking-wider uppercase"
@@ -34,7 +35,7 @@ export function FormField({ label, error, icon: Icon, hint, id, type, ...props }
 				{Icon ? (
 					<Icon
 						aria-hidden
-						className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 opacity-60"
+						className="text-muted-foreground pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 opacity-60 lg:left-3"
 					/>
 				) : null}
 
@@ -43,7 +44,7 @@ export function FormField({ label, error, icon: Icon, hint, id, type, ...props }
 					type={inputType}
 					aria-invalid={Boolean(error)}
 					aria-describedby={error ? `${fieldId}-error` : undefined}
-					className={`h-11 ${Icon ? 'pl-9' : ''} ${isPassword ? 'pr-10' : ''}`}
+					className={cn('h-13 lg:h-11', Icon && 'pl-10', isPassword && 'pr-11')}
 					{...props}
 				/>
 
@@ -53,7 +54,7 @@ export function FormField({ label, error, icon: Icon, hint, id, type, ...props }
 						onClick={() => setRevealed((current) => !current)}
 						aria-label={revealed ? 'Ocultar senha' : 'Mostrar senha'}
 						aria-pressed={revealed}
-						className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
+						className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3.5 -translate-y-1/2 transition-colors lg:right-3"
 					>
 						{revealed ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
 					</button>

@@ -429,10 +429,17 @@
 /*
  * Botões do shadcn: o padrão (`h-8 px-2.5`) fica apertado para o sistema.
  * Só o tamanho `default` e `lg` mudam; `xs`/`sm`/`icon` seguem compactos.
+ *
+ * Dentro de `@layer base` de propósito: fora de layer, o seletor de atributo
+ * vence qualquer `h-*`/`px-*` da classe, e um `h-15` no botão não saía dos
+ * 40px daqui — sem erro nenhum, só a altura ignorada. Na layer `base` a regra
+ * continua valendo como padrão e perde para a utility que pedir outra altura.
  */
-[data-slot='button']:not([data-size='xs']):not([data-size='sm']):not([data-size^='icon']) {
-	height: --spacing(10);
-	padding-inline: --spacing(4);
+@layer base {
+	[data-slot='button']:not([data-size='xs']):not([data-size='sm']):not([data-size^='icon']) {
+		height: --spacing(10);
+		padding-inline: --spacing(4);
+	}
 }
 
 /*

@@ -173,7 +173,7 @@ export function NavGroupItem({ item, onNavigate }: NavGroupItemProps) {
 					 */}
 					<SidebarMenuButton
 						tooltip={item.label}
-						className={`text-foreground/70 h-9 data-open:hover:bg-foreground/10! ${NAV_ITEM_CLASS}`}
+						className={`text-foreground/70 data-open:hover:bg-sidebar-item-hover! h-9 ${NAV_ITEM_CLASS}`}
 					>
 						<item.icon className="size-4 shrink-0" strokeWidth={2} />
 						<span className="group-data-[collapsible=icon]:hidden">{item.label}</span>

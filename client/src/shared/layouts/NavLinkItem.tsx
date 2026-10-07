@@ -32,29 +32,16 @@ export function NavLinkItem({ item, badge = 0, onNavigate }: NavLinkItemProps) {
 								{/* Com a sidebar recolhida só o ícone aparece: o ponto sobre ele
 								 * mantém o aviso visível, já que o número fica escondido. */}
 								{badge > 0 ? (
-									<span
-										className={`absolute -top-0.5 -right-0.5 size-2 rounded-full group-data-[collapsible=icon]:block hidden ${
-											isActive ? 'bg-primary-foreground' : 'bg-destructive'
-										}`}
-									/>
+									<span className="bg-destructive absolute -top-0.5 -right-0.5 hidden size-2 rounded-full group-data-[collapsible=icon]:block" />
 								) : null}
 							</span>
 
 							<span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
 
 							{badge > 0 ? (
-								/*
-								 * Ativo, o item tem fundo `primary` e o aviso em `destructive`
-								 * sumiria: os dois tokens são vermelhos. Aí o badge inverte —
-								 * fundo claro sobre o pill, no lugar de vermelho sobre vermelho.
-								 */
-								<span
-									className={`ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] leading-none font-bold tabular-nums group-data-[collapsible=icon]:hidden ${
-										isActive
-											? 'bg-primary-foreground text-primary'
-											: 'bg-destructive text-destructive-foreground'
-									}`}
-								>
+								// O fundo do item ativo é tingido, não sólido: o badge
+								// `destructive` cheio contrasta com ele e não precisa inverter.
+								<span className="bg-destructive text-destructive-foreground ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] leading-none font-bold tabular-nums group-data-[collapsible=icon]:hidden">
 									{formatBadgeCount(badge)}
 								</span>
 							) : null}

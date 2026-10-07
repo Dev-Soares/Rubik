@@ -3,12 +3,16 @@
 Procedimento para a **primeira subida** de um projeto derivado do template.
 Escrito para um agente executar, de cima para baixo, sem pular etapa.
 
-Entrada: um clone do Rubik e a URL do repositório vazio do projeto novo.
+Entrada: o repositório do projeto novo, criado por um dos dois caminhos da
+etapa 1 — o botão **Use this template** do GitHub (recomendado) ou um
+`git clone` do Rubik.
 Saída: os três serviços no ar, banco migrado, admin criado e os dois remotes
 configurados.
 
-Se a URL do repositório novo não foi informada, **pergunte antes de começar** —
-a etapa 1 depende dela e refazer remote depois de commitar dá retrabalho.
+**Antes de começar, confirme por qual dos dois o repositório nasceu**: a etapa 1
+muda conforme o caso, e refazer remote depois de commitar dá retrabalho. No
+caminho B é preciso também a URL do repositório novo — se não foi informada,
+pergunte.
 
 ---
 
@@ -29,15 +33,30 @@ abrir — não tente contornar.
 
 ## 1. Remotes: projeto novo e template
 
-O clone vem com `origin` apontando para o **Rubik**. Isso precisa mudar antes do
-primeiro commit, senão o código do cliente vai para o template.
-
-A configuração final tem dois remotes com papéis distintos:
+A configuração final tem dois remotes com papéis distintos, nos dois caminhos:
 
 | Remote | Aponta para | Serve para |
 |---|---|---|
 | `origin` | repositório do projeto novo | o trabalho do dia a dia (`git push`) |
 | `template` | Rubik | **só puxar** melhoria futura do template |
+
+### Caminho A — botão "Use this template" (recomendado)
+
+O repositório nasce com **um commit só**, sem o histórico do Rubik, e `origin`
+já aponta para o lugar certo. Falta acrescentar o `template`:
+
+```bash
+git remote add template https://github.com/Dev-Soares/Rubik.git
+
+# `template` fica somente-leitura: bloqueia push acidental para o Rubik.
+git remote set-url --push template DISABLED
+```
+
+### Caminho B — `git clone` do Rubik
+
+O clone copia o `.git` inteiro: o projeto herda todos os commits do Rubik, e
+`origin` aponta para **ele**. Isso precisa mudar antes do primeiro commit,
+senão o código do cliente vai para o template.
 
 ```bash
 # 1. O Rubik deixa de ser `origin` e passa a ser `template`.
@@ -50,7 +69,13 @@ git remote add origin <url-do-repo-novo>
 git remote set-url --push template DISABLED
 ```
 
-Confira — a saída tem que mostrar `DISABLED` na linha de push do `template`:
+O preço é o `git log` e o `git blame` do projeto ficarem com commits que falam
+de decisões de outro produto, para sempre. Em troca, há ancestral comum com o
+template — e é só por isso que o `git merge` da seção abaixo funciona.
+
+### Confira (nos dois caminhos)
+
+A saída tem que mostrar `DISABLED` na linha de push do `template`:
 
 ```bash
 git remote -v
@@ -71,7 +96,45 @@ git push -u origin main
 
 ### Puxar melhoria do template depois
 
-Não faz parte do setup — é para quando o Rubik evoluir:
+Não faz parte do setup — é para quando o Rubik evoluir. **O caminho depende de
+como o repositório nasceu**, e misturar os dois é a origem do erro
+`refusing to merge unrelated histories`.
+
+#### Veio do "Use this template" (caminho A)
+
+Não há ancestral comum: o repositório começou num commit órfão, então
+`git merge template/main` recusa, e com `--allow-unrelated-histories` ele
+marca **todo arquivo** como conflito — o git não tem como distinguir "mudou" de
+"sempre foi diferente". Não use merge aqui.
+
+O que funciona é **copiar o arquivo** da outra árvore. `git checkout` com
+`--` aceita um remote sem ancestral comum:
+
+```bash
+git fetch template
+
+# 1. Ver o que mudou no template desde a sua cópia:
+git diff HEAD template/main -- .claude/rules/ AGENTS.md
+
+# 2. Trazer só o que interessa (um caminho por vez, revisando o diff antes):
+git checkout template/main -- .claude/rules/
+git checkout template/main -- .github/workflows/ci.yml
+
+# 3. Os arquivos chegam staged. Confira e commite:
+git status
+git commit -m "chore: atualiza as rules a partir do template"
+```
+
+Serve bem para o que o projeto derivado **não** costuma editar: `.claude/rules/**`,
+`AGENTS.md`, `.github/workflows/`, `eslint.config`, `.prettierrc`,
+`.gitattributes`. É justamente onde o template evolui.
+
+Para **código** (`client/src`, `server/src`), isto sobrescreve o arquivo
+inteiro e apaga o que o projeto fez. Ali, leia o diff e porte a mudança à mão.
+
+#### Veio de `git clone` (caminho B)
+
+Há ancestral comum, então o merge de verdade funciona:
 
 ```bash
 git fetch template
@@ -81,6 +144,13 @@ git merge template/main        # ou: git cherry-pick <sha> para trazer só um co
 Conflito aqui é normal e esperado: o projeto derivado divergiu de propósito.
 Resolva a favor do projeto, exceto quando a mudança do template é justamente o
 que você quer.
+
+#### Em qualquer um dos dois
+
+O template não versiona (`AGENTS.md` §2), então não existe tag ou release para
+comparar: o que você tem é o diff. Traga uma mudança por commit, com o motivo
+na mensagem — seis meses depois, `git log` é o único registro de por que aquele
+arquivo veio de fora.
 
 ---
 

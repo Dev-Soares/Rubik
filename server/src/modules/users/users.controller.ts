@@ -10,12 +10,12 @@ import {
 	Query,
 	UseGuards,
 } from '@nestjs/common';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
 import type { Paginated } from 'src/common/types/pagination.types';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { RequireAccess } from 'src/common/decorators/access.decorator';
 import { OwnershipGuard } from 'src/common/guards/ownership.guard';
 import { AccessGuard } from 'src/common/guards/access.guard';
+import { QueryUsersDto } from 'src/modules/users/dto/query-users.dto';
 import { UpdateUserDto } from 'src/modules/users/dto/update-user.dto';
 import type { PublicUser } from 'src/modules/users/types/user.types';
 import { UsersService } from 'src/modules/users/users.service';
@@ -28,8 +28,8 @@ export class UsersController {
 	@Get()
 	@RequireAccess('usuarios', 'ver')
 	@UseGuards(AccessGuard)
-	findAll(@Query() pagination: PaginationDto): Promise<Paginated<PublicUser>> {
-		return this.usersService.findAll(pagination);
+	findAll(@Query() query: QueryUsersDto): Promise<Paginated<PublicUser>> {
+		return this.usersService.findAll(query);
 	}
 
 	/** Busca um usuário. Só o próprio usuário ou um admin. */

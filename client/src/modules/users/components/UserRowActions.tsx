@@ -1,9 +1,18 @@
-import { KeyRoundIcon, MoreVerticalIcon, PencilIcon, ShieldIcon, Trash2Icon } from 'lucide-react';
+import {
+	KeyRoundIcon,
+	MoreVerticalIcon,
+	PencilIcon,
+	ShieldIcon,
+	Trash2Icon,
+	UserCheckIcon,
+	UserXIcon,
+} from 'lucide-react';
 import { useState } from 'react';
 import { UserPermissionsDialog } from '@/modules/roles/components/UserPermissionsDialog';
 import { DeleteUserDialog } from '@/modules/users/components/DeleteUserDialog';
 import { EditUserDialog } from '@/modules/users/components/EditUserDialog';
 import { SetUserPasswordDialog } from '@/modules/users/components/SetUserPasswordDialog';
+import { ToggleUserActiveDialog } from '@/modules/users/components/ToggleUserActiveDialog';
 import type { User } from '@/modules/users/types/user';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { Button } from '@/shared/components/ui/button';
@@ -16,7 +25,7 @@ import {
 import { isAdminRole } from '@/shared/utils/roles';
 
 /** Qual diálogo a linha abriu; `null` é o estado fechado. */
-type OpenDialog = 'edit' | 'password' | 'screens' | 'delete' | null;
+type OpenDialog = 'edit' | 'password' | 'screens' | 'active' | 'delete' | null;
 
 type UserRowActionsProps = {
 	user: User;
@@ -37,6 +46,13 @@ export function UserRowActions({ user, isSelf }: UserRowActionsProps) {
 	 * é o Perfil, que pede a senha atual.
 	 */
 	const canSetPassword = isAdmin && !isSelf;
+
+	/*
+	 * Inativar conta é do mesmo plugin admin, que também exige a role `admin`.
+	 * O Better Auth recusa inativar a si mesmo; esconder o item evita o erro.
+	 */
+	const canToggleActive = isAdmin && !isSelf;
+	const isBanned = user.banned === true;
 
 	const close = (open: boolean) => {
 		if (!open) {
@@ -79,6 +95,13 @@ export function UserRowActions({ user, isSelf }: UserRowActionsProps) {
 						</DropdownMenuItem>
 					) : null}
 
+					{canToggleActive ? (
+						<DropdownMenuItem onSelect={() => setDialog('active')}>
+							{isBanned ? <UserCheckIcon /> : <UserXIcon />}
+							{isBanned ? 'Reativar' : 'Inativar'}
+						</DropdownMenuItem>
+					) : null}
+
 					{/* Excluir a própria conta deixaria a sessão órfã. */}
 					{isSelf ? null : (
 						<DropdownMenuItem variant="destructive" onSelect={() => setDialog('delete')}>
@@ -105,6 +128,16 @@ export function UserRowActions({ user, isSelf }: UserRowActionsProps) {
 					userId={user.id}
 					userName={user.name}
 					open={dialog === 'screens'}
+					onOpenChange={close}
+				/>
+			) : null}
+
+			{canToggleActive ? (
+				<ToggleUserActiveDialog
+					userId={user.id}
+					userName={user.name}
+					isBanned={isBanned}
+					open={dialog === 'active'}
 					onOpenChange={close}
 				/>
 			) : null}

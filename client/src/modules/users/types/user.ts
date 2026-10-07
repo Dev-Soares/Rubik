@@ -67,9 +67,21 @@ export type User = {
 	emailVerified: boolean;
 	image: string | null;
 	role: string | null;
+	/** Conta inativada: o login é recusado e as sessões abertas foram encerradas. */
+	banned: boolean | null;
 	createdAt: string;
 	updatedAt: string;
 };
+
+/** Espelha `USER_STATUSES` do backend (`server/src/modules/users/types/user.types.ts`). */
+export const USER_STATUSES = ['ativo', 'inativo'] as const;
+
+export type UserStatus = (typeof USER_STATUSES)[number];
+
+/** Aba de situação da listagem; `todos` é a visão sem filtro. */
+export const USER_STATUS_FILTERS = ['todos', ...USER_STATUSES] as const;
+
+export type UserStatusFilter = (typeof USER_STATUS_FILTERS)[number];
 
 export type PaginatedUsers = {
 	items: User[];

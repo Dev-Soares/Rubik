@@ -10,12 +10,13 @@ import { DB } from 'src/db/db.provider';
 import type { Database } from 'src/db/types/db.types';
 import { user } from 'src/db/schema/auth';
 import { role } from 'src/db/schema/role';
-import type { PaginationDto } from 'src/common/dto/pagination.dto';
 import type { Paginated } from 'src/common/types/pagination.types';
 import { toRoleNames } from 'src/common/utils';
 import { RolesService } from 'src/modules/roles/roles.service';
+import type { QueryUsersDto } from 'src/modules/users/dto/query-users.dto';
 import type { UpdateUserDto } from 'src/modules/users/dto/update-user.dto';
 import type { Editor, PublicUser } from 'src/modules/users/types/user.types';
+import { toBannedFilter } from 'src/modules/users/utils';
 
 const publicColumns = {
 	id: user.id,
@@ -24,6 +25,7 @@ const publicColumns = {
 	emailVerified: user.emailVerified,
 	image: user.image,
 	role: user.role,
+	banned: user.banned,
 	createdAt: user.createdAt,
 	updatedAt: user.updatedAt,
 } as const;
@@ -35,17 +37,20 @@ export class UsersService {
 		private readonly rolesService: RolesService,
 	) {}
 
-	async findAll(pagination: PaginationDto): Promise<Paginated<PublicUser>> {
+	async findAll(query: QueryUsersDto): Promise<Paginated<PublicUser>> {
+		// `banned` é nulo nas contas criadas antes do campo: ativo é "não banido".
+		const where = query.status ? toBannedFilter(query.status) : undefined;
+
 		const [items, [totals]] = await Promise.all([
-			this.db.select(publicColumns).from(user).limit(pagination.limit).offset(pagination.offset),
-			this.db.select({ value: count() }).from(user),
+			this.db.select(publicColumns).from(user).where(where).limit(query.limit).offset(query.offset),
+			this.db.select({ value: count() }).from(user).where(where),
 		]);
 
 		return {
 			items,
 			total: totals?.value ?? 0,
-			limit: pagination.limit,
-			offset: pagination.offset,
+			limit: query.limit,
+			offset: query.offset,
 		};
 	}
 

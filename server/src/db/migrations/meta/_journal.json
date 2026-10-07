@@ -92,6 +92,13 @@
       "when": 1791234831063,
       "tag": "0012_auth_user_id_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1791234832063,
+      "tag": "0013_verification_identifier_index",
+      "breakpoints": true
     }
   ]
 }

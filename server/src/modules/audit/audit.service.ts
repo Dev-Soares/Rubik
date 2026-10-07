@@ -77,7 +77,7 @@ export class AuditService {
 				.select()
 				.from(auditLog)
 				.where(where)
-				.orderBy(desc(auditLog.createdAt))
+				.orderBy(desc(auditLog.createdAt), desc(auditLog.id))
 				.limit(query.limit)
 				.offset(query.offset),
 			this.db.select({ value: count() }).from(auditLog).where(where),

@@ -4,11 +4,11 @@
 #                                     o único comando necessário num clone novo.
 # Prod local:    pnpm docker:prod  -> imagens de produção (nginx + node)
 #
-# Portas do HOST vêm do `.env` da raiz, com o padrão aqui como default. Quem
-# escreve esse arquivo é `scripts/ports.mjs`, que roda antes de todo comando de
-# dev e desvia para a próxima porta livre quando a padrão está ocupada por outro
-# projeto da máquina. A porta INTERNA de cada serviço nunca muda: o que conversa
-# na rede do compose (`postgres:5432`, `server:3000`) é fixo de propósito.
+# Portas do HOST vêm do `.env` da raiz, com o padrão aqui como default — e são
+# FIXAS: 5432 (Postgres), 3000 (API), 3001 (aplicação). A porta INTERNA é a
+# mesma, então o mapeamento é 1:1 e o que você digita no navegador é o que o
+# serviço escuta. Porta ocupada por outro projeto da máquina → `port is already
+# allocated`: pare o outro projeto, ou mude o valor no `.env` da raiz à mão.
 
 services:
   postgres:

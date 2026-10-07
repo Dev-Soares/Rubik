@@ -10,17 +10,15 @@ import pkg from './package.json' with { type: 'json' };
 // sem polling o HMR não dispara.
 const isDocker = process.env.DOCKER === 'true';
 
-// `CLIENT_PORT` vem do `.env` da RAIZ, escrito por `scripts/ports.mjs` quando a
-// padrão está ocupada por outro projeto da máquina. Em container a porta interna
-// é sempre 3001 e quem desvia é o mapeamento do compose, então o arquivo da raiz
-// só manda no caminho `dev:local`.
+// `CLIENT_PORT` vem do `.env` da RAIZ, o mesmo arquivo que o compose lê. Em
+// container a porta é sempre 3001 e o compose publica 1:1, então o valor da raiz
+// só muda algo no caminho `dev:local`.
 const rootEnv = loadEnv('development', path.resolve(import.meta.dirname, '..'), '');
 const clientPort = isDocker ? 3001 : Number(rootEnv.CLIENT_PORT) || 3001;
 
 /**
  * Para onde o proxy do dev manda as chamadas de API. Em container o alvo é o
- * serviço `server` na rede do compose, na porta INTERNA; fora dele é o host, na
- * porta publicada que `scripts/ports.mjs` escolheu.
+ * serviço `server` na rede do compose; fora dele é o host, na porta publicada.
  */
 const apiTarget = isDocker
 	? 'http://server:3000'

@@ -1,6 +1,6 @@
 import { CheckIcon, PaperclipIcon } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 import type { Ticket } from '@/modules/tickets/types/ticket';
 import { isDone, statusLabel } from '@/modules/tickets/utils';
 import { Badge } from '@/shared/components/ui/badge';

@@ -23,8 +23,9 @@ export const auth = betterAuth({
 
 	emailAndPassword: {
 		enabled: true,
-		// Cadastro público desativado: usuários são criados internamente por um
-		// admin (`POST /users`) ou pelo seed inicial.
+		// Cadastro público desativado: usuários são criados por um admin, pelo
+		// plugin admin daqui (`authClient.admin.createUser`, que exige a role
+		// `admin`), ou pelo seed inicial. Não há rota nossa de criação.
 		disableSignUp: true,
 		minPasswordLength: 8,
 	},
@@ -38,8 +39,20 @@ export const auth = betterAuth({
 		},
 	},
 
+	/*
+	 * Ligado em todo ambiente, e não só em produção.
+	 *
+	 * O `ThrottlerGuard` global do Nest não alcança estas rotas: o Better Auth é
+	 * montado como middleware Express (`main.ts`), antes do pipeline de guards.
+	 * Então este é o ÚNICO limite sobre o login — e com `enabled: isProduction`
+	 * qualquer ambiente que não fosse exatamente `production` (homologação,
+	 * staging) ficava sem proteção de força bruta, sem nada avisando.
+	 *
+	 * 5 tentativas em 5 minutos não incomoda ninguém em dev, e mantém dev e
+	 * produção com o mesmo comportamento.
+	 */
 	rateLimit: {
-		enabled: isProduction,
+		enabled: true,
 		window: 60,
 		max: 100,
 		customRules: {
@@ -50,6 +63,17 @@ export const auth = betterAuth({
 
 	advanced: {
 		cookiePrefix: 'app',
+		/*
+		 * `sameSite: 'none'` em produção porque client e API ficam em domínios
+		 * distintos no deploy (Railway), e `lax` não manda o cookie numa chamada
+		 * entre origens — a tela carregaria deslogada. Exige `secure: true`, que
+		 * está logo abaixo.
+		 *
+		 * O preço é que o navegador deixa de barrar CSRF por conta própria: quem
+		 * barra passa a ser `trustedOrigins` (acima) junto do CORS. Projeto
+		 * derivado que sirva client e API no MESMO domínio deve trocar para
+		 * `'lax'` e recuperar essa proteção de graça.
+		 */
 		defaultCookieAttributes: {
 			httpOnly: true,
 			secure: isProduction,

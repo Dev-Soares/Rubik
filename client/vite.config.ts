@@ -10,17 +10,26 @@ import pkg from './package.json' with { type: 'json' };
 // sem polling o HMR não dispara.
 const isDocker = process.env.DOCKER === 'true';
 
-// `CLIENT_PORT` vem do `.env` da RAIZ, escrito por `scripts/ports.mjs` quando a
-// padrão está ocupada por outro projeto da máquina. Em container a porta interna
-// é sempre 3001 e quem desvia é o mapeamento do compose, então o arquivo da raiz
-// só manda no caminho `dev:local`.
+/**
+ * O que o polling NÃO precisa varrer.
+ *
+ * Com `usePolling`, cada ciclo dá um `stat()` em todo arquivo observado — e no
+ * Docker Desktop isso atravessa a tradução de fs do Windows, que é o caminho
+ * lento. Varrer `node_modules` nesse ritmo consome CPU constante com o container
+ * parado, e nenhum destes diretórios gera HMR: dependência instalada não muda em
+ * dev, `dist` é saída de build e `.tanstack` é o temporário do gerador de rotas.
+ */
+const WATCH_IGNORED = ['**/node_modules/**', '**/dist/**', '**/.tanstack/**'];
+
+// `CLIENT_PORT` vem do `.env` da RAIZ, o mesmo arquivo que o compose lê. Em
+// container a porta é sempre 3001 e o compose publica 1:1, então o valor da raiz
+// só muda algo no caminho `dev:local`.
 const rootEnv = loadEnv('development', path.resolve(import.meta.dirname, '..'), '');
 const clientPort = isDocker ? 3001 : Number(rootEnv.CLIENT_PORT) || 3001;
 
 /**
  * Para onde o proxy do dev manda as chamadas de API. Em container o alvo é o
- * serviço `server` na rede do compose, na porta INTERNA; fora dele é o host, na
- * porta publicada que `scripts/ports.mjs` escolheu.
+ * serviço `server` na rede do compose; fora dele é o host, na porta publicada.
  */
 const apiTarget = isDocker
 	? 'http://server:3000'
@@ -59,6 +68,57 @@ export default defineConfig({
 		__APP_VERSION__: JSON.stringify(pkg.version),
 	},
 	plugins: [tanstackRouter({ target: 'react', autoCodeSplitting: true }), react(), tailwindcss()],
+	build: {
+		rollupOptions: {
+			output: {
+				/*
+				 * As rotas já se separam sozinhas (`autoCodeSplitting`), mas a
+				 * dependência não: sem isto todo vendor cai no chunk de entrada e o
+				 * usuário baixa react-dom, axios, sonner, radix e zod ANTES do
+				 * primeiro pixel. Medido: 706 kB de entrada contra 50 kB com a
+				 * separação abaixo.
+				 *
+				 * O ganho secundário é cache: deploy que não mexe em dependência não
+				 * invalida o chunk dela, só o da aplicação.
+				 *
+				 * Precisa ser FUNÇÃO, não objeto. Na forma de objeto
+				 * (`{ react: ['react', 'react-dom'] }`) o id que chega aqui é o
+				 * caminho resolvido dentro do pnpm store, não o nome do pacote — o
+				 * chunk sai com 44 bytes e o react-dom real continua na entrada, sem
+				 * erro nenhum no build.
+				 */
+				manualChunks(id) {
+					if (!id.includes('node_modules')) {
+						return;
+					}
+
+					// Separador de caminho nas duas pontas: evita casar `react` dentro
+					// de `react-hook-form` ou `@tanstack/react-router`.
+					if (/[\\/](react|react-dom|scheduler)[\\/]/.test(id)) {
+						return 'react';
+					}
+
+					if (id.includes('@tanstack')) {
+						return 'tanstack';
+					}
+
+					if (/[\\/](zod|react-hook-form|@hookform)[\\/]/.test(id)) {
+						return 'validation';
+					}
+
+					if (id.includes('better-auth')) {
+						return 'auth';
+					}
+
+					if (id.includes('radix')) {
+						return 'radix';
+					}
+
+					return 'vendor';
+				},
+			},
+		},
+	},
 	resolve: {
 		alias: {
 			'@': path.resolve(import.meta.dirname, './src'),
@@ -67,7 +127,7 @@ export default defineConfig({
 	server: {
 		port: clientPort,
 		host: true,
-		watch: isDocker ? { usePolling: true, interval: 300 } : undefined,
+		watch: isDocker ? { usePolling: true, interval: 1000, ignored: WATCH_IGNORED } : undefined,
 		proxy: Object.fromEntries(
 			API_ROUTES.map((route) => [route, { target: apiTarget, changeOrigin: false }]),
 		),

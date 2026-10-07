@@ -40,18 +40,18 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 				title: 'Usuários — quem tem acesso',
 				description:
 					'Cadastro de pessoas e definição dos cargos de cada uma. Fica em Administração, no menu lateral.',
-				screen: 'admin.users',
+				module: 'usuarios',
 			},
 			{
 				title: 'Cargos — o que cada pessoa vê',
 				description:
 					'Grupos de permissão: o cargo decide quais abas aparecem no menu de quem o utiliza e o que pode ser alterado nelas.',
-				screen: 'admin.roles',
+				module: 'cargos',
 			},
 			{
 				title: 'Registro de uso — histórico',
 				description: 'Tudo que foi alterado no sistema, com autor e horário. Somente leitura.',
-				screen: 'admin.audit',
+				module: 'auditoria',
 			},
 		],
 		note: {
@@ -217,12 +217,12 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 		description: 'Cadastro de pessoas, definição de cargos e remoção de acesso.',
 		icon: UsersIcon,
 		to: '/admin/users',
-		screen: 'admin.users',
+		module: 'usuarios',
 		steps: [
 			{
 				title: 'Veja quem tem acesso',
 				description:
-					'A tabela lista todos os usuários com nome, e-mail e cargo. Use a paginação no rodapé para percorrer a lista.',
+					'A tabela lista os usuários com nome, e-mail e cargo. As abas acima dela separam "Todos", "Ativos" e "Inativos", e a paginação no rodapé percorre o resultado da aba escolhida.',
 			},
 			{
 				title: 'Crie um usuário',
@@ -237,18 +237,18 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 			{
 				title: 'Personalize as permissões de uma pessoa',
 				description:
-					'Ainda no menu, "Permissões" abre uma escolha por aba: "Pelo cargo", "Sem acesso", "Somente ler" ou "Ler e editar" — o que você marcar aqui vale acima do que o cargo define.',
+					'Ainda no menu, "Permissões" abre uma escolha por ação de cada módulo: "Pelo cargo", "Liberado" ou "Bloqueado" — o que você marcar aqui vale acima do que o cargo define.',
 			},
 			{
 				title: 'Recupere ou encerre um acesso',
 				description:
-					'"Alterar senha" define uma senha nova sem pedir a atual, para quando alguém perde o acesso — a pessoa pode trocá-la depois no perfil. "Excluir" pede confirmação e encerra o acesso de vez.',
+					'"Alterar senha" define uma senha nova sem pedir a atual, para quando alguém perde o acesso — a pessoa pode trocá-la depois no perfil. "Inativar" desconecta a pessoa na hora e bloqueia novos logins, mantendo conta e cargos guardados: a linha ganha a marca "Inativo" e "Reativar" devolve o acesso como era antes.',
 			},
 		],
 		note: {
-			title: 'A permissão da pessoa vence o cargo',
+			title: 'Conta não se exclui, se inativa',
 			description:
-				'Aba deixada em "Pelo cargo" continua acompanhando o cargo; qualquer outra escolha ignora o cargo e não muda mais se o cargo mudar. Use como exceção pontual — para acesso que vale para várias pessoas, o lugar é o cargo. Administradores não têm a opção "Permissões": eles têm acesso total.',
+				'Não existe excluir usuário: inativar já encerra a sessão na hora e bloqueia novos logins, e preserva o histórico de quem fez o quê no registro de uso. Sobre permissões: aba deixada em "Pelo cargo" continua acompanhando o cargo; qualquer outra escolha ignora o cargo e não muda mais se o cargo mudar. Use como exceção pontual — para acesso que vale para várias pessoas, o lugar é o cargo. Administradores não têm a opção "Permissões": eles têm acesso total.',
 		},
 	},
 	{
@@ -256,41 +256,46 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 		group: 'Administração',
 		label: 'Cargos',
 		title: 'Cargos',
-		description: 'Grupos de permissão que definem quais abas cada pessoa vê e edita.',
+		description: 'Grupos de permissão que definem o que cada pessoa faz em cada módulo.',
 		icon: IdCardIcon,
 		to: '/admin/roles',
-		screen: 'admin.roles',
+		module: 'cargos',
 		steps: [
 			{
 				title: 'Entenda o que é um cargo',
 				description:
-					'Um cargo é um conjunto de telas liberadas, cada uma com um nível. Todo usuário tem pelo menos um cargo, e são eles que decidem o que aparece no menu lateral. Com mais de um cargo, o acesso soma: vale o nível mais alto que qualquer um deles der para a aba.',
+					'O sistema é dividido em módulos (Usuários, Cargos, Registro de uso). Um cargo diz, módulo a módulo, o que a pessoa pode fazer: ver, criar, editar e apagar. Todo usuário tem pelo menos um cargo, e são eles que decidem o que aparece no menu lateral. Com mais de um cargo, o acesso soma.',
 			},
 			{
-				title: 'Escolha o nível de cada aba',
+				title: 'Marque as ações de cada módulo',
 				description:
-					'"Sem acesso" esconde a aba. "Somente ler" abre a aba, mas some com os botões que alteram dados. "Ler e editar" libera tudo dentro dela.',
+					'Cada módulo tem um botão por ação. "Ver" abre o módulo; as demais liberam o que se faz lá dentro. Marcar qualquer ação marca "Ver" junto, e desmarcar "Ver" limpa o módulo inteiro — não dá para editar o que não se enxerga. Use "Tudo" para marcar todas as ações de uma vez.',
+			},
+			{
+				title: 'Escolha o crachá',
+				description:
+					'Dê uma cor e um ícone ao cargo. É assim que ele aparece na lista e ao lado do nome das pessoas, então prefira algo que distinga os cargos de relance.',
 			},
 			{
 				title: 'Crie um cargo',
 				description:
-					'Clique em "Novo cargo", dê um nome claro (ex: "Financeiro"), escreva uma descrição curta e escolha o nível de cada aba.',
+					'Clique em "Novo cargo", dê um nome claro (ex: "Financeiro"), escreva uma descrição curta, escolha o crachá e marque as ações liberadas.',
 			},
 			{
 				title: 'Ajuste o acesso liberado',
 				description:
-					'Editar um cargo muda o acesso de todos os usuários que o utilizam ao mesmo tempo. Libere só o necessário. Quem tiver permissão personalizada para aquela aba não é afetado.',
+					'Editar um cargo muda o acesso de todos os usuários que o utilizam ao mesmo tempo. Libere só o necessário. Quem tiver permissão personalizada para aquela ação não é afetado.',
 			},
 			{
 				title: 'Cargos do sistema',
 				description:
-					'Cargos marcados como "sistema" não podem ser excluídos: são a base do funcionamento. O cargo de administrador aparece como "Acesso total" e não é editável — quem é administrador lê e edita todas as abas, inclusive as criadas depois.',
+					'Cargos marcados como "sistema" não podem ser excluídos: são a base do funcionamento. O cargo de administrador aparece como "Acesso total" e não é editável — quem é administrador faz tudo em todos os módulos, inclusive nos criados depois.',
 			},
 		],
 		note: {
-			title: 'Cargo sem tela nenhuma',
+			title: 'Cargo sem módulo nenhum',
 			description:
-				'Um cargo com todas as abas em "Sem acesso" só deixa a pessoa sem abas se for o único cargo dela. Para excluir um cargo em uso, desmarque-o antes dos usuários que o têm.',
+				'Um cargo sem nenhuma ação marcada só deixa a pessoa sem abas se for o único cargo dela. Para excluir um cargo em uso, troque antes o cargo dos usuários que o têm.',
 		},
 	},
 	{
@@ -301,7 +306,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 		description: 'Histórico do que foi feito no sistema, por quem e quando.',
 		icon: ScrollTextIcon,
 		to: '/admin/audit',
-		screen: 'admin.audit',
+		module: 'auditoria',
 		steps: [
 			{
 				title: 'Leia a linha do tempo',

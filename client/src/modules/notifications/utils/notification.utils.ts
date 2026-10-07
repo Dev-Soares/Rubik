@@ -2,14 +2,7 @@ import {
 	DEFAULT_NOTIFICATION_TONE,
 	NOTIFICATION_TONES,
 	type NotificationTone,
-	type PaginatedNotifications,
 } from '@/modules/notifications/types/notification';
-
-/** `undefined` encerra a paginação infinita. */
-export function nextOffset(last: PaginatedNotifications): number | undefined {
-	const loaded = last.offset + last.items.length;
-	return loaded < last.total ? loaded : undefined;
-}
 
 /** Destaque do tipo; tipo não registrado cai no neutro. */
 export function toneOf(kind: string): NotificationTone {

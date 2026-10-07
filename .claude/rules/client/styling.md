@@ -20,11 +20,23 @@ pnpm ui:add <componente>     # ex: pnpm ui:add dialog
 Instalados em `src/shared/components/ui/`: `alert-dialog`, `avatar`, `badge`,
 `button`, `card`, `checkbox`, `collapsible`, `dialog`, `dropdown-menu`, `input`,
 `label`, `select`, `separator`, `sheet`, `sidebar`, `skeleton`, `sonner`,
-`switch`, `table`, `toggle`, `toggle-group`, `tooltip`.
+`switch`, `table`, `tabs`, `toggle`, `toggle-group`, `tooltip`.
+
+**Widget com papel ARIA tem contrato de teclado — use o primitivo.** `role="tab"`
+promete seta, Home e End com um ponto de parada só no Tab; `role="menu"`,
+`role="dialog"` e `role="combobox"` têm cada um o seu. Escrever o papel à mão e
+não implementar o teclado é pior que não ter papel nenhum, porque o leitor de
+tela passa a anunciar uma interação que não existe. O Radix (via `pnpm ui:add`)
+já traz esses contratos — foi o que `TicketStatusTabs` passou a usar.
 
 Esta lista sai de `ls client/src/shared/components/ui/` — em dúvida, confira lá.
 
 - **NÃO** edite arquivos em `ui/` à mão — são gerados e sobrescritos por `pnpm ui:add --overwrite`.
+  - Exceção: `ui/dialog.tsx` foi alterado de propósito (cabeçalho e rodapé
+    parados, `DialogBody` rolando, `icon` no cabeçalho —
+    `.claude/rules/client/layout.md`). **Não** rode `pnpm ui:add dialog
+    --overwrite`: o comando devolveria o shadcn cru e quebraria todo
+    formulário em modal do sistema.
 - Precisa de variação? Componha por cima em `shared/components/` (ex: `FormField` = `Label` + `Input` + erro).
 - Botão que navega: `<Button asChild><Link to="/x">…</Link></Button>`.
 
@@ -43,10 +55,40 @@ Use os tokens do shadcn, nunca cores cruas:
 
 Token novo → declare em `:root` **e** `.dark` no `global.css`, e mapeie em `@theme inline`.
 
-- Tema escuro é automático pelos tokens — não escreva `dark:` em cada classe.
+### Exceção: cor que é dado, não decisão de tema
+
+A tabela acima vale para a aparência do sistema. Não vale para **cor escolhida
+pelo usuário** nem para **paleta de categoria**, onde o valor é o dado em si:
+
+- `ROLE_COLOR_*` (`modules/roles/utils/badge.ts`) — o administrador escolhe a
+  cor do crachá numa lista fixa. Tokenizar significaria um token por cor
+  oferecida, e a cor não quer dizer nada sobre o tema: quer dizer "o usuário
+  escolheu azul".
+- `MARKER_CLASS_BY_TONE` (`NotificationItem.tsx`) — `info`, `success` e
+  `warning` são a categoria do aviso, não um papel do tema. `neutral` e `danger`
+  **usam** token (`bg-primary`, `bg-destructive`), porque esses dois existem no
+  tema.
+
+Nesses dois casos, duas obrigações:
+
+1. O mapa vive num `Record` nomeado, num `utils/` ou constante de módulo — nunca
+   uma classe crua solta no meio do JSX.
+2. O par claro/escuro é explícito (`dark:`), porque fora do token nada ajusta a
+   cor por tema. É a única situação em que `dark:` na classe é correto.
+
+Em dúvida: a cor responde a "que papel isso tem na interface?" → token. Responde
+a "qual valor o usuário escolheu / de que tipo é este item?" → paleta crua, com
+as duas regras acima.
+
+- Tema escuro é automático pelos tokens — não escreva `dark:` em cada classe,
+  fora da exceção acima.
 - Prefira borda a sombra para destacar.
 - Espaçamento com `gap-4` / `gap-6`.
-- Conflito de classe: use `cn()` de `cn` (`import { cn } from 'cn'`), que resolve via `tailwind-merge`.
+- Conflito de classe: use `cn()` de `@/shared/lib/utils`
+  (`import { cn } from '@/shared/lib/utils'`), que resolve via `clsx` + `tailwind-merge`.
+  É o caminho que `components.json` aponta em `aliases.utils` — o `pnpm ui:add`
+  importa daí. Não instale o pacote `cn`: ele embute um compilador em runtime
+  (~42 kB no bundle) para fazer o que estas duas libs já fazem.
 
 ## Mobile first — sempre
 

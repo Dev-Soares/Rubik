@@ -9,7 +9,7 @@ import {
 	listNotificationsService,
 } from '@/modules/notifications/service/notificationService';
 import type { NotificationFilters } from '@/modules/notifications/types/notification';
-import { nextOffset } from '@/modules/notifications/utils';
+import { nextOffset } from '@/shared/utils/pagination';
 
 const PAGE_SIZE = 20;
 

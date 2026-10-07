@@ -12,7 +12,7 @@ import type {
 	AuditLogEntry,
 	RecordAuditInput,
 } from 'src/modules/audit/types/audit.types';
-import { endOfDay, toLikePattern } from 'src/modules/audit/utils';
+import { endOfDay, startOfDay, toLikePattern } from 'src/modules/audit/utils';
 
 type AuditRow = typeof auditLog.$inferSelect;
 
@@ -64,7 +64,7 @@ export class AuditService {
 			filters.push(eq(auditLog.entity, query.entity));
 		}
 		if (query.from) {
-			filters.push(gte(auditLog.createdAt, new Date(query.from)));
+			filters.push(gte(auditLog.createdAt, startOfDay(query.from)));
 		}
 		if (query.to) {
 			filters.push(lte(auditLog.createdAt, endOfDay(query.to)));
@@ -77,7 +77,7 @@ export class AuditService {
 				.select()
 				.from(auditLog)
 				.where(where)
-				.orderBy(desc(auditLog.createdAt))
+				.orderBy(desc(auditLog.createdAt), desc(auditLog.id))
 				.limit(query.limit)
 				.offset(query.offset),
 			this.db.select({ value: count() }).from(auditLog).where(where),

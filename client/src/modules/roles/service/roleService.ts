@@ -1,30 +1,32 @@
 import { api } from '@/api/axios';
 import type {
 	PaginatedRoles,
+	Permission,
+	PermissionOverride,
 	Role,
 	RoleFormInput,
-	ScreenOverride,
-	ScreenPermission,
-	UserScreens,
+	UserPermissions,
 } from '@/modules/roles/types/role';
 
 /** Permissões do usuário da sessão. */
-export async function listMyScreensService(): Promise<ScreenPermission[]> {
-	const { data } = await api.get<ScreenPermission[]>('/roles/me/screens');
+export async function listMyPermissionsService(): Promise<Permission[]> {
+	const { data } = await api.get<Permission[]>('/roles/me/permissions');
 	return data;
 }
 
 /** Permissões de um usuário: herdado do cargo, exceções e efetivo. */
-export async function findUserScreensService(userId: string): Promise<UserScreens> {
-	const { data } = await api.get<UserScreens>(`/roles/users/${userId}/screens`);
+export async function findUserPermissionsService(userId: string): Promise<UserPermissions> {
+	const { data } = await api.get<UserPermissions>(`/roles/users/${userId}/permissions`);
 	return data;
 }
 
-export async function setUserScreensService(
+export async function setUserPermissionsService(
 	userId: string,
-	overrides: ScreenOverride[],
-): Promise<UserScreens> {
-	const { data } = await api.put<UserScreens>(`/roles/users/${userId}/screens`, { overrides });
+	overrides: PermissionOverride[],
+): Promise<UserPermissions> {
+	const { data } = await api.put<UserPermissions>(`/roles/users/${userId}/permissions`, {
+		overrides,
+	});
 	return data;
 }
 

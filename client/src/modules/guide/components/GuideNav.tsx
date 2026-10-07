@@ -1,4 +1,4 @@
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 import { NAV_HOVER_CLASS } from '@/shared/navigation';
 import type { GuideGroup } from '@/modules/guide/types/guide';
 

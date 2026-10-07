@@ -1,11 +1,16 @@
-import { Link } from '@tanstack/react-router';
-import { cn } from 'cn';
+import { Link, useRouter } from '@tanstack/react-router';
+import { cn } from '@/shared/lib/utils';
 import { CheckCheckIcon } from 'lucide-react';
 import type {
 	NotificationEntry,
 	NotificationTone,
 } from '@/modules/notifications/types/notification';
-import { formatAge, formatFullDate, toneOf } from '@/modules/notifications/utils';
+import {
+	formatAge,
+	formatFullDate,
+	resolveNotificationLink,
+	toneOf,
+} from '@/modules/notifications/utils';
 import { Button } from '@/shared/components/ui/button';
 
 type NotificationItemProps = {
@@ -36,8 +41,12 @@ export function NotificationItem({
 	onMarkRead,
 	compact = false,
 }: NotificationItemProps) {
+	const router = useRouter();
 	const isUnread = notification.readAt === null;
 	const tone = toneOf(notification.kind);
+
+	// Destino só vira `<Link>` se existir no app; ver `resolveNotificationLink`.
+	const target = resolveNotificationLink(router, notification.link);
 
 	// O duplo check só vira botão enquanto há o que marcar; depois de lida ele
 	// permanece como indicador, no lugar exato onde estava.
@@ -104,12 +113,13 @@ export function NotificationItem({
 
 	return (
 		<li className="group/item relative flex items-start">
-			{notification.link ? (
-				<Link to={notification.link} className={itemClass} onClick={() => onOpen(notification)}>
+			{target ? (
+				<Link to={target} className={itemClass} onClick={() => onOpen(notification)}>
 					{content}
 				</Link>
 			) : (
-				// Sem destino, o item ainda precisa ser clicável para marcar como lido.
+				// Sem destino — ausente ou apontando para rota que não existe mais —, o
+				// item ainda precisa ser clicável para marcar como lido.
 				<button type="button" className={itemClass} onClick={() => onOpen(notification)}>
 					{content}
 				</button>

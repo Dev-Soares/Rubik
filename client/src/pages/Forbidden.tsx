@@ -6,6 +6,8 @@ import { Button } from '@/shared/components/ui/button';
 export function Forbidden() {
 	return (
 		<StatusPage
+			// Renderizada pelas páginas `*Guarded`, já dentro da casca autenticada.
+			fillViewport={false}
 			code="403"
 			icon={ShieldAlertIcon}
 			title="Acesso negado"

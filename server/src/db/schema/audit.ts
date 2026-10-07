@@ -4,8 +4,16 @@ import { index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
  * Registro de uso: uma linha por mutação bem-sucedida feita via HTTP.
  * Não guarda o corpo da requisição — só quem fez, o quê e sobre qual recurso.
  *
- * `userId` não é FK: o log precisa sobreviver à remoção do usuário. `userName`
- * e `userEmail` são copiados no momento da ação pelo mesmo motivo.
+ * `userId` não é FK, e `userName`/`userEmail` são copiados no momento da ação:
+ * o registro tem de continuar legível mesmo que a conta mude de nome ou de
+ * e-mail depois. (Conta não é removida — ver `users.controller.ts` —, mas o
+ * registro também não deve depender disso.)
+ *
+ * yagni: não há limpeza automática, ao contrário de `ticket`. É deliberado —
+ * registro de uso é histórico, e quanto tempo guardar é decisão de negócio, não
+ * de código. A tabela cresce uma linha por mutação: se o volume incomodar,
+ * acrescente um `@Cron` de retenção no espelho de `purgeResolved`, com a janela
+ * em `env`.
  */
 export const auditLog = pgTable(
 	'audit_log',

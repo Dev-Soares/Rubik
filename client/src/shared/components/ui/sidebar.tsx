@@ -1,8 +1,24 @@
 'use client';
 
+/*
+ * ALTERADO EM RELAÇÃO AO SHADCN — não rode `pnpm ui:add sidebar --overwrite`.
+ *
+ * 1. As variantes `data-active:` do original viraram `data-[active=true]:`. O
+ *    `data-active:` do Tailwind compila para `[data-active]`, que casa com a
+ *    PRESENÇA do atributo, e `SidebarMenuButton` renderiza `data-active="false"`
+ *    em todo item — então `data-active:bg-sidebar-accent` pintava a sidebar
+ *    inteira com a cor do item selecionado, permanentemente, e qualquer `bg-*`
+ *    aplicado por cima perdia a disputa.
+ *
+ * 2. `readSidebarCookie` + inicializador lazy do `useState`. O original só
+ *    escreve o cookie `sidebar_state`, porque espera um server component do
+ *    Next lendo-o para passar `defaultOpen`. Sem SSR, ninguém lia: a sidebar
+ *    recolhida reabria em todo reload.
+ */
+
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 import { Slot } from 'radix-ui';
 
 import { useIsMobile } from '@/shared/hooks/use-mobile';
@@ -26,6 +42,27 @@ const SIDEBAR_WIDTH = '16rem';
 const SIDEBAR_WIDTH_MOBILE = '18rem';
 const SIDEBAR_WIDTH_ICON = '3.5rem';
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
+
+/**
+ * Preferência salva de recolhimento, ou `null` quando ainda não houver.
+ *
+ * ADIÇÃO EM RELAÇÃO AO SHADCN. O original só ESCREVE este cookie: ele presume
+ * um server component do Next lendo-o e passando `defaultOpen` para o provider.
+ * Aqui não há SSR, ninguém lia, e a preferência era descartada a cada reload —
+ * o código parecia persistir e não persistia.
+ */
+function readSidebarCookie(): boolean | null {
+	if (typeof document === 'undefined') {
+		return null;
+	}
+
+	const match = document.cookie.match(new RegExp(`(?:^|; )${SIDEBAR_COOKIE_NAME}=(true|false)`));
+	if (!match) {
+		return null;
+	}
+
+	return match[1] === 'true';
+}
 
 type SidebarContextProps = {
 	state: 'expanded' | 'collapsed';
@@ -66,7 +103,9 @@ function SidebarProvider({
 
 	// This is the internal state of the sidebar.
 	// We use openProp and setOpenProp for control from outside the component.
-	const [_open, _setOpen] = React.useState(defaultOpen);
+	// Inicializador lazy: lê o cookie uma vez, na montagem. `defaultOpen` só
+	// vale no primeiro acesso, antes de existir preferência salva.
+	const [_open, _setOpen] = React.useState(() => readSidebarCookie() ?? defaultOpen);
 	const open = openProp ?? _open;
 	const setOpen = React.useCallback(
 		(value: boolean | ((value: boolean) => boolean)) => {
@@ -451,7 +490,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<'li'>) {
 }
 
 const sidebarMenuButtonVariants = cva(
-	'peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate',
+	'peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate',
 	{
 		variants: {
 			variant: {
@@ -640,7 +679,7 @@ function SidebarMenuSubButton({
 			data-size={size}
 			data-active={isActive}
 			className={cn(
-				'flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground ring-sidebar-ring outline-hidden group-data-[collapsible=icon]:hidden hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[size=md]:text-sm data-[size=sm]:text-xs data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground',
+				'flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground ring-sidebar-ring outline-hidden group-data-[collapsible=icon]:hidden hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[size=md]:text-sm data-[size=sm]:text-xs data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground',
 				className,
 			)}
 			{...props}

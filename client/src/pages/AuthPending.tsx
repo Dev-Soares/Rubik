@@ -1,11 +1,17 @@
 import { PageSkeleton } from '@/shared/components/PageSkeleton';
-import { AppLayout } from '@/shared/layouts/AppLayout';
+import { PageWidth } from '@/shared/components/PageWidth';
 
-/** Estado de carregamento das rotas protegidas, já dentro do layout. */
+/**
+ * Carregamento das rotas protegidas.
+ *
+ * Sem `AppLayout` em volta: este é o `pendingComponent` da própria rota `_auth`,
+ * que já monta a casca. Montá-la aqui também renderizava uma segunda sidebar
+ * dentro da primeira a cada navegação lenta.
+ */
 export function AuthPending() {
 	return (
-		<AppLayout>
+		<PageWidth>
 			<PageSkeleton />
-		</AppLayout>
+		</PageWidth>
 	);
 }

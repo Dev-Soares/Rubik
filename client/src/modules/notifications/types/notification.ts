@@ -1,3 +1,5 @@
+import type { Paginated } from '@/shared/types/pagination';
+
 /**
  * Espelha `NotificationEntry` do backend
  * (`server/src/modules/notifications/types/notification.types.ts`).
@@ -9,9 +11,9 @@ export type NotificationEntry = {
 	title: string;
 	body: string | null;
 	/**
-	 * Destino do item. Vem do backend como texto, então o roteador não o valida
-	 * em tempo de compilação: quem cria a notificação é responsável por apontar
-	 * para uma rota que existe.
+	 * Destino do item. Vem do backend como texto livre, sem validação de tipo:
+	 * `resolveNotificationLink` confere se a rota existe antes de virar `<Link>`,
+	 * porque destino inválido faz o router lançar.
 	 */
 	link: string | null;
 	readAt: string | null;
@@ -24,12 +26,7 @@ export type NotificationFilters = {
 	kind?: string;
 };
 
-export type PaginatedNotifications = {
-	items: NotificationEntry[];
-	total: number;
-	limit: number;
-	offset: number;
-};
+export type PaginatedNotifications = Paginated<NotificationEntry>;
 
 export type UnreadCount = {
 	count: number;

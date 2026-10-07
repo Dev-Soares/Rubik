@@ -1,5 +1,5 @@
 import { BoxIcon } from 'lucide-react';
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 
 type AppLogoProps = {
 	className?: string;

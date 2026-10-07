@@ -109,6 +109,47 @@ if (isProduction) {
 		problems.push('BETTER_AUTH_URL: precisa ser https em produção — cookie de sessão é `secure`.');
 	}
 
+	/*
+	 * Segredo que ainda é o valor de exemplo.
+	 *
+	 * `.min(32)` no schema não pega isto: os placeholders têm mais de 32
+	 * caracteres de propósito, para o `pnpm dev` subir sem configuração. Quem
+	 * copia `.env.example` para produção e esquece de trocar passa pela
+	 * validação com um segredo que está publicado neste repositório — e o
+	 * `INTEGRATION_API_KEY` autentica `PATCH /tickets/:id/status`, que é
+	 * `@Public()`.
+	 *
+	 * A checagem fica sob o MESMO `isLocalhost` da regra de HTTPS acima: o
+	 * smoke test das imagens de produção (`pnpm docker:prod`) roda com
+	 * `NODE_ENV=production` e com estes placeholders de propósito — são os
+	 * valores que o compose injeta justamente para o smoke test atravessar os
+	 * portões. Deploy de verdade não aponta `BETTER_AUTH_URL` para localhost,
+	 * então ali a checagem vale.
+	 *
+	 * O prefixo cobre quem editou metade do placeholder. `pnpm setup` gera os
+	 * dois com `randomBytes(32)`, então ambiente preparado pelo script nunca
+	 * cai aqui.
+	 */
+	if (!isLocalhost) {
+		const isPlaceholder = (value: string): boolean =>
+			value.startsWith('troque-por-') ||
+			value.startsWith('dev-secret-') ||
+			value.startsWith('dev-integration-') ||
+			value.startsWith('smoke-test-');
+
+		if (isPlaceholder(env.BETTER_AUTH_SECRET)) {
+			problems.push(
+				'BETTER_AUTH_SECRET: ainda é o valor de exemplo, que é público neste repositório. Gere um próprio (`openssl rand -hex 32`).',
+			);
+		}
+
+		if (isPlaceholder(env.INTEGRATION_API_KEY)) {
+			problems.push(
+				'INTEGRATION_API_KEY: ainda é o valor de exemplo, que é público neste repositório. Gere uma própria (`openssl rand -hex 32`).',
+			);
+		}
+	}
+
 	if (problems.length > 0) {
 		for (const problem of problems) {
 			// eslint-disable-next-line no-console -- o logger ainda não existe neste ponto do boot

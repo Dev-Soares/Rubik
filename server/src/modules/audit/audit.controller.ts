@@ -1,14 +1,14 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { RequireScreen } from 'src/common/decorators/screen.decorator';
-import { ScreensGuard } from 'src/common/guards/screens.guard';
+import { RequireAccess } from 'src/common/decorators/access.decorator';
+import { AccessGuard } from 'src/common/guards/access.guard';
 import type { Paginated } from 'src/common/types/pagination.types';
 import { AuditService } from 'src/modules/audit/audit.service';
 import { QueryAuditDto } from 'src/modules/audit/dto/query-audit.dto';
 import type { AuditLogEntry } from 'src/modules/audit/types/audit.types';
 
 @Controller('audit')
-@RequireScreen('admin.audit', 'read')
-@UseGuards(ScreensGuard)
+@RequireAccess('auditoria', 'ver')
+@UseGuards(AccessGuard)
 export class AuditController {
 	constructor(private readonly auditService: AuditService) {}
 

@@ -118,9 +118,12 @@ export class TicketsService {
 	}
 
 	/**
-	 * Lista os chamados, do mais recente para o mais antigo. Todos os usuários
-	 * autenticados veem todos os chamados — a tela é geral por decisão de
-	 * produto, como a de "Como usar".
+	 * Lista os chamados, do mais recente para o mais antigo, sem filtrar por
+	 * autor: a aba é restrita a administrador, e quem restringe é o
+	 * `@Roles('admin')` do controller.
+	 *
+	 * Não copie esta ausência de filtro para um módulo cujo controller não tenha
+	 * a mesma restrição — ali ela vaza o dado de um usuário para outro.
 	 */
 	async findAll(query: QueryTicketsDto): Promise<Paginated<TicketEntry>> {
 		const where = query.status ? eq(ticket.status, query.status) : undefined;
@@ -296,6 +299,11 @@ export class TicketsService {
 	 * uma lista separada por vírgula: `role = 'admin'` deixaria de fora quem
 	 * tem `admin,editor`, e `like '%admin%'` pegaria um cargo chamado
 	 * `subadmin`. `isAdmin` é a mesma regra usada pelos guards.
+	 *
+	 * yagni: varrer `user` em memória basta na escala de uma empresa (milhares
+	 * de contas). Se passar disso, o caminho é normalizar o cargo numa tabela
+	 * `user_role` e trocar a varredura por um JOIN — o CSV é herança do formato
+	 * que o Better Auth grava, não uma escolha nossa.
 	 */
 	private async findAdminIds(): Promise<string[]> {
 		const rows = await this.db

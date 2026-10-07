@@ -1,3 +1,4 @@
+import { KeyRoundIcon } from 'lucide-react';
 import { SetUserPasswordForm } from '@/modules/users/components/SetUserPasswordForm';
 import {
 	Dialog,
@@ -22,8 +23,8 @@ export function SetUserPasswordDialog({
 }: SetUserPasswordDialogProps) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="gap-6 p-6 shadow-2xl sm:max-w-md">
-				<DialogHeader>
+			<DialogContent className="shadow-2xl sm:max-w-md">
+				<DialogHeader icon={KeyRoundIcon}>
 					<DialogTitle className="text-primary text-lg font-black tracking-tight">
 						Alterar senha
 					</DialogTitle>

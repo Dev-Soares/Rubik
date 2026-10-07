@@ -15,7 +15,7 @@ export class UpdateUserDto {
 
 	/**
 	 * Cargos do usuário, separados por vírgula — é como o Better Auth grava. Exige
-	 * `admin.users:write`: o dono da conta editando o próprio perfil não muda os
+	 * `usuarios:editar`: o dono da conta editando o próprio perfil não muda os
 	 * próprios cargos. O limite comporta vários nomes de até 50 caracteres.
 	 */
 	@IsOptional()

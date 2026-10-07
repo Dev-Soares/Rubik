@@ -32,13 +32,15 @@ export function NavLinkItem({ item, badge = 0, onNavigate }: NavLinkItemProps) {
 								{/* Com a sidebar recolhida só o ícone aparece: o ponto sobre ele
 								 * mantém o aviso visível, já que o número fica escondido. */}
 								{badge > 0 ? (
-									<span className="bg-destructive absolute -top-0.5 -right-0.5 size-2 rounded-full group-data-[collapsible=icon]:block hidden" />
+									<span className="bg-destructive absolute -top-0.5 -right-0.5 hidden size-2 rounded-full group-data-[collapsible=icon]:block" />
 								) : null}
 							</span>
 
 							<span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
 
 							{badge > 0 ? (
+								// O fundo do item ativo é tingido, não sólido: o badge
+								// `destructive` cheio contrasta com ele e não precisa inverter.
 								<span className="bg-destructive text-destructive-foreground ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] leading-none font-bold tabular-nums group-data-[collapsible=icon]:hidden">
 									{formatBadgeCount(badge)}
 								</span>

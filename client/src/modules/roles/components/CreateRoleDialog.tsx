@@ -1,4 +1,4 @@
-import { PlusIcon } from 'lucide-react';
+import { IdCardIcon, PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { RoleForm } from '@/modules/roles/components/RoleForm';
 import { Button } from '@/shared/components/ui/button';
@@ -23,8 +23,8 @@ export function CreateRoleDialog() {
 				</Button>
 			</DialogTrigger>
 
-			<DialogContent className="gap-6 p-6 shadow-2xl sm:max-w-lg">
-				<DialogHeader>
+			<DialogContent className="shadow-2xl sm:max-w-lg">
+				<DialogHeader icon={IdCardIcon}>
 					<DialogTitle className="text-primary text-lg font-black tracking-tight">
 						Criar cargo
 					</DialogTitle>

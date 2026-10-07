@@ -100,23 +100,25 @@ function fillSecrets(content) {
 		.replace(/^INTEGRATION_API_KEY=.*$/m, `INTEGRATION_API_KEY=${randomBytes(32).toString('hex')}`);
 }
 
-for (const app of ['server', 'client']) {
+for (const app of ['', 'server', 'client']) {
 	const target = join(root, app, '.env');
 	const example = join(root, app, '.env.example');
+	const label = app || 'raiz';
 
 	if (existsSync(target)) {
-		skip(`${app}/.env já existe — mantido como está`);
+		skip(`.env da ${label} já existe — mantido como está`);
 		continue;
 	}
 
-	if (app === 'server') {
-		writeFileSync(target, fillSecrets(readFileSync(example, 'utf8')));
-		ok('server/.env criado, com segredos aleatórios');
+	// Raiz e server guardam segredo; o do client é só `VITE_API_URL` vazio.
+	if (app === 'client') {
+		copyFileSync(example, target);
+		ok('client/.env criado');
 		continue;
 	}
 
-	copyFileSync(example, target);
-	ok(`${app}/.env criado`);
+	writeFileSync(target, fillSecrets(readFileSync(example, 'utf8')));
+	ok(`.env da ${label} criado, com segredos aleatórios`);
 }
 
 // ---- 3. Dependências --------------------------------------------------------
@@ -127,10 +129,7 @@ ok('dependências instaladas');
 
 // ---- 4. Banco ---------------------------------------------------------------
 
-step('Escolhendo as portas do host');
-run('node', ['scripts/ports.mjs']);
-
-/** Lê o que `ports.mjs` acabou de fixar; o default repete o do compose. */
+/** Lê a porta do `.env` da raiz — o mesmo arquivo que o compose lê. */
 function port(name, fallback) {
 	const envFile = join(root, '.env');
 	if (!existsSync(envFile)) {

@@ -1,7 +1,7 @@
 import { HomeShortcuts } from '@/modules/home/components/HomeShortcuts';
 import { AppLogo } from '@/shared/components/AppLogo';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { AppLayout } from '@/shared/layouts/AppLayout';
+import { PageWidth } from '@/shared/components/PageWidth';
 
 /** Primeiro nome basta para o cumprimento; o nome completo fica no perfil. */
 function getFirstName(name: string | undefined): string {
@@ -14,7 +14,7 @@ export function Home() {
 	const name = getFirstName(user?.name);
 
 	return (
-		<AppLayout>
+		<PageWidth>
 			<div className="flex flex-col gap-8">
 				<header className="flex flex-col gap-3">
 					<AppLogo className="size-10" />
@@ -27,6 +27,6 @@ export function Home() {
 
 				<HomeShortcuts />
 			</div>
-		</AppLayout>
+		</PageWidth>
 	);
 }

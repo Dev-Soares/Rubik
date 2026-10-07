@@ -1,6 +1,6 @@
 export {
 	formatAge,
 	formatFullDate,
-	nextOffset,
 	toneOf,
 } from '@/modules/notifications/utils/notification.utils';
+export { resolveNotificationLink } from '@/modules/notifications/utils/link';

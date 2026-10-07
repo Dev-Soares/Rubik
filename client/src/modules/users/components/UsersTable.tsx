@@ -1,8 +1,9 @@
-import { useMyScreens } from '@/modules/roles/hooks/useMyScreens';
+import { useMyPermissions } from '@/modules/roles/hooks/useMyPermissions';
 import { RoleBadge } from '@/modules/users/components/RoleBadge';
 import { UserAvatar } from '@/modules/users/components/UserAvatar';
 import { UserRowActions } from '@/modules/users/components/UserRowActions';
 import type { User } from '@/modules/users/types/user';
+import { Badge } from '@/shared/components/ui/badge';
 import {
 	Table,
 	TableBody,
@@ -20,9 +21,9 @@ type UsersTableProps = {
 const dateFormatter = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' });
 
 export function UsersTable({ users, currentUserId }: UsersTableProps) {
-	const { can } = useMyScreens();
+	const { can } = useMyPermissions();
 
-	const canWrite = can('admin.users', 'write');
+	const canEdit = can('usuarios', 'editar');
 
 	if (users.length === 0) {
 		return <p className="text-muted-foreground py-8 text-center text-sm">Nenhum usuário.</p>;
@@ -55,6 +56,12 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
 								<span className="flex min-w-0 items-center gap-3">
 									<UserAvatar name={user.name} image={user.image} className="size-9 shrink-0" />
 									<span className="truncate font-medium">{user.name}</span>
+									{/* Conta inativa continua na lista: sem a marca, a linha parece normal. */}
+									{user.banned === true ? (
+										<Badge variant="outline" className="text-destructive shrink-0">
+											Inativo
+										</Badge>
+									) : null}
 								</span>
 							</TableCell>
 							<TableCell className="text-muted-foreground hidden sm:table-cell">
@@ -68,7 +75,7 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
 							</TableCell>
 							<TableCell>
 								<span className="flex justify-end">
-									{canWrite ? (
+									{canEdit ? (
 										<UserRowActions user={user} isSelf={user.id === currentUserId} />
 									) : null}
 								</span>

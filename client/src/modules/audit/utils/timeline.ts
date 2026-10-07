@@ -1,4 +1,4 @@
-import type { AuditDayGroup, AuditLogEntry, PaginatedAuditLog } from '@/modules/audit/types/audit';
+import type { AuditDayGroup, AuditLogEntry } from '@/modules/audit/types/audit';
 
 /** Chave local (`YYYY-MM-DD`): `toISOString` agruparia pelo dia em UTC. */
 function toDayKey(value: string): string {
@@ -25,10 +25,4 @@ export function groupByDay(entries: AuditLogEntry[]): AuditDayGroup[] {
 	}
 
 	return groups;
-}
-
-/** `undefined` encerra a paginação infinita. */
-export function nextOffset(last: PaginatedAuditLog): number | undefined {
-	const loaded = last.offset + last.items.length;
-	return loaded < last.total ? loaded : undefined;
 }

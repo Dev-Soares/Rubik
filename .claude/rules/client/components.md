@@ -56,7 +56,21 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
 
 Quem conecta hook a componente burro é o **container**: um componente em `components/` (ex: `UsersPanel`) ou a `page`. A cadeia é `page → container (hook) → componente burro (props)`.
 
-Exceção única: hook de mutation pode ser chamado no componente que dispara a ação (ex: botão de deletar em `UsersTable`), porque a ação nasce ali.
+Exceções — são estas, e só estas:
+
+1. **Hook de mutation** no componente que dispara a ação (ex: botão de deletar
+   em `UsersTable`), porque a ação nasce ali.
+2. **`useMyPermissions`** em qualquer componente. Permissão é dado ambiente: a
+   sidebar, o card de cargo, a linha da tabela e a página consultam a mesma
+   resposta cacheada, e passar `can` por prop em toda a árvore só empurraria o
+   acoplamento para cima sem reduzi-lo. Está em `shared/`, tem `staleTime`
+   próprio e não suspende.
+3. **Componente que é dono do próprio overlay** e carrega o dado que só ele
+   exibe — o precedente é `NotificationDropdown`, que busca a prévia com
+   `useQuery` para abrir com o próprio esqueleto em vez de suspender o
+   cabeçalho inteiro.
+
+Fora disso vale a regra: lista de feature vem por prop, de um container.
 
 ## Estrutura interna do arquivo
 

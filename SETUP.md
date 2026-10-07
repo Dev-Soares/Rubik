@@ -94,25 +94,31 @@ pnpm dev
 
 O que acontece, em ordem:
 
-1. `scripts/ports.mjs` escolhe as portas do host e grava no `.env` da raiz.
-   Porta padrão ocupada por outro projeto da máquina → desvia para a próxima
-   livre e avisa na saída.
-2. O compose sobe `postgres`, `server` e `client`.
-3. O container do server aplica as migrations e cria o admin **antes** de a API
+1. O compose sobe `postgres`, `server` e `client`.
+2. O container do server aplica as migrations e cria o admin **antes** de a API
    subir (está no `CMD` de `server/Dockerfile.dev`).
 
 Rodar de novo é seguro: migration já aplicada não repete, e o seed reconhece o
 admin existente.
 
-> **Leia as portas na saída do comando, não neste documento.** Quando há desvio,
-> o script imprime as URLs reais — `! Aplicação: 3001 ocupada → 3002`. Os
-> padrões são 3001 (aplicação), 3000 (API) e 5432 (Postgres).
+As portas são **fixas**:
+
+| Serviço | Porta |
+|---|---|
+| Aplicação | `3001` |
+| API | `3000` |
+| Postgres | `5432` |
+| Drizzle Studio | `4983` |
+
+Porta ocupada por outro projeto da máquina → o compose falha com `port is
+already allocated`. Pare o outro projeto, ou mude o valor no `.env` da raiz à
+mão (`CLIENT_PORT`, `SERVER_PORT`, `POSTGRES_PORT`).
 
 ### Conferir que subiu
 
 ```bash
 docker compose --profile dev ps          # os três `Up`, postgres `healthy`
-curl http://localhost:<SERVER_PORT>/health
+curl http://localhost:3000/health
 ```
 
 A resposta esperada é `{"status":"ok","db":"connected",...}`. `db` em qualquer
@@ -133,7 +139,7 @@ desenvolvedor@letsup.team / 123mudar
 
 Se o login falhar com a senha certa, o provável é `CORS_ORIGIN` ou
 `BETTER_AUTH_URL` apontando para porta diferente da que o browser usou. Ambos
-derivam de `SERVER_PORT`/`CLIENT_PORT` no compose; confirme com:
+derivam de `CLIENT_PORT` no compose; confirme com:
 
 ```bash
 docker compose --profile dev config | grep -E 'CORS_ORIGIN|BETTER_AUTH_URL|VITE_API_URL'
@@ -144,13 +150,13 @@ docker compose --profile dev config | grep -E 'CORS_ORIGIN|BETTER_AUTH_URL|VITE_
 ## 4. Variáveis de ambiente
 
 O perfil dev **não exige nenhum `.env`**: o compose traz default para tudo que
-`env.ts` cobra, e `scripts/ports.mjs` escreve as portas sozinho.
+`env.ts` cobra, inclusive as portas.
 
 Dois arquivos, com papéis diferentes:
 
 | Arquivo | Quem escreve | Para que serve |
 |---|---|---|
-| `.env` da raiz | `scripts/ports.mjs` | portas do host, lidas pelo compose |
+| `.env` da raiz | `pnpm setup`, ou você | portas do host e segredos, lidos pelo compose |
 | `server/.env`, `client/.env` | `pnpm setup` | só o caminho `dev:local` (sem Docker no app) |
 
 Nenhum dos três é versionado.
@@ -229,7 +235,7 @@ considerada pronta — `.claude/rules/client/guide.md`.
 
 | Sintoma | Causa provável |
 |---|---|
-| `port is already allocated` | `scripts/ports.mjs` não rodou. Use `pnpm dev`, não `docker compose up` direto. |
+| `port is already allocated` | Outro projeto da máquina ocupa 3000, 3001 ou 5432. Pare o outro, ou mude a porta no `.env` da raiz. |
 | `Cannot connect to the Docker daemon` | Docker Desktop fechado. |
 | `db: "disconnected"` no `/health` | Postgres ainda subindo, ou `DATABASE_URL` divergente. Veja `docker logs rubik-postgres`. |
 | Login falha com a senha certa | `CORS_ORIGIN`/`BETTER_AUTH_URL` em porta diferente da do browser. Etapa 3. |

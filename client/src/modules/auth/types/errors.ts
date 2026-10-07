@@ -19,7 +19,9 @@ export const AUTH_ERROR_MESSAGES: Record<string, string> = {
 	FAILED_TO_UPDATE_USER: 'Não foi possível atualizar o usuário.',
 	EMAIL_PASSWORD_SIGN_UP_DISABLED: 'O cadastro público está desativado.',
 	YOU_ARE_NOT_ALLOWED_TO_CREATE_USERS: 'Você não tem permissão para criar usuários.',
-	BANNED_USER: 'Esta conta está bloqueada.',
+	YOU_ARE_NOT_ALLOWED_TO_BAN_USERS: 'Você não tem permissão para inativar usuários.',
+	YOU_CANNOT_BAN_YOURSELF: 'Você não pode inativar a sua própria conta.',
+	BANNED_USER: 'Esta conta está inativa. Procure um administrador.',
 	TOO_MANY_REQUESTS: 'Muitas tentativas. Aguarde um momento e tente de novo.',
 };
 

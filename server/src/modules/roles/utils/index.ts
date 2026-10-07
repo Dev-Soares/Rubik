@@ -1,10 +1,11 @@
 export {
-	applyScreenOverrides,
-	dedupeScreenOverrides,
-	expandWrite,
-	isScreen,
-	isScreenPermission,
-	parseScreens,
+	actionsOf,
+	applyPermissionOverrides,
+	dedupePermissionOverrides,
+	expandView,
+	isModule,
+	isPermission,
+	parsePermissions,
 	splitPermission,
 	toPermission,
-} from 'src/modules/roles/utils/screens.utils';
+} from 'src/modules/roles/utils/permissions.utils';

@@ -7,11 +7,15 @@ export const role = pgTable(
 		name: text('name').notNull(),
 		description: text('description'),
 		/**
-		 * Telas que o cargo enxerga, pelas chaves de `SCREENS`. Guardado como
-		 * texto separado por vírgula para acompanhar `user.role`, que o Better
-		 * Auth já grava assim.
+		 * O que o cargo pode fazer, no formato `<módulo>:<ação>` de `PERMISSIONS`.
+		 * Guardado como texto separado por vírgula para acompanhar `user.role`,
+		 * que o Better Auth já grava assim.
 		 */
-		screens: text('screens').notNull().default(''),
+		permissions: text('permissions').notNull().default(''),
+		/** Chave de `ROLE_COLORS`; o tom de cada uma mora na tela. */
+		color: text('color').notNull().default('neutral'),
+		/** Chave de `ROLE_ICONS`; o desenho de cada um mora na tela. */
+		icon: text('icon').notNull().default('pessoa'),
 		/** Cargo de sistema (admin/user): não pode ser renomeado nem removido. */
 		isSystem: boolean('is_system').default(false).notNull(),
 		createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

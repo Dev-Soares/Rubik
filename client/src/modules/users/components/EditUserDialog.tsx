@@ -1,9 +1,11 @@
+import { UserPenIcon } from 'lucide-react';
 import { Suspense } from 'react';
 import { EditUserForm } from '@/modules/users/components/EditUserForm';
 import type { User } from '@/modules/users/types/user';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import {
 	Dialog,
+	DialogBody,
 	DialogContent,
 	DialogDescription,
 	DialogHeader,
@@ -20,8 +22,8 @@ type EditUserDialogProps = {
 export function EditUserDialog({ user, isSelf, open, onOpenChange }: EditUserDialogProps) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="gap-6 p-6 shadow-2xl sm:max-w-md">
-				<DialogHeader>
+			<DialogContent className="shadow-2xl sm:max-w-md">
+				<DialogHeader icon={UserPenIcon}>
 					<DialogTitle className="text-primary text-lg font-black tracking-tight">
 						Editar usuário
 					</DialogTitle>
@@ -30,7 +32,13 @@ export function EditUserDialog({ user, isSelf, open, onOpenChange }: EditUserDia
 
 				{/* Só busca os cargos ao abrir: a tabela não espera por isso. */}
 				{open ? (
-					<Suspense fallback={<Skeleton className="h-64 w-full" />}>
+					<Suspense
+						fallback={
+							<DialogBody>
+								<Skeleton className="h-64 w-full" />
+							</DialogBody>
+						}
+					>
 						<EditUserForm user={user} isSelf={isSelf} onDone={() => onOpenChange(false)} />
 					</Suspense>
 				) : null}

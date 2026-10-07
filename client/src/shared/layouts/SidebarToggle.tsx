@@ -1,5 +1,5 @@
 import { MenuIcon, XIcon } from 'lucide-react';
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/components/ui/button';
 import { useSidebar } from '@/shared/components/ui/sidebar';
 

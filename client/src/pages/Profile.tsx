@@ -8,7 +8,7 @@ import { PageHeader } from '@/shared/components/PageHeader';
 import { Card, CardContent } from '@/shared/components/ui/card';
 import { Separator } from '@/shared/components/ui/separator';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { AppLayout } from '@/shared/layouts/AppLayout';
+import { PageWidth } from '@/shared/components/PageWidth';
 
 const dateFormatter = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' });
 
@@ -20,7 +20,7 @@ export function Profile() {
 	}
 
 	return (
-		<AppLayout>
+		<PageWidth>
 			<div className="flex flex-col gap-8">
 				<div className="flex flex-wrap items-end justify-between gap-4">
 					<PageHeader title="Perfil" description="Seus dados de acesso e informações da conta." />
@@ -62,6 +62,6 @@ export function Profile() {
 					</CardContent>
 				</Card>
 			</div>
-		</AppLayout>
+		</PageWidth>
 	);
 }

@@ -9,6 +9,7 @@ import type {
 	SetUserPasswordInput,
 	UpdateUserInput,
 	User,
+	UserStatus,
 } from '@/modules/users/types/user';
 import { toRoleCsv } from '@/shared/utils/roles';
 
@@ -52,6 +53,8 @@ export async function setUserPasswordService(input: SetUserPasswordInput): Promi
 export async function listUsersService(params: {
 	limit: number;
 	offset: number;
+	/** Ausente traz ativos e inativos juntos. */
+	status?: UserStatus;
 }): Promise<PaginatedUsers> {
 	const { data } = await api.get<PaginatedUsers>('/users', { params });
 	return data;
@@ -76,4 +79,24 @@ export async function updateUserService(
 
 export async function deleteUserService(id: string): Promise<void> {
 	await api.delete(`/users/${id}`);
+}
+
+/**
+ * Inativa a conta: o Better Auth marca `banned`, recusa o login e encerra as
+ * sessões abertas da pessoa. Como `setUserPassword`, exige a role `admin`.
+ */
+export async function banUserService(id: string): Promise<void> {
+	const { error } = await authClient.admin.banUser({ userId: id });
+
+	if (error) {
+		throw new Error(translateAuthError(error));
+	}
+}
+
+export async function unbanUserService(id: string): Promise<void> {
+	const { error } = await authClient.admin.unbanUser({ userId: id });
+
+	if (error) {
+		throw new Error(translateAuthError(error));
+	}
 }

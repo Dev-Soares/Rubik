@@ -3,6 +3,7 @@ import { RoleBadge } from '@/modules/users/components/RoleBadge';
 import { UserAvatar } from '@/modules/users/components/UserAvatar';
 import { UserRowActions } from '@/modules/users/components/UserRowActions';
 import type { User } from '@/modules/users/types/user';
+import { Badge } from '@/shared/components/ui/badge';
 import {
 	Table,
 	TableBody,
@@ -56,6 +57,12 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
 								<span className="flex min-w-0 items-center gap-3">
 									<UserAvatar name={user.name} image={user.image} className="size-9 shrink-0" />
 									<span className="truncate font-medium">{user.name}</span>
+									{/* Conta inativa continua na lista: sem a marca, a linha parece normal. */}
+									{user.banned === true ? (
+										<Badge variant="outline" className="text-destructive shrink-0">
+											Inativo
+										</Badge>
+									) : null}
 								</span>
 							</TableCell>
 							<TableCell className="text-muted-foreground hidden sm:table-cell">

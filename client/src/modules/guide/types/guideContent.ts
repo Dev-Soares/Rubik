@@ -222,7 +222,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 			{
 				title: 'Veja quem tem acesso',
 				description:
-					'A tabela lista todos os usuários com nome, e-mail e cargo. Use a paginação no rodapé para percorrer a lista.',
+					'A tabela lista os usuários com nome, e-mail e cargo. As abas acima dela separam "Todos", "Ativos" e "Inativos", e a paginação no rodapé percorre o resultado da aba escolhida.',
 			},
 			{
 				title: 'Crie um usuário',
@@ -240,9 +240,9 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 					'Ainda no menu, "Permissões" abre uma escolha por ação de cada módulo: "Pelo cargo", "Liberado" ou "Bloqueado" — o que você marcar aqui vale acima do que o cargo define.',
 			},
 			{
-				title: 'Recupere ou encerre um acesso',
+				title: 'Recupere, suspenda ou encerre um acesso',
 				description:
-					'"Alterar senha" define uma senha nova sem pedir a atual, para quando alguém perde o acesso — a pessoa pode trocá-la depois no perfil. "Excluir" pede confirmação e encerra o acesso de vez.',
+					'"Alterar senha" define uma senha nova sem pedir a atual, para quando alguém perde o acesso — a pessoa pode trocá-la depois no perfil. "Inativar" desconecta a pessoa na hora e bloqueia novos logins, mantendo conta e cargos guardados: a linha ganha a marca "Inativo" e "Reativar" devolve o acesso como era antes. "Excluir" pede confirmação e encerra o acesso de vez.',
 			},
 		],
 		note: {

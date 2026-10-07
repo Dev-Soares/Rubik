@@ -1,4 +1,4 @@
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 import { ACTION_HINTS, ACTION_LABELS, type Permission } from '@/modules/roles/types/role';
 import {
 	hasAction,

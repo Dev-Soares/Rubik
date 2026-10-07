@@ -10,7 +10,7 @@ import {
 	AlertDialogTitle,
 } from '@/shared/components/ui/alert-dialog';
 import { buttonVariants } from '@/shared/components/ui/button';
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 
 type DeleteUserDialogProps = {
 	userId: string;

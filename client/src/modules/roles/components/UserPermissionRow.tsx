@@ -1,4 +1,4 @@
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 import {
 	ACTION_ACCESS,
 	ACTION_ACCESS_LABELS,

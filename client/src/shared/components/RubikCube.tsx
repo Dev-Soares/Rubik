@@ -1,4 +1,4 @@
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 
 /**
  * Cubo isométrico 3x3 em SVG, montando-se peça por peça.

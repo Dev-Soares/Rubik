@@ -51,7 +51,11 @@ Token novo → declare em `:root` **e** `.dark` no `global.css`, e mapeie em `@t
 - Tema escuro é automático pelos tokens — não escreva `dark:` em cada classe.
 - Prefira borda a sombra para destacar.
 - Espaçamento com `gap-4` / `gap-6`.
-- Conflito de classe: use `cn()` de `cn` (`import { cn } from 'cn'`), que resolve via `tailwind-merge`.
+- Conflito de classe: use `cn()` de `@/shared/lib/utils`
+  (`import { cn } from '@/shared/lib/utils'`), que resolve via `clsx` + `tailwind-merge`.
+  É o caminho que `components.json` aponta em `aliases.utils` — o `pnpm ui:add`
+  importa daí. Não instale o pacote `cn`: ele embute um compilador em runtime
+  (~42 kB no bundle) para fazer o que estas duas libs já fazem.
 
 ## Mobile first — sempre
 

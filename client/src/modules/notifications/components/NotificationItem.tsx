@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 import { CheckCheckIcon } from 'lucide-react';
 import type {
 	NotificationEntry,

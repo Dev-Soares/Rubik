@@ -1,4 +1,4 @@
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 import { IdCardIcon, PencilIcon } from 'lucide-react';
 import { useState } from 'react';
 import { RoleForm } from '@/modules/roles/components/RoleForm';

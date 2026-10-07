@@ -1,4 +1,4 @@
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 import type { Role } from '@/modules/roles/types/role';
 import {
 	ROLE_COLOR_CLASSES,

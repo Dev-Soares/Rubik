@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { cn } from 'cn';
+import { cn } from '@/shared/lib/utils';
 import type { ReactNode } from 'react';
 import { NotificationBell } from '@/modules/notifications/components/NotificationBell';
 import { AppLogo } from '@/shared/components/AppLogo';

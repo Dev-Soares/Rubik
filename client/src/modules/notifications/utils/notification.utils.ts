@@ -4,7 +4,6 @@ import {
 	type NotificationTone,
 } from '@/modules/notifications/types/notification';
 
-
 /** Destaque do tipo; tipo não registrado cai no neutro. */
 export function toneOf(kind: string): NotificationTone {
 	return NOTIFICATION_TONES[kind] ?? DEFAULT_NOTIFICATION_TONE;

@@ -70,8 +70,7 @@ export async function updateUserService(
 	input: UpdateUserInput | EditUserInput,
 ): Promise<User> {
 	// `user.role` é CSV na API; o formulário trabalha com a lista.
-	const body =
-		'roles' in input ? { name: input.name, role: toRoleCsv(input.roles) } : input;
+	const body = 'roles' in input ? { name: input.name, role: toRoleCsv(input.roles) } : input;
 
 	const { data } = await api.patch<User>(`/users/${id}`, body);
 	return data;

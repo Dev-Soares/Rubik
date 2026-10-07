@@ -41,7 +41,7 @@ export function RolePickerOption({
 			className={cn(
 				'flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 font-normal transition-colors',
 				checked
-					? ROLE_COLOR_SELECTED[role.color] ?? ROLE_COLOR_SELECTED.neutral
+					? (ROLE_COLOR_SELECTED[role.color] ?? ROLE_COLOR_SELECTED.neutral)
 					: 'hover:bg-muted border-transparent',
 				disabled && 'cursor-not-allowed opacity-60',
 			)}
@@ -70,7 +70,7 @@ export function RolePickerOption({
 					className={cn(
 						'text-sm leading-snug font-semibold capitalize',
 						checked
-							? ROLE_COLOR_CLASSES[role.color] ?? ROLE_COLOR_CLASSES.neutral
+							? (ROLE_COLOR_CLASSES[role.color] ?? ROLE_COLOR_CLASSES.neutral)
 							: 'text-foreground',
 					)}
 				>

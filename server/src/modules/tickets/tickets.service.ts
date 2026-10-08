@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, count, desc, eq, inArray, isNotNull, isNull, lt, ne } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, isNotNull, isNull, lt, ne, sql } from 'drizzle-orm';
 import { PinoLogger } from 'nestjs-pino';
 import { isAdmin } from 'src/common/utils';
 import { env } from 'src/config/env';
@@ -38,6 +38,7 @@ function toEntry(row: TicketRow, photos: TicketPhoto[]): TicketEntry {
 		userName: row.userName,
 		title: row.title,
 		status: row.status,
+		resolution: row.resolution,
 		photos,
 		createdAt: row.createdAt,
 	};
@@ -188,6 +189,7 @@ export class TicketsService {
 	async updateStatus(
 		id: string,
 		status: TicketStatus | typeof LEGACY_OPEN_STATUS,
+		resolution: string | null = null,
 	): Promise<TicketEntry> {
 		// Normaliza o alias aqui, na entrada: a partir desta linha só existem os
 		// dois estados atuais, e nada abaixo precisa conhecer o nome antigo.
@@ -199,6 +201,10 @@ export class TicketsService {
 				status: next,
 				resolvedAt: next === 'resolvido' ? new Date() : null,
 				seenAt: null,
+				// Reabrir limpa a devolutiva: ela respondia a uma resolução que
+				// deixou de valer, e mantê-la faria a tela exibir a resposta de um
+				// chamado que voltou a estar aberto.
+				resolution: next === 'resolvido' ? resolution : null,
 			})
 			.where(and(eq(ticket.id, id), ne(ticket.status, next)))
 			.returning();
@@ -226,25 +232,74 @@ export class TicketsService {
 	 * instância, ou um que já fechamos num deploy anterior.
 	 */
 	async syncResolved(): Promise<{ resolved: string[] }> {
-		const resolvedIds = await this.sync.findResolvedIds();
+		const resolved = await this.sync.findResolved();
 
-		if (resolvedIds.length === 0) {
+		if (resolved.length === 0) {
 			return { resolved: [] };
 		}
+
+		const byId = new Map(resolved.map((item) => [item.id, item.resolution]));
+		const ids = [...byId.keys()];
 
 		const open = await this.db
 			.select({ id: ticket.id })
 			.from(ticket)
-			.where(and(eq(ticket.status, 'recebido'), inArray(ticket.id, resolvedIds)));
+			.where(and(eq(ticket.status, 'recebido'), inArray(ticket.id, ids)));
 
 		// Em série, não em `Promise.all`: cada `updateStatus` grava notificação
 		// para o autor e para todos os admins, e um lote grande em paralelo
 		// abriria uma conexão por chamado no pool.
 		for (const row of open) {
-			await this.updateStatus(row.id, 'resolvido');
+			await this.updateStatus(row.id, 'resolvido', byId.get(row.id) ?? null);
 		}
 
+		// Segundo passo, para os que JÁ estavam resolvidos. Sem ele a devolutiva
+		// quase nunca chegaria: no atendimento, a tarefa é concluída (e o chamado
+		// fecha) antes de alguém escrever a resposta, então o texto costuma nascer
+		// DEPOIS do deploy que fechou o chamado aqui. `updateStatus` não serve —
+		// seu `ne(status, next)` ignora, de propósito, quem já está no estado.
+		await this.backfillResolutions(byId, new Set(open.map((row) => row.id)));
+
 		return { resolved: open.map((row) => row.id) };
+	}
+
+	/**
+	 * Grava a devolutiva dos chamados que já estavam resolvidos.
+	 *
+	 * NÃO notifica: o aviso é sobre o chamado ter sido resolvido, e esse fato já
+	 * foi anunciado no deploy que o fechou. Um segundo aviso dias depois, porque
+	 * o atendimento escreveu o texto, soaria como uma segunda resolução.
+	 *
+	 * Não toca em `seenAt` pelo mesmo motivo: o contador da barra lateral conta
+	 * resolução não vista, e zerá-lo faria o chamado reaparecer como novidade.
+	 *
+	 * Só grava o que MUDOU (`ne`), senão todo deploy reescreveria a mesma linha
+	 * para todo chamado resolvido do histórico.
+	 */
+	private async backfillResolutions(
+		byId: Map<string, string | null>,
+		justClosed: Set<string>,
+	): Promise<void> {
+		for (const [id, resolution] of byId) {
+			// Quem acabou de fechar já recebeu o texto no `updateStatus`.
+			if (justClosed.has(id) || resolution === null) {
+				continue;
+			}
+			await this.db
+				.update(ticket)
+				.set({ resolution })
+				.where(
+					and(
+						eq(ticket.id, id),
+						eq(ticket.status, 'resolvido'),
+						// `IS DISTINCT FROM` e não `<>`: em SQL, `NULL <> 'texto'` é
+						// NULL (não TRUE), então o `ne` não casaria com a linha que
+						// ainda não tem devolutiva — justamente o caso que este passo
+						// existe para preencher.
+						sql`${ticket.resolution} is distinct from ${resolution}`,
+					),
+				);
+		}
 	}
 
 	/**

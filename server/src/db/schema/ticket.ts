@@ -31,6 +31,17 @@ export const ticket = pgTable(
 		 */
 		resolvedAt: timestamp('resolved_at', { withTimezone: true }),
 		/**
+		 * Devolutiva: o que o atendimento respondeu sobre este chamado.
+		 *
+		 * Vem de fora, como o status: quem a escreve é a equipe que atendeu, e ela
+		 * chega na mesma consulta que traz a resolução. Nada aqui a edita.
+		 *
+		 * Nulo é o caso comum e legítimo — resolvido sem resposta escrita. A tela
+		 * trata a ausência como ausência, nunca como texto vazio: um bloco de
+		 * devolutiva em branco afirmaria que o atendimento respondeu nada.
+		 */
+		resolution: text('resolution'),
+		/**
 		 * Quando o autor viu a resolução. Enquanto nulo com `resolvedAt`
 		 * preenchido, o chamado conta no aviso da sidebar — é o par que o
 		 * contador de "resolvidos não vistos" compara.

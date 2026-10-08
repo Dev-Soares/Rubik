@@ -78,6 +78,14 @@ export type Ticket = {
 	 * não conhece, então trate-o pelos utilitários, nunca comparando direto.
 	 */
 	status: string;
+	/**
+	 * Devolutiva do atendimento — o que responderam sobre este chamado.
+	 *
+	 * `null` é o caso comum, inclusive em chamado resolvido: a resposta escrita é
+	 * opcional do lado de lá. Renderize apenas quando houver texto; um bloco
+	 * vazio afirmaria que o atendimento respondeu nada.
+	 */
+	resolution: string | null;
 	photos: TicketPhoto[];
 	createdAt: string;
 };

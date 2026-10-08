@@ -193,9 +193,9 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 					'Ao confirmar, o chamado entra no topo de "Recebidos" com seu nome e o horário. Alterne para "Resolvidos" para ver o que a equipe já atendeu.',
 			},
 			{
-				title: 'Saiba quando for resolvido',
+				title: 'Saiba quando for resolvido e leia a resposta',
 				description:
-					'Assim que a equipe resolve um chamado seu, você recebe um aviso no sino e um número aparece ao lado de "Suporte" no menu. O número some quando você abre a aba.',
+					'Assim que a equipe resolve um chamado seu, você recebe um aviso no sino e um número aparece ao lado de "Suporte" no menu. O número some quando você abre a aba. Em "Resolvidos", quando a equipe escreve uma resposta, aparece o botão "Ver resposta" abaixo do assunto — clique nele para ler.',
 			},
 			{
 				title: 'Desligue os avisos, se preferir',
@@ -206,7 +206,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 		note: {
 			title: 'A aba é só de administradores',
 			description:
-				'Apenas administradores enxergam esta aba e abrem chamados; quem tem acesso vê os chamados de todos. O chamado não pode ser editado nem apagado depois de enviado, e quem o marca como resolvido é a equipe de atendimento, fora desta tela. Não escreva senhas nem dados pessoais no título, e confira a foto antes de anexá-la.',
+				'Apenas administradores enxergam esta aba e abrem chamados; quem tem acesso vê os chamados de todos. O chamado não pode ser editado nem apagado depois de enviado, e quem o marca como resolvido e escreve a resposta é a equipe de atendimento, fora desta tela — nem todo chamado resolvido traz resposta escrita. Não escreva senhas nem dados pessoais no título, e confira a foto antes de anexá-la.',
 		},
 	},
 	{

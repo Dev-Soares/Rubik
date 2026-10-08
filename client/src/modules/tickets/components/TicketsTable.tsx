@@ -1,6 +1,7 @@
 import { CheckIcon, PaperclipIcon } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { cn } from '@/shared/lib/utils';
+import { TicketResolutionDialog } from '@/modules/tickets/components/TicketResolutionDialog';
 import type { Ticket } from '@/modules/tickets/types/ticket';
 import { isDone, statusLabel } from '@/modules/tickets/utils';
 import { Badge } from '@/shared/components/ui/badge';
@@ -71,7 +72,7 @@ export function TicketsTable({ tickets, highlightedId }: TicketsTableProps) {
 								ref={highlighted ? highlightedRef : undefined}
 								className={cn(highlighted && 'bg-primary/10 hover:bg-primary/10')}
 							>
-								<TableCell>
+								<TableCell className="align-top">
 									<span className="flex min-w-0 items-center gap-2">
 										<span className="truncate font-medium">{ticket.title}</span>
 										{photoCount > 0 ? (
@@ -91,8 +92,13 @@ export function TicketsTable({ tickets, highlightedId }: TicketsTableProps) {
 										<span className="px-1.5 opacity-40">|</span>
 										{dateFormatter.format(new Date(ticket.createdAt))}
 									</span>
+
+									<TicketResolutionDialog resolution={ticket.resolution} title={ticket.title} />
 								</TableCell>
-								<TableCell>
+								{/* `align-top` nas três: o botão "Ver resposta" faz a linha
+								    crescer, e centralizar deixaria status, autor e data
+								    flutuando no meio dela. */}
+								<TableCell className="align-top">
 									<Badge
 										variant={isDone(ticket.status) ? 'secondary' : 'default'}
 										className="gap-1 text-[0.7rem]"
@@ -101,10 +107,10 @@ export function TicketsTable({ tickets, highlightedId }: TicketsTableProps) {
 										{statusLabel(ticket.status)}
 									</Badge>
 								</TableCell>
-								<TableCell className="text-muted-foreground hidden sm:table-cell">
+								<TableCell className="text-muted-foreground hidden align-top sm:table-cell">
 									<span className="block truncate">{ticket.userName}</span>
 								</TableCell>
-								<TableCell className="text-muted-foreground hidden md:table-cell">
+								<TableCell className="text-muted-foreground hidden align-top md:table-cell">
 									{dateFormatter.format(new Date(ticket.createdAt))}
 								</TableCell>
 							</TableRow>

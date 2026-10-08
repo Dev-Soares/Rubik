@@ -19,10 +19,31 @@ import { env } from 'src/config/env';
  * Resposta esperada do sistema externo. Validada em vez de confiada: a
  * integração é de outro time, e um shape diferente aqui marcaria chamado
  * errado como resolvido — barulho preferível a dado corrompido.
+ *
+ * `resolutions` é OPCIONAL de propósito. É o formato que traz a devolutiva, e
+ * exigi-lo faria toda instância de atendimento que ainda não subiu o campo
+ * reprovar na validação — o deploy inteiro falharia por causa de um texto que é
+ * opcional por natureza. Ausente, o sync segue por `resolved` e os chamados
+ * fecham sem devolutiva, que é o comportamento de antes desta feature.
  */
 const resolvedResponseSchema = z.object({
 	resolved: z.array(z.string()),
+	resolutions: z
+		.array(
+			z.object({
+				externalId: z.string(),
+				resolution: z.string().nullable(),
+			}),
+		)
+		.optional(),
 });
+
+/** Um chamado concluído no atendimento, com a devolutiva quando há. */
+export type ResolvedTicket = {
+	/** O id DESTE sistema — do outro lado ele é o `externalId`. */
+	id: string;
+	resolution: string | null;
+};
 
 @Injectable()
 export class TicketSyncService {
@@ -36,12 +57,13 @@ export class TicketSyncService {
 	}
 
 	/**
-	 * Ids dos chamados deste projeto que o sistema externo dá por concluídos.
+	 * Chamados deste projeto que o sistema externo dá por concluídos, com a
+	 * devolutiva de cada um quando o atendimento a escreveu.
 	 *
 	 * Devolve a lista bruta: filtrar contra o que ainda está aberto aqui é
 	 * trabalho de quem chama, e `updateStatus` já ignora repetição.
 	 */
-	async findResolvedIds(): Promise<string[]> {
+	async findResolved(): Promise<ResolvedTicket[]> {
 		if (!this.isEnabled) {
 			return [];
 		}
@@ -70,8 +92,19 @@ export class TicketSyncService {
 			throw new Error(`resposta do sistema externo em formato inesperado: ${parsed.error.message}`);
 		}
 
-		this.logger.info({ count: parsed.data.resolved.length }, 'chamados concluídos no atendimento');
+		const { resolved, resolutions } = parsed.data;
 
-		return parsed.data.resolved;
+		this.logger.info(
+			{ count: resolved.length, withResolution: resolutions !== undefined },
+			'chamados concluídos no atendimento',
+		);
+
+		// `resolved` continua sendo a FONTE da lista mesmo quando `resolutions`
+		// veio: é o campo que o contrato sempre garantiu, e um atendimento que
+		// mandasse os dois divergentes fecharia, pelo primeiro, o conjunto que ele
+		// próprio declarou. `resolutions` só acrescenta o texto.
+		const byId = new Map(resolutions?.map((item) => [item.externalId, item.resolution]));
+
+		return resolved.map((id) => ({ id, resolution: byId.get(id) ?? null }));
 	}
 }

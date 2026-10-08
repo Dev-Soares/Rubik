@@ -58,6 +58,12 @@ export type TicketEntry = {
 	 * versão não conhece, e o client cai no rótulo neutro nesse caso.
 	 */
 	status: string;
+	/**
+	 * Devolutiva do atendimento. `null` significa ausência de resposta escrita —
+	 * inclusive em chamado resolvido, que é o caso comum. A tela só desenha o
+	 * bloco quando há texto: um bloco vazio afirmaria que responderam nada.
+	 */
+	resolution: string | null;
 	photos: TicketPhoto[];
 	createdAt: Date;
 };

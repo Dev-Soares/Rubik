@@ -187,6 +187,36 @@ usada.
 - **Verificação:** alternar entre o skeleton e o conteúdo real na mesma tela e
   conferir que nada abaixo se move. `TicketListSkeleton` é o modelo correto.
 
+## L7. Header customizado que o client manda entra no `allowedHeaders` do CORS — e no `exposedHeaders` se for lido de volta
+
+**Erro real:** nenhuma chamada do axios saía. `/roles/me/permissions`,
+`/notifications` e `/tickets/unseen` morriam em `net::ERR_FAILED`, com
+`Request header field x-request-id is not allowed by
+Access-Control-Allow-Headers in preflight response` no console. O
+`allowedHeaders` em `server/src/main.ts` era
+`'Content-Type,Accept,Authorization'`, e o interceptor em
+`client/src/api/axios.ts:18` põe `x-request-id` em **toda** requisição.
+
+- **Causa raiz:** o diagnóstico começa errado porque o login funciona. `/auth/*`
+  é middleware do Better Auth montado antes dos interceptors do axios — não
+  passa pelo interceptor, não leva `x-request-id`, não dispara preflight. Então
+  a sessão é válida, `isAdmin` resolve, a sidebar mostra as abas restritas, e
+  **só** as chamadas do axios caem. Parece bloqueio de origem ou de sessão, e é
+  bloqueio de header. Além disso, `allowedHeaders` e `exposedHeaders` são listas
+  literais que não conhecem o client: adicionar header no interceptor é mudança
+  em dois repos, e nada no typecheck amarra os dois lados.
+- **Regra:** header customizado novo no client exige, no mesmo commit, o nome em
+  `allowedHeaders`. Se o client **lê** esse header da resposta (é o caso de
+  `getRequestId`, `axios.ts:33`), exige também `exposedHeaders` — sem isso a
+  requisição passa e o browser esconde o header do JS, quebrando a correlação de
+  erro da `.claude/rules/observabilidade.md` de forma silenciosa. Não confie no
+  login como prova de que o CORS está certo: `/auth/*` não passa pelo axios.
+- **Verificação:** `grep -rn "headers.set\|headers\[" client/src` lista todo
+  header que o client põe; cada um aparece em `allowedHeaders` no `main.ts`. No
+  browser, a aba Network do preflight (`OPTIONS`) mostra
+  `access-control-allow-headers` e `access-control-expose-headers` com o nome
+  dentro.
+
 <!--
 Não preencha com bug hipotético nem com regra que já está em `.claude/rules/**`
 — entrada sem incidente real vira ruído e faz o próximo leitor parar de ler o

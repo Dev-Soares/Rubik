@@ -24,7 +24,12 @@ async function bootstrap(): Promise<void> {
 	app.enableCors({
 		origin: corsOrigins,
 		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-		allowedHeaders: 'Content-Type,Accept,Authorization',
+		// X-Request-Id é posto pelo interceptor do axios em toda requisição; sem
+		// ele no allowedHeaders o preflight falha e nenhuma chamada sai do client.
+		allowedHeaders: 'Content-Type,Accept,Authorization,X-Request-Id',
+		// E sem expor o header na resposta o browser esconde ele do JS, quebrando
+		// a correlação de erro de `getRequestId` (client/src/api/axios.ts).
+		exposedHeaders: 'X-Request-Id',
 		credentials: true,
 	});
 
